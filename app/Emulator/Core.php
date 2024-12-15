@@ -986,7 +986,7 @@ class Core
         //Get a CanvasPixelArray buffer:
         //Create a white screen
 
-        if ($this->drawContext->colorEnabled) {
+        if ($this->drawContext->isColorEnabled()) {
             $this->canvasBuffer = array_fill(0, 4 * $this->width * $this->height, 255);
 
             $address = $this->pixelCount;
@@ -1167,7 +1167,7 @@ class Core
     public function displayShowOff()
     {
         if ($this->drewBlank == 0) {
-            if ($this->drawContext->colorEnabled) {
+            if ($this->drawContext->isColorEnabled()) {
                 $this->canvasBuffer = array_fill(0, 4 * $this->width * $this->height, 255);
             } else {
                 $this->canvasBuffer = array_fill(0, 4 * $this->width * $this->height, false);
@@ -1285,7 +1285,7 @@ class Core
             $bufferIndex = $this->pixelCount;
             $canvasIndex = $this->rgbCount;
 
-            if ($this->drawContext->colorEnabled) {
+            if ($this->drawContext->isColorEnabled()) {
                 // Generate colored CanvasBuffer Version
                 while ($canvasIndex > 3) {
                     //Red
