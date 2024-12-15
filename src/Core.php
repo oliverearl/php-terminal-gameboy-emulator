@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GameBoy;
 
 use GameBoy\Canvas\DrawContextInterface;
+use SplFixedArray;
 
 class Core
 {
@@ -15,7 +16,7 @@ class Core
     public string $ROMImage;
 
     //The full ROM file dumped to an array.
-    public array $ROM = [];
+    public SplFixedArray $ROM;
 
     //Whether we're in the GBC boot ROM.
     public bool $inBootstrap = true;
@@ -361,7 +362,7 @@ class Core
     public function saveState()
     {
         return [
-            $this->fromTypedArray($this->ROM),
+            $this->ROM->toArray(),
             $this->inBootstrap,
             $this->registerA,
             $this->FZero,
@@ -466,7 +467,7 @@ class Core
         $address = 0;
         $state = $returnedFrom->slice(0);
 
-        $this->ROM = $this->toTypedArray($state[$address++], false, false);
+        $this->ROM = SplFixedArray::fromArray($state[$address++]);
         $this->inBootstrap = $state[$address++];
         $this->registerA = $state[$address++];
         $this->FZero = $state[$address++];
@@ -667,7 +668,7 @@ class Core
     public function ROMLoad()
     {
         //Load the first two ROM banks (0x0000 - 0x7FFF) into regular gameboy memory:
-        $this->ROM = $this->getTypedArray(strlen($this->ROMImage), 0, 'uint8');
+        $this->ROM = new SplFixedArray(strlen($this->ROMImage));
 
         for ($romIndex = 0; $romIndex < strlen($this->ROMImage); ++$romIndex) {
             $this->ROM[$romIndex] = (ord($this->ROMImage[$romIndex]) & 0xFF);
@@ -707,7 +708,7 @@ class Core
                     $MBCType = 'ROM';
                     break;
                 }
-                // no break
+            // no break
             case 0x01:
                 $this->cMBC1 = true;
                 $MBCType = 'MBC1';
@@ -1026,7 +1027,7 @@ class Core
                     //If no HALT... Execute normally
                     if (!$this->halt) {
                         $this->executeIteration();
-                    //If we bailed out of a halt because the iteration ran down its timing.
+                        //If we bailed out of a halt because the iteration ran down its timing.
                     } else {
                         $this->CPUTicks = 1;
                         Opcode::halt($this);
@@ -1036,7 +1037,7 @@ class Core
                         $this->updateCore();
                         $this->executeIteration();
                     }
-                //We can only get here if there was an internal error, but the loop was restarted.
+                    //We can only get here if there was an internal error, but the loop was restarted.
                 } else {
                     echo 'Iterator restarted a faulted core.'.PHP_EOL;
                     pause();
@@ -1070,10 +1071,10 @@ class Core
             switch ($this->untilEnable) {
                 case 1:
                     $this->IME = true;
-                    // no break
+                // no break
                 case 2:
                     $this->untilEnable--;
-                    // no break
+                // no break
             }
             //Execute Interrupt:
             if ($this->IME) {
@@ -1782,8 +1783,8 @@ class Core
             default:
                 $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
         }
-        while ($this->currentROMBank + 0x4000 >= count($this->ROM)) {
-            $this->currentROMBank -= count($this->ROM);
+        while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
+            $this->currentROMBank -= $this->ROM->count();
         }
     }
 
@@ -1792,16 +1793,16 @@ class Core
         //Read the cartridge ROM data from RAM memory:
         //Only map bank 0 to bank 1 here (MBC2 is like MBC1, but can only do 16 banks, so only the bank 0 quirk appears for MBC2):
         $this->currentROMBank = max($this->ROMBank1offs - 1, 0) * 0x4000;
-        while ($this->currentROMBank + 0x4000 >= count($this->ROM)) {
-            $this->currentROMBank -= count($this->ROM);
+        while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
+            $this->currentROMBank -= $this->ROM->count();
         }
     }
     public function setCurrentMBC5ROMBank()
     {
         //Read the cartridge ROM data from RAM memory:
         $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
-        while ($this->currentROMBank + 0x4000 >= count($this->ROM)) {
-            $this->currentROMBank -= count($this->ROM);
+        while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
+            $this->currentROMBank -= $this->ROM->count();
         }
     }
 
@@ -1869,7 +1870,7 @@ class Core
                     } elseif (!$this->RTCisLatched) {
                         //Copy over the current RTC time for reading.
                         $this->RTCisLatched = true;
-                        $this->latchedSeconds = floor($this->RTCSeconds);
+                        $this->latchedSeconds = (int) floor($this->RTCSeconds);
                         $this->latchedMinutes = $this->RTCMinutes;
                         $this->latchedHours = $this->RTCHours;
                         $this->latchedLDays = ($this->RTCDays & 0xFF);
@@ -2030,7 +2031,7 @@ class Core
             } else {
                 //We might have encountered illegal RAM writing or such, so just do nothing...
             }
-        //I/O Registers (GB + GBC):
+            //I/O Registers (GB + GBC):
         } elseif ($address == 0xFF00) {
             $this->memory[0xFF00] = ($data & 0x30) | (((($data & 0x20) == 0) ? ($this->JoyPad >> 4) : 0xF) & ((($data & 0x10) == 0) ? ($this->JoyPad & 0xF) : 0xF));
         } elseif ($address == 0xFF02) {
