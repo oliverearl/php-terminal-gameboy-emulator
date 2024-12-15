@@ -4,7 +4,7 @@ namespace App\Emulator\Canvas;
 
 use App\Emulator\Settings;
 
-class TerminalCanvas implements DrawContextInterface
+class LegacyCanvas implements DrawContextInterface
 {
     /**
      * The blank brailler char
@@ -31,7 +31,7 @@ class TerminalCanvas implements DrawContextInterface
      *   |3 6|
      *   |7 8|
      *   `````
-     * @var Array
+     * @var array
      */
     protected $pixelMap;
     protected $width = 0;
@@ -52,7 +52,7 @@ class TerminalCanvas implements DrawContextInterface
      *
      * @param object $canvasBuffer $data = Each pixel (true/false)
      */
-    public function draw($canvasBuffer)
+    public function draw(array $canvasBuffer): void
     {
         //Calculate current FPS
         if ($this->currentSecond != time()) {
@@ -114,5 +114,11 @@ class TerminalCanvas implements DrawContextInterface
             $this->height = 37;
             $this->width = 80;
         }
+    }
+
+    /** @inheritDoc */
+    public function isColorEnabled(): bool
+    {
+        return $this->colorEnabled;
     }
 }

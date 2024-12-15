@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-use App\Emulator\Canvas\TerminalCanvas;
+use App\Emulator\Canvas\LaravelCanvas;
 use App\Emulator\Core;
 use App\Emulator\Keyboard;
 use LaravelZero\Framework\Commands\Command;
@@ -29,7 +29,7 @@ class Raw extends Command
     public function handle(): never
     {
         $rom = file_get_contents($this->argument('rom'));
-        $canvas = new TerminalCanvas();
+        $canvas = new LaravelCanvas();
         $core = new Core($rom, $canvas);
         $keyboard = new Keyboard($core);
 
