@@ -19,3 +19,6 @@ roms/
 *.gb
 *.gbc
 *.rom
+
+# editor
+.idea
