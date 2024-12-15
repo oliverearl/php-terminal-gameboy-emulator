@@ -1181,7 +1181,7 @@ class Core
         $dmaSrc = ($this->memory[0xFF51] << 8) + $this->memory[0xFF52];
         $dmaDstRelative = ($this->memory[0xFF53] << 8) + $this->memory[0xFF54];
         $dmaDstFinal = $dmaDstRelative + 0x10;
-        $tileRelative = $this->tileData->length - $this->tileCount;
+        $tileRelative = count($this->tileData) - $this->tileCount;
 
         if ($this->currVRAMBank == 1) {
             while ($dmaDstRelative < $dmaDstFinal) {
@@ -1988,7 +1988,7 @@ class Core
                                 break;
                             case 0x0C:
                                 $this->RTCDayOverFlow = ($data & 0x80) == 0x80;
-                                $this->RTCHalt = ($data & 0x40) == 0x40;
+                                $this->RTCHALT = ($data & 0x40) == 0x40;
                                 $this->RTCDays = (($data & 0x1) << 8) | ($this->RTCDays & 0xFF);
                                 break;
                             default:

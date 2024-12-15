@@ -183,7 +183,7 @@ class LcdController
         // H-Blank
         if ($this->modeSTAT != 0) {
             if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
-                $this->performHdma(); //H-Blank DMA
+                $this->core->performHdma(); //H-Blank DMA
             }
             if ($this->mode0TriggerSTAT || ($this->mode2TriggerSTAT && $this->STATTracker == 0)) {
                 $this->core->memory[0xFF0F] |= 0x2; // if STAT bit 3 -> set IF bit1
