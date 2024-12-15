@@ -10,9 +10,9 @@ foreach (['../../autoload.php', '../vendor/autoload.php', 'vendor/autoload.php']
 }
 unset($autoload);
 
-use GameBoy\Canvas\TerminalCanvas;
-use GameBoy\Core;
-use GameBoy\Keyboard;
+use App\Emulator\Canvas\TerminalCanvas;
+use App\Emulator\Core;
+use App\Emulator\Keyboard;
 
 if (PHP_VERSION_ID >= 70000) {
     set_exception_handler(function (\Throwable $exception) {

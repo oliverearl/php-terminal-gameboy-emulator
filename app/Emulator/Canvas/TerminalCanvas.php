@@ -1,8 +1,8 @@
 <?php
 
-namespace GameBoy\Canvas;
+namespace App\Emulator\Canvas;
 
-use GameBoy\Settings;
+use App\Emulator\Settings;
 
 class TerminalCanvas implements DrawContextInterface
 {

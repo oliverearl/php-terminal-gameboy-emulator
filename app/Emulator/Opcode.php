@@ -1,6 +1,6 @@
 <?php
 
-namespace GameBoy;
+namespace App\Emulator;
 
 use Exception;
 
@@ -1695,7 +1695,8 @@ class Opcode
      *
      * HALT
      *
-     * @param \GameBoy\Core $core
+     * @param \app\Emulator\Core $core
+     *
      * @throws Exception
      */
     public static function opcode118(Core $core): void

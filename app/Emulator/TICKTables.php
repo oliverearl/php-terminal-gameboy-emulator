@@ -1,6 +1,6 @@
 <?php
 
-namespace GameBoy;
+namespace App\Emulator;
 
 class TICKTables
 {

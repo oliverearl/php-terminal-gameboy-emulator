@@ -22,3 +22,9 @@ roms/
 
 # editor
 .idea
+/.vscode
+
+# laravel zero
+/.vagrant
+.phpunit.result.cache
+.env

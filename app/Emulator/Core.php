@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace GameBoy;
+namespace App\Emulator;
 
-use GameBoy\Canvas\DrawContextInterface;
+use App\Emulator\Canvas\DrawContextInterface;
+
 use SplFixedArray;
+use RuntimeException;
 
 class Core
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace GameBoy\Canvas;
+namespace App\Emulator\Canvas;
 
 /**
  * Interface to draw the GameBoy output
