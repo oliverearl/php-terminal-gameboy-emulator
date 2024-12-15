@@ -2368,8 +2368,6 @@ class Core
         // @PHP - We dont have typed arrays and unsigned int in PHP
         // This function just creates an array and initialize with a value
         $arrayHandle = array_fill(0, $length, $defaultValue);
-        var_dump($arrayHandle);
-        die;
 
         return $arrayHandle;
     }
