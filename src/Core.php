@@ -1,335 +1,336 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GameBoy;
+
+use GameBoy\Canvas\DrawContextInterface;
 
 class Core
 {
     // LCD Context
-    public $drawContext = null;
+    public ?DrawContextInterface $drawContext = null;
 
     //The game's ROM.
-    public $ROMImage;
+    public string $ROMImage;
 
     //The full ROM file dumped to an array.
-    public $ROM = [];
+    public array $ROM = [];
 
     //Whether we're in the GBC boot ROM.
-    public $inBootstrap = true;
+    public bool $inBootstrap = true;
 
     // Accumulator (default is GB mode)
-    public $registerA = 0x01;
+    public int $registerA = 0x01;
 
     // bit 7 - Zero
-    public $FZero = true;
+    public bool $FZero = true;
 
     // bit 6 - Sub
-    public $FSubtract = false;
+    public bool $FSubtract = false;
 
     // bit 5 - Half Carry
-    public $FHalfCarry = true;
+    public bool $FHalfCarry = true;
 
     // bit 4 - Carry
-    public $FCarry = true;
+    public bool $FCarry = true;
 
     // Register B
-    public $registerB = 0x00;
+    public int $registerB = 0x00;
 
     // Register C
-    public $registerC = 0x13;
+    public int $registerC = 0x13;
 
     // Register D
-    public $registerD = 0x00;
+    public int $registerD = 0x00;
 
     // Register E
-    public $registerE = 0xD8;
+    public int $registerE = 0xD8;
 
     // Registers H and L
-    public $registersHL = 0x014D;
+    public int $registersHL = 0x014D;
 
     // Stack Pointer
-    public $stackPointer = 0xFFFE;
+    public int $stackPointer = 0xFFFE;
 
     // Program Counter
-    public $programCounter = 0x0100;
+    public int $programCounter = 0x0100;
 
     //Has the CPU been suspended until the next interrupt?
-    public $halt = false;
+    public bool $halt = false;
 
     //Did we trip the DMG Halt bug?
-    public $skipPCIncrement = false;
+    public bool $skipPCIncrement = false;
 
     //Has the emulation been paused or a frame has ended?
-    public $stopEmulator = 3;
+    public int $stopEmulator = 3;
 
     //Are interrupts enabled?
-    public $IME = true;
+    public bool $IME = true;
 
     //HDMA Transfer Flag - GBC only
-    public $hdmaRunning = false;
+    public bool $hdmaRunning = false;
 
     //The number of clock cycles emulated.
-    public $CPUTicks = 0;
+    public int $CPUTicks = 0;
 
     //GBC Speed Multiplier
-    public $multiplier = 1;
+    public int $multiplier = 1;
 
     //
     //Main RAM, MBC RAM, GBC Main RAM, VRAM, etc.
     //
 
     //Main Core Memory
-    public $memory = [];
+    public array $memory = [];
 
     //Switchable RAM (Used by games for more RAM) for the main memory range 0xA000 - 0xC000.
-    public $MBCRam = [];
+    public array $MBCRam = [];
 
     //Extra VRAM bank for GBC.
-    public $VRAM = [];
+    public array $VRAM = [];
 
     //Current VRAM bank for GBC.
-    public $currVRAMBank = 0;
+    public int $currVRAMBank = 0;
 
     //GBC main RAM Banks
-    public $GBCMemory = [];
+    public array $GBCMemory = [];
 
     //MBC1 Type (4/32, 16/8)
-    public $MBC1Mode = false;
+    public bool $MBC1Mode = false;
 
     //MBC RAM Access Control.
-    public $MBCRAMBanksEnabled = false;
+    public bool $MBCRAMBanksEnabled = false;
 
     //MBC Currently Indexed RAM Bank
-    public $currMBCRAMBank = 0;
+    public int $currMBCRAMBank = 0;
 
     //MBC Position Adder;
-    public $currMBCRAMBankPosition = -0xA000;
+    public int $currMBCRAMBankPosition = -0xA000;
 
     //GameBoy Color detection.
-    public $cGBC = false;
+    public bool $cGBC = false;
 
     //Currently Switched GameBoy Color ram bank
-    public $gbcRamBank = 1;
+    public int $gbcRamBank = 1;
 
     //GBC RAM offset from address start.
-    public $gbcRamBankPosition = -0xD000;
+    public int $gbcRamBankPosition = -0xD000;
 
     //GBC RAM (ECHO mirroring) offset from address start.
-    public $gbcRamBankPositionECHO = -0xF000;
+    public int $gbcRamBankPositionECHO = -0xF000;
 
     //Used to map the RAM banks to maximum size the MBC used can do.
-    public $RAMBanks = [0, 1, 2, 4, 16];
+    public array $RAMBanks = [0, 1, 2, 4, 16];
 
     //Offset of the ROM bank switching.
-    public $ROMBank1offs = 0;
+    public int $ROMBank1offs = 0;
 
     //The parsed current ROM bank selection.
-    public $currentROMBank = 0;
+    public int $currentROMBank = 0;
 
     //Cartridge Type
-    public $cartridgeType = 0;
+    public int $cartridgeType = 0;
 
     //Name of the game
-    public $name = '';
+    public string $name = '';
 
     //Game code (Suffix for older games)
-    public $gameCode = '';
+    public string $gameCode = '';
 
     //A boolean to see if this was loaded in as a save state.
-    public $fromSaveState = false;
-
-    //When loaded in as a save state, this will not be empty.
-    public $savedStateFileName = '';
+    public bool $fromSaveState = false;
 
     //lcdControllerler object
-    public $lcdController = null;
+    public ?LcdController $lcdController = null;
 
-    public $gfxWindowY = false;
+    public bool $gfxWindowY = false;
 
-    public $gfxWindowDisplay = false;
+    public bool $gfxWindowDisplay = false;
 
-    public $gfxSpriteShow = false;
+    public bool $gfxSpriteShow = false;
 
-    public $gfxSpriteDouble = false;
+    public bool $gfxSpriteDouble = false;
 
-    public $gfxBackgroundY = false;
+    public bool $gfxBackgroundY = false;
 
-    public $gfxBackgroundX = false;
+    public bool $gfxBackgroundX = false;
 
-    public $TIMAEnabled = false;
+    public bool $TIMAEnabled = false;
 
     //Joypad State (two four-bit states actually)
-    public $JoyPad = 0xFF;
+    public int $JoyPad = 0xFF;
 
     //
     //RTC:
     //
-    public $RTCisLatched = true;
+    public bool $RTCisLatched = true;
 
-    public $latchedSeconds = 0;
+    public int $latchedSeconds = 0;
 
-    public $latchedMinutes = 0;
+    public int $latchedMinutes = 0;
 
-    public $latchedHours = 0;
+    public int $latchedHours = 0;
 
-    public $latchedLDays = 0;
+    public int $latchedLDays = 0;
 
-    public $latchedHDays = 0;
+    public int $latchedHDays = 0;
 
-    public $RTCSeconds = 0;
+    public int $RTCSeconds = 0;
 
-    public $RTCMinutes = 0;
+    public int $RTCMinutes = 0;
 
-    public $RTCHours = 0;
+    public int $RTCHours = 0;
 
-    public $RTCDays = 0;
+    public int $RTCDays = 0;
 
-    public $RTCDayOverFlow = false;
+    public bool $RTCDayOverFlow = false;
 
-    public $RTCHALT = false;
+    public bool $RTCHALT = false;
 
     //
     //Timing Variables
     //
 
     //Used to sample the audio system every x CPU instructions.
-    public $audioTicks = 0;
+    public int $audioTicks = 0;
 
     //Times for how many instructions to execute before ending the loop.
-    public $emulatorTicks = 0;
+    public int $emulatorTicks = 0;
 
     // DIV Ticks Counter (Invisible lower 8-bit)
-    public $DIVTicks = 14;
+    public int $DIVTicks = 14;
 
     // ScanLine Counter
-    public $LCDTicks = 15;
+    public int $LCDTicks = 15;
 
     // Timer Ticks Count
-    public $timerTicks = 0;
+    public int $timerTicks = 0;
 
     // Timer Max Ticks
-    public $TACClocker = 256;
+    public int $TACClocker = 256;
 
     //Are the interrupts on queue to be enabled?
-    public $untilEnable = 0;
+    public int $untilEnable = 0;
 
     //The last time we iterated the main loop.
-    public $lastIteration = 0;
+    public int $lastIteration = 0;
 
     //
     //ROM Cartridge Components:
     //
 
     //Does the cartridge use MBC1?
-    public $cMBC1 = false;
+    public bool $cMBC1 = false;
 
     //Does the cartridge use MBC2?
-    public $cMBC2 = false;
+    public bool $cMBC2 = false;
 
     //Does the cartridge use MBC3?
-    public $cMBC3 = false;
+    public bool $cMBC3 = false;
 
     //Does the cartridge use MBC5?
-    public $cMBC5 = false;
+    public bool $cMBC5 = false;
 
     //Does the cartridge use save RAM?
-    public $cSRAM = false;
+    public bool $cSRAM = false;
 
-    public $cMMMO1 = false;
+    public bool $cMMMO1 = false;
 
     //Does the cartridge use the RUMBLE addressing (modified MBC5)?
-    public $cRUMBLE = false;
+    public bool $cRUMBLE = false;
 
-    public $cCamera = false;
+    public bool $cCamera = false;
 
-    public $cTAMA5 = false;
+    public bool $cTAMA5 = false;
 
-    public $cHuC3 = false;
+    public bool $cHuC3 = false;
 
-    public $cHuC1 = false;
+    public bool $cHuC1 = false;
 
     // 1 Bank = 16 KBytes = 256 Kbits
-    public $ROMBanks = [
+    public array $ROMBanks = [
         2, 4, 8, 16, 32, 64, 128, 256, 512,
     ];
 
     //How many RAM banks were actually allocated?
-    public $numRAMBanks = 0;
+    public int $numRAMBanks = 0;
 
     //
     //Graphics Variables
     //
 
     //To prevent the repeating of drawing a blank screen.
-    public $drewBlank = 0;
+    public int $drewBlank = 0;
 
     // tile data arrays
-    public $tileData = [];
+    public array $tileData = [];
 
-    public $frameBuffer = [];
+    public array $frameBuffer = [];
 
-    public $canvasBuffer;
+    public array $canvasBuffer;
 
-    public $gbcRawPalette = [];
+    public array $gbcRawPalette = [];
 
     //GB: 384, GBC: 384 * 2
-    public $tileCount = 384;
+    public int $tileCount = 384;
 
-    public $tileCountInvalidator;
+    public int $tileCountInvalidator;
 
-    public $colorCount = 12;
+    public int $colorCount = 12;
 
-    public $gbPalette = [];
+    public array $gbPalette = [];
 
-    public $gbColorizedPalette = [];
+    public array $gbColorizedPalette = [];
 
-    public $gbcPalette = [];
+    public array $gbcPalette = [];
 
     // min "attrib" value where transparency can occur (Default is 4 (GB mode))
-    public $transparentCutoff = 4;
+    public int $transparentCutoff = 4;
 
-    public $bgEnabled = true;
+    public bool $bgEnabled = true;
 
-    public $spritePriorityEnabled = true;
+    public bool $spritePriorityEnabled = true;
 
     // true if there are any images to be invalidated
-    public $tileReadState = [];
+    public array $tileReadState = [];
 
-    public $windowSourceLine = 0;
+    public int $windowSourceLine = 0;
 
     //"Classic" GameBoy palette colors.
-    public $colors = [0x80EFFFDE, 0x80ADD794, 0x80529273, 0x80183442];
+    public array $colors = [0x80EFFFDE, 0x80ADD794, 0x80529273, 0x80183442];
 
     //Frame skip tracker
-    public $frameCount;
+    public int $frameCount;
 
-    public $weaveLookup = [];
+    public array $weaveLookup = [];
 
-    public $width = 160;
+    public int $width = 160;
 
-    public $height = 144;
+    public int $height = 144;
 
-    public $pixelCount;
+    public int $pixelCount;
 
-    public $rgbCount;
+    public int $rgbCount;
 
     //Pointer to the current palette we're using (Used for palette switches during boot or so it can be done anytime)
-    public $palette = null;
+    public ?array $palette = null;
 
     //
     //Data
     //
 
-    public $DAATable;
+    public array $DAATable;
 
-    public $ffxxDump;
+    public array $ffxxDump;
 
-    public $TICKTable;
+    public array $TICKTable;
 
-    public $SecondaryTICKTable;
+    public array $SecondaryTICKTable;
 
     // Added
 
-    public $cTIMER = null;
+    public ?bool $cTIMER = null;
 
     public function __construct($ROMImage, $drawContext)
     {
@@ -2367,6 +2368,8 @@ class Core
         // @PHP - We dont have typed arrays and unsigned int in PHP
         // This function just creates an array and initialize with a value
         $arrayHandle = array_fill(0, $length, $defaultValue);
+        var_dump($arrayHandle);
+        die;
 
         return $arrayHandle;
     }
