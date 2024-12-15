@@ -6,17 +6,96 @@ use Exception;
 
 class Opcode
 {
-    /**
-     * Run the given opcode.
-     *
-     * @param Core $core
-     * @param int $address
-     * @return mixed
-     */
-    public static function run(Core $core, $address)
+    public static function run(Core $core, int $address): void
     {
-        $function = 'opcode'.$address;
-        return Opcode::$function($core);
+        match ($address) {
+            1 => self::opcode1($core), 2 => self::opcode2($core), 3 => self::opcode3($core),
+            4 => self::opcode4($core), 5 => self::opcode5($core), 6 => self::opcode6($core),
+            7 => self::opcode7($core), 8 => self::opcode8($core), 9 => self::opcode9($core),
+            10 => self::opcode10($core), 11 => self::opcode11($core), 12 => self::opcode12($core),
+            13 => self::opcode13($core), 14 => self::opcode14($core), 15 => self::opcode15($core),
+            16 => self::opcode16($core), 17 => self::opcode17($core), 18 => self::opcode18($core),
+            19 => self::opcode19($core), 20 => self::opcode20($core), 21 => self::opcode21($core),
+            22 => self::opcode22($core), 23 => self::opcode23($core), 24 => self::opcode24($core),
+            25 => self::opcode25($core), 26 => self::opcode26($core), 27 => self::opcode27($core),
+            28 => self::opcode28($core), 29 => self::opcode29($core), 30 => self::opcode30($core),
+            31 => self::opcode31($core), 32 => self::opcode32($core), 33 => self::opcode33($core),
+            34 => self::opcode34($core), 35 => self::opcode35($core), 36 => self::opcode36($core),
+            37 => self::opcode37($core), 38 => self::opcode38($core), 39 => self::opcode39($core),
+            40 => self::opcode40($core), 41 => self::opcode41($core), 42 => self::opcode42($core),
+            43 => self::opcode43($core), 44 => self::opcode44($core), 45 => self::opcode45($core),
+            46 => self::opcode46($core), 47 => self::opcode47($core), 48 => self::opcode48($core),
+            49 => self::opcode49($core), 50 => self::opcode50($core), 51 => self::opcode51($core),
+            52 => self::opcode52($core), 53 => self::opcode53($core), 54 => self::opcode54($core),
+            55 => self::opcode55($core), 56 => self::opcode56($core), 57 => self::opcode57($core),
+            58 => self::opcode58($core), 59 => self::opcode59($core), 60 => self::opcode60($core),
+            61 => self::opcode61($core), 62 => self::opcode62($core), 63 => self::opcode63($core),
+            64 => self::opcode64($core), 65 => self::opcode65($core), 66 => self::opcode66($core),
+            67 => self::opcode67($core), 68 => self::opcode68($core), 69 => self::opcode69($core),
+            70 => self::opcode70($core), 71 => self::opcode71($core), 72 => self::opcode72($core),
+            73 => self::opcode73($core), 74 => self::opcode74($core), 75 => self::opcode75($core),
+            76 => self::opcode76($core), 77 => self::opcode77($core), 78 => self::opcode78($core),
+            79 => self::opcode79($core), 80 => self::opcode80($core), 81 => self::opcode81($core),
+            82 => self::opcode82($core), 83 => self::opcode83($core), 84 => self::opcode84($core),
+            85 => self::opcode85($core), 86 => self::opcode86($core), 87 => self::opcode87($core),
+            88 => self::opcode88($core), 89 => self::opcode89($core), 90 => self::opcode90($core),
+            91 => self::opcode91($core), 92 => self::opcode92($core), 93 => self::opcode93($core),
+            94 => self::opcode94($core), 95 => self::opcode95($core), 96 => self::opcode96($core),
+            97 => self::opcode97($core), 98 => self::opcode98($core), 99 => self::opcode99($core),
+            100 => self::opcode100($core), 101 => self::opcode101($core), 102 => self::opcode102($core),
+            103 => self::opcode103($core), 104 => self::opcode104($core), 105 => self::opcode105($core),
+            106 => self::opcode106($core), 107 => self::opcode107($core), 108 => self::opcode108($core),
+            109 => self::opcode109($core), 110 => self::opcode110($core), 111 => self::opcode111($core),
+            112 => self::opcode112($core), 113 => self::opcode113($core), 114 => self::opcode114($core),
+            115 => self::opcode115($core), 116 => self::opcode116($core), 117 => self::opcode117($core),
+            118 => self::opcode118($core), 119 => self::opcode119($core), 120 => self::opcode120($core),
+            121 => self::opcode121($core), 122 => self::opcode122($core), 123 => self::opcode123($core),
+            124 => self::opcode124($core), 125 => self::opcode125($core), 126 => self::opcode126($core),
+            127 => self::opcode127($core), 128 => self::opcode128($core), 129 => self::opcode129($core),
+            130 => self::opcode130($core), 131 => self::opcode131($core), 132 => self::opcode132($core),
+            133 => self::opcode133($core), 134 => self::opcode134($core), 135 => self::opcode135($core),
+            136 => self::opcode136($core), 137 => self::opcode137($core), 138 => self::opcode138($core),
+            139 => self::opcode139($core), 140 => self::opcode140($core), 141 => self::opcode141($core),
+            142 => self::opcode142($core), 143 => self::opcode143($core), 144 => self::opcode144($core),
+            145 => self::opcode145($core), 146 => self::opcode146($core), 147 => self::opcode147($core),
+            148 => self::opcode148($core), 149 => self::opcode149($core), 150 => self::opcode150($core),
+            151 => self::opcode151($core), 152 => self::opcode152($core), 153 => self::opcode153($core),
+            154 => self::opcode154($core), 155 => self::opcode155($core), 156 => self::opcode156($core),
+            157 => self::opcode157($core), 158 => self::opcode158($core), 159 => self::opcode159($core),
+            160 => self::opcode160($core), 161 => self::opcode161($core), 162 => self::opcode162($core),
+            163 => self::opcode163($core), 164 => self::opcode164($core), 165 => self::opcode165($core),
+            166 => self::opcode166($core), 167 => self::opcode167($core), 168 => self::opcode168($core),
+            169 => self::opcode169($core), 170 => self::opcode170($core), 171 => self::opcode171($core),
+            172 => self::opcode172($core), 173 => self::opcode173($core), 174 => self::opcode174($core),
+            175 => self::opcode175($core), 176 => self::opcode176($core), 177 => self::opcode177($core),
+            178 => self::opcode178($core), 179 => self::opcode179($core), 180 => self::opcode180($core),
+            181 => self::opcode181($core), 182 => self::opcode182($core), 183 => self::opcode183($core),
+            184 => self::opcode184($core), 185 => self::opcode185($core), 186 => self::opcode186($core),
+            187 => self::opcode187($core), 188 => self::opcode188($core), 189 => self::opcode189($core),
+            190 => self::opcode190($core), 191 => self::opcode191($core), 192 => self::opcode192($core),
+            193 => self::opcode193($core), 194 => self::opcode194($core), 195 => self::opcode195($core),
+            196 => self::opcode196($core), 197 => self::opcode197($core), 198 => self::opcode198($core),
+            199 => self::opcode199($core), 200 => self::opcode200($core), 201 => self::opcode201($core),
+            202 => self::opcode202($core), 203 => self::opcode203($core), 204 => self::opcode204($core),
+            205 => self::opcode205($core), 206 => self::opcode206($core), 207 => self::opcode207($core),
+            208 => self::opcode208($core), 209 => self::opcode209($core), 210 => self::opcode210($core),
+            211 => self::opcode211($core), 212 => self::opcode212($core), 213 => self::opcode213($core),
+            214 => self::opcode214($core), 215 => self::opcode215($core), 216 => self::opcode216($core),
+            217 => self::opcode217($core), 218 => self::opcode218($core), 219 => self::opcode219($core),
+            220 => self::opcode220($core), 221 => self::opcode221($core), 222 => self::opcode222($core),
+            223 => self::opcode223($core), 224 => self::opcode224($core), 225 => self::opcode225($core),
+            226 => self::opcode226($core), 227 => self::opcode227($core), 228 => self::opcode228($core),
+            229 => self::opcode229($core), 230 => self::opcode230($core), 231 => self::opcode231($core),
+            232 => self::opcode232($core), 233 => self::opcode233($core), 234 => self::opcode234($core),
+            235 => self::opcode235($core), 236 => self::opcode236($core), 237 => self::opcode237($core),
+            238 => self::opcode238($core), 239 => self::opcode239($core), 240 => self::opcode240($core),
+            241 => self::opcode241($core), 242 => self::opcode242($core), 243 => self::opcode243($core),
+            244 => self::opcode244($core), 245 => self::opcode245($core), 246 => self::opcode246($core),
+            247 => self::opcode247($core), 248 => self::opcode248($core), 249 => self::opcode249($core),
+            250 => self::opcode250($core), 251 => self::opcode251($core), 252 => self::opcode252($core),
+            253 => self::opcode253($core), 254 => self::opcode254($core), 255 => self::opcode255($core),
+            default => self::opcode0($core),
+        };
     }
 
     /**
@@ -1606,6 +1685,11 @@ class Opcode
         $core->memoryWrite($core->registersHL, ($core->registersHL & 0xFF));
     }
 
+    public static function halt(Core $core): void
+    {
+        self::opcode118($core);
+    }
+
     /**
      * Opcode #0x76.
      *
@@ -1614,7 +1698,7 @@ class Opcode
      * @param \GameBoy\Core $core
      * @throws Exception
      */
-    public static function opcode118(Core $core)
+    public static function opcode118(Core $core): void
     {
         if ($core->untilEnable == 1) {
             /*VBA-M says this fixes Torpedo Range (Seems to work):

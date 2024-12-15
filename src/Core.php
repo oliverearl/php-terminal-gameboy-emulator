@@ -1028,7 +1028,7 @@ class Core
                     //If we bailed out of a halt because the iteration ran down its timing.
                     } else {
                         $this->CPUTicks = 1;
-                        Opcode::run($this, 0x76);
+                        Opcode::halt($this);
                         //Execute Interrupt:
                         $this->runInterrupt();
                         //Timing:
@@ -1064,7 +1064,7 @@ class Core
             //Get how many CPU cycles the current op code counts for:
             $this->CPUTicks = $this->TICKTable[$op];
             //Execute the OP code instruction:
-            Opcode::{'opcode'.$op}($this);
+            Opcode::run($this, $op);
             //Interrupt Arming:
             switch ($this->untilEnable) {
                 case 1:
