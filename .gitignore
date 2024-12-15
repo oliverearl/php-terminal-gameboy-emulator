@@ -28,3 +28,4 @@ roms/
 /.vagrant
 .phpunit.result.cache
 .env
+/storage/logs

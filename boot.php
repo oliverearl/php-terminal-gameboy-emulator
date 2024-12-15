@@ -2,7 +2,7 @@
 
 
 foreach (['../../autoload.php', '../vendor/autoload.php', 'vendor/autoload.php'] as $autoload) {
-    $autoload = __DIR__.'/'.$autoload;
+    $autoload = __DIR__ . '/' . $autoload;
     if (file_exists($autoload)) {
         require $autoload;
         break;
@@ -37,8 +37,8 @@ if (!file_exists($filename)) {
 }
 
 if (extension_loaded('xdebug')) {
-    fwrite(STDERR, 'Running php-gameboy with Xdebug enabled reduces its speed considerably.'.PHP_EOL);
-    fwrite(STDERR, 'You should consider to disable it before execute php-gameboy.'.PHP_EOL);
+    fwrite(STDERR, 'Running php-gameboy with Xdebug enabled reduces its speed considerably.' . PHP_EOL);
+    fwrite(STDERR, 'You should consider to disable it before execute php-gameboy.' . PHP_EOL);
     sleep(1);
 }
 

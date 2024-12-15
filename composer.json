@@ -21,6 +21,7 @@
     ],
     "require": {
         "php": "^8.4",
+        "illuminate/log": "^11.5",
         "laravel-zero/framework": "^11.0.2"
     },
     "require-dev": {
