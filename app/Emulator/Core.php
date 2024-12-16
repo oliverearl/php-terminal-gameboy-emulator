@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Emulator;
 
+use App\Emulator\Core\HandlesCbopcodes;
+use App\Emulator\Core\HandlesOpcodes;
 use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
@@ -13,6 +15,9 @@ use SplFixedArray;
 
 class Core
 {
+    use HandlesCbopcodes;
+    use HandlesOpcodes;
+
     public bool $cBATT;
 
     public int $numROMBanks;
@@ -1066,7 +1071,7 @@ class Core
                         //If we bailed out of a halt because the iteration ran down its timing.
                     } else {
                         $this->CPUTicks = 1;
-                        Opcode::halt($this);
+                        $this->halt();
                         //Execute Interrupt:
                         $this->runInterrupt();
                         //Timing:
@@ -1104,7 +1109,7 @@ class Core
             //Get how many CPU cycles the current op code counts for:
             $this->CPUTicks = $this->TICKTable[$op];
             //Execute the OP code instruction:
-            Opcode::run($this, $op);
+            $this->runOpcode($op);
             //Interrupt Arming:
             switch ($this->untilEnable) {
                 case 1:
