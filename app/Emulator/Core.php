@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Emulator;
 
 use App\Emulator\Canvas\DrawContextInterface;
-use SplFixedArray;
+use App\Exceptions\Core\AlreadyRunningException;
+use App\Exceptions\Core\CoreNotInitializedException;
 use RuntimeException;
+use SplFixedArray;
 
 class Core
 {
@@ -579,6 +581,31 @@ class Core
         $this->ROMLoad(); //Load the ROM into memory and get cartridge information from it.
         $this->initLCD(); //Initializae the graphics.
         $this->run(); //Start the emulation.
+
+        $this->performSanityChecks();
+
+        // Finish initializing the emulator:
+        $this->stopEmulator &= 1;
+        $this->lastIteration = (int) (microtime(true) * 1000);
+    }
+
+    /**
+     * Performs a number of checks that the emulator is working correctly.
+     *
+     * @throws \App\Exceptions\Core\AlreadyRunningException
+     * @throws \App\Exceptions\Core\CoreNotInitializedException
+     */
+    private function performSanityChecks(): void
+    {
+        $state = $this->stopEmulator & 2;
+
+        if ($state === 0) {
+            throw new AlreadyRunningException();
+        }
+
+        if ($state !== 2) {
+            throw new CoreNotInitializedException();
+        }
     }
 
     public function initMemory()

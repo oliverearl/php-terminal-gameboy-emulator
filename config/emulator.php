@@ -19,4 +19,9 @@ return [
         'select' => env('CONTROLS_SELECT', 'n'),
         'start' => env('CONTROLS_START', 'm'),
     ],
+
+    /*
+     * Whether to use the legacy 2016 graphics renderer instead.
+     */
+    'use_legacy_renderer' => env('USE_LEGACY_RENDERER', false),
 ];
