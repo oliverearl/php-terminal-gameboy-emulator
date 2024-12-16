@@ -1733,9 +1733,9 @@ class Core
                 case 0xFF02:
                     if ($this->cGBC) {
                         return 0x7C | $this->memory[0xFF02];
-                    } else {
-                        return 0x7E | $this->memory[0xFF02];
                     }
+
+                    return 0x7E | $this->memory[0xFF02];
                 case 0xFF07:
                     return 0xF8 | $this->memory[0xFF07];
                 case 0xFF0F:
