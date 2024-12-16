@@ -106,7 +106,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerB & 0x80) == 0x80);
         $core->registerB = (($core->registerB << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -117,7 +118,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerC & 0x80) == 0x80);
         $core->registerC = (($core->registerC << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -128,7 +130,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerD & 0x80) == 0x80);
         $core->registerD = (($core->registerD << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -139,7 +142,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerE & 0x80) == 0x80);
         $core->registerE = (($core->registerE << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -150,7 +154,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x8000) == 0x8000);
         $core->registersHL = (($core->registersHL << 1) & 0xFE00) + (($core->FCarry) ? 0x100 : 0) + ($core->registersHL & 0xFF);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -161,7 +166,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x80) == 0x80);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -174,7 +180,8 @@ class Cbopcode
         $core->FCarry = (($temp_var & 0x80) == 0x80);
         $temp_var = (($temp_var << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->memoryWrite($core->registersHL, $temp_var);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -185,7 +192,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 
@@ -196,7 +204,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB = (($core->FCarry) ? 0x80 : 0) + ($core->registerB >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -207,7 +216,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC = (($core->FCarry) ? 0x80 : 0) + ($core->registerC >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -218,7 +228,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD = (($core->FCarry) ? 0x80 : 0) + ($core->registerD >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -229,7 +240,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE = (($core->FCarry) ? 0x80 : 0) + ($core->registerE >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -240,7 +252,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->FCarry) ? 0x8000 : 0) + (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0xFF);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -251,7 +264,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x01) == 0x01);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->FCarry) ? 0x80 : 0) + (($core->registersHL & 0xFF) >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -264,7 +278,8 @@ class Cbopcode
         $core->FCarry = (($temp_var & 0x01) == 0x01);
         $temp_var = (($core->FCarry) ? 0x80 : 0) + ($temp_var >> 1);
         $core->memoryWrite($core->registersHL, $temp_var);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -275,7 +290,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA = (($core->FCarry) ? 0x80 : 0) + ($core->registerA >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 
@@ -287,7 +303,8 @@ class Cbopcode
         $newFCarry = (($core->registerB & 0x80) == 0x80);
         $core->registerB = (($core->registerB << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -299,7 +316,8 @@ class Cbopcode
         $newFCarry = (($core->registerC & 0x80) == 0x80);
         $core->registerC = (($core->registerC << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -311,7 +329,8 @@ class Cbopcode
         $newFCarry = (($core->registerD & 0x80) == 0x80);
         $core->registerD = (($core->registerD << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -323,7 +342,8 @@ class Cbopcode
         $newFCarry = (($core->registerE & 0x80) == 0x80);
         $core->registerE = (($core->registerE << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -335,7 +355,8 @@ class Cbopcode
         $newFCarry = (($core->registersHL & 0x8000) == 0x8000);
         $core->registersHL = (($core->registersHL << 1) & 0xFE00) + (($core->FCarry) ? 0x100 : 0) + ($core->registersHL & 0xFF);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -347,7 +368,8 @@ class Cbopcode
         $newFCarry = (($core->registersHL & 0x80) == 0x80);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -361,7 +383,8 @@ class Cbopcode
         $temp_var = (($temp_var << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
         $core->memoryWrite($core->registersHL, $temp_var);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -373,7 +396,8 @@ class Cbopcode
         $newFCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 
@@ -385,7 +409,8 @@ class Cbopcode
         $newFCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB = (($core->FCarry) ? 0x80 : 0) + ($core->registerB >> 1);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -397,7 +422,8 @@ class Cbopcode
         $newFCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC = (($core->FCarry) ? 0x80 : 0) + ($core->registerC >> 1);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -409,7 +435,8 @@ class Cbopcode
         $newFCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD = (($core->FCarry) ? 0x80 : 0) + ($core->registerD >> 1);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -421,7 +448,8 @@ class Cbopcode
         $newFCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE = (($core->FCarry) ? 0x80 : 0) + ($core->registerE >> 1);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -433,7 +461,8 @@ class Cbopcode
         $newFCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->FCarry) ? 0x8000 : 0) + (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0xFF);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -445,7 +474,8 @@ class Cbopcode
         $newFCarry = (($core->registersHL & 0x01) == 0x01);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->FCarry) ? 0x80 : 0) + (($core->registersHL & 0xFF) >> 1);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -459,7 +489,8 @@ class Cbopcode
         $temp_var = (($core->FCarry) ? 0x80 : 0) + ($temp_var >> 1);
         $core->FCarry = $newFCarry;
         $core->memoryWrite($core->registersHL, $temp_var);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -471,7 +502,8 @@ class Cbopcode
         $newFCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA = (($core->FCarry) ? 0x80 : 0) + ($core->registerA >> 1);
         $core->FCarry = $newFCarry;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 
@@ -482,7 +514,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerB & 0x80) == 0x80);
         $core->registerB = ($core->registerB << 1) & 0xFF;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -493,7 +526,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerC & 0x80) == 0x80);
         $core->registerC = ($core->registerC << 1) & 0xFF;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -504,7 +538,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerD & 0x80) == 0x80);
         $core->registerD = ($core->registerD << 1) & 0xFF;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -515,7 +550,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerE & 0x80) == 0x80);
         $core->registerE = ($core->registerE << 1) & 0xFF;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -526,7 +562,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x8000) == 0x8000);
         $core->registersHL = (($core->registersHL << 1) & 0xFE00) + ($core->registersHL & 0xFF);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -537,7 +574,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x0080) == 0x0080);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL << 1) & 0xFF);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -550,7 +588,8 @@ class Cbopcode
         $core->FCarry = (($temp_var & 0x80) == 0x80);
         $temp_var = ($temp_var << 1) & 0xFF;
         $core->memoryWrite($core->registersHL, $temp_var);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -561,7 +600,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = ($core->registerA << 1) & 0xFF;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 
@@ -572,7 +612,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB = ($core->registerB & 0x80) + ($core->registerB >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -583,7 +624,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC = ($core->registerC & 0x80) + ($core->registerC >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -594,7 +636,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD = ($core->registerD & 0x80) + ($core->registerD >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -605,7 +648,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE = ($core->registerE & 0x80) + ($core->registerE >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -617,7 +661,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0x80FF);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -628,7 +673,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x0001) == 0x0001);
         $core->registersHL = ($core->registersHL & 0xFF80) + (($core->registersHL & 0xFF) >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -641,7 +687,8 @@ class Cbopcode
         $core->FCarry = (($temp_var & 0x01) == 0x01);
         $temp_var = ($temp_var & 0x80) + ($temp_var >> 1);
         $core->memoryWrite($core->registersHL, $temp_var);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -652,7 +699,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA = ($core->registerA & 0x80) + ($core->registerA >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 
@@ -663,7 +711,9 @@ class Cbopcode
     {
         $core->registerB = (($core->registerB & 0xF) << 4) + ($core->registerB >> 4);
         $core->FZero = ($core->registerB == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -673,7 +723,9 @@ class Cbopcode
     {
         $core->registerC = (($core->registerC & 0xF) << 4) + ($core->registerC >> 4);
         $core->FZero = ($core->registerC == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -683,7 +735,9 @@ class Cbopcode
     {
         $core->registerD = (($core->registerD & 0xF) << 4) + ($core->registerD >> 4);
         $core->FZero = ($core->registerD == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -693,7 +747,9 @@ class Cbopcode
     {
         $core->registerE = (($core->registerE & 0xF) << 4) + ($core->registerE >> 4);
         $core->FZero = ($core->registerE == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -703,7 +759,9 @@ class Cbopcode
     {
         $core->registersHL = (($core->registersHL & 0xF00) << 4) + (($core->registersHL & 0xF000) >> 4) + ($core->registersHL & 0xFF);
         $core->FZero = ($core->registersHL <= 0xFF);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -713,7 +771,9 @@ class Cbopcode
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL & 0xF) << 4) + (($core->registersHL & 0xF0) >> 4);
         $core->FZero = (($core->registersHL & 0xFF) == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -723,9 +783,12 @@ class Cbopcode
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $temp_var = (($temp_var & 0xF) << 4) + ($temp_var >> 4);
+
         $core->memoryWrite($core->registersHL, $temp_var);
         $core->FZero = ($temp_var == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -735,7 +798,9 @@ class Cbopcode
     {
         $core->registerA = (($core->registerA & 0xF) << 4) + ($core->registerA >> 4);
         $core->FZero = ($core->registerA == 0);
-        $core->FCarry = $core->FHalfCarry = $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -745,7 +810,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB >>= 1;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerB == 0);
     }
 
@@ -756,7 +822,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC >>= 1;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerC == 0);
     }
 
@@ -767,7 +834,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD >>= 1;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerD == 0);
     }
 
@@ -778,7 +846,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE >>= 1;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerE == 0);
     }
 
@@ -789,7 +858,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0xFF);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registersHL <= 0xFF);
     }
 
@@ -800,7 +870,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registersHL & 0x0001) == 0x0001);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL & 0xFF) >> 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = (($core->registersHL & 0xFF) == 0x00);
     }
 
@@ -812,7 +883,8 @@ class Cbopcode
         $temp_var = $core->memoryRead($core->registersHL);
         $core->FCarry = (($temp_var & 0x01) == 0x01);
         $core->memoryWrite($core->registersHL, $temp_var >>= 1);
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($temp_var == 0x00);
     }
 
@@ -823,7 +895,8 @@ class Cbopcode
     {
         $core->FCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA >>= 1;
-        $core->FHalfCarry = $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FSubtract = false;
         $core->FZero = ($core->registerA == 0x00);
     }
 

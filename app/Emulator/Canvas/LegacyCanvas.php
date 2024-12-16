@@ -11,18 +11,27 @@ class LegacyCanvas implements DrawContextInterface
      * @var String
      */
     protected $brailleCharOffset;
+
     protected $canvas;
+
     /**
      * If is a color enabled canvas, set to true
      * @var Boolean
      */
     public $colorEnabled = false;
+
     protected $currentSecond = 0;
+
     protected $framesInSecond = 0;
+
     protected $fps = 0;
+
     protected $height = 0;
+
     protected $lastFrame;
+
     protected $lastFrameCanvasBuffer;
+
     /**
      * Braille Pixel Matrix
      *   ,___,
@@ -34,6 +43,7 @@ class LegacyCanvas implements DrawContextInterface
      * @var array
      */
     protected $pixelMap;
+
     protected $width = 0;
 
     public function __construct()
@@ -105,7 +115,7 @@ class LegacyCanvas implements DrawContextInterface
             $content = "\e[H\e[2J";
 
             if ($this->height > 0 && $this->width > 0) {
-                $content = "\e[{$this->height}A\e[{$this->width}D";
+                $content = sprintf('[%sA[%sD', $this->height, $this->width);
             }
 
             $content .= sprintf('FPS: %3d - Frame Skip: %3d' . PHP_EOL, $this->fps, Settings::$frameskipAmout) . $frame;

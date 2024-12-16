@@ -51,6 +51,7 @@ class LcdController
         if ($this->actualScanLine == 0) {
             $this->core->windowSourceLine = 0;
         }
+
         // determine the left edge of the window (160 if window is inactive)
         $windowLeft = ($this->core->gfxWindowDisplay && $this->core->memory[0xFF4A] <= $this->actualScanLine) ? min(160, $this->core->memory[0xFF4B] - 7) : 160;
         // step 1: background+window
@@ -64,6 +65,7 @@ class LcdController
         if ($skippedAnything) {
             $this->core->drawBackgroundForLine($this->actualScanLine, $windowLeft, 0x80);
         }
+
         if ($windowLeft < 160) {
             ++$this->core->windowSourceLine;
         }
@@ -94,10 +96,12 @@ class LcdController
                         if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
                             $this->core->performHdma(); //H-Blank DMA
                         }
+
                         if ($this->mode0TriggerSTAT) {
                             $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
                         }
                     }
+
                     $this->STATTracker = 0;
                     $this->scanLineMode2(); // mode2: 80 cycles
                     if ($this->core->LCDTicks >= 114) {
@@ -123,14 +127,17 @@ class LcdController
                     if ($this->mode1TriggerSTAT) {
                         $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
                     }
+
                     if ($this->STATTracker != 2) {
                         if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
                             $this->core->performHdma(); //H-Blank DMA
                         }
+
                         if ($this->mode0TriggerSTAT) {
                             $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
                         }
                     }
+
                     $this->STATTracker = 0;
                     $this->modeSTAT = 1;
                     $this->core->memory[0xFF0F] |= 0x1; // set IF flag 0
@@ -138,6 +145,7 @@ class LcdController
                     if ($this->core->drewBlank > 0) {
                         --$this->core->drewBlank;
                     }
+
                     if ($this->core->LCDTicks >= 114) {
                         //We need to skip 1 or more scan lines:
                         $this->scanLine($this->actualScanLine); //Scan Line and STAT Mode Control
@@ -161,6 +169,7 @@ class LcdController
                     $this->core->memory[0xFF44] = 0; //LY register resets to 0 early.
                     $this->matchLYC(); //LY==LYC Test is early here (Fixes specific one-line glitches (example: Kirby2 intro)).
                 }
+
                 if ($this->core->LCDTicks >= 114) {
                     //We reset back to the beginning:
                     $this->core->LCDTicks -= 114;
@@ -182,9 +191,11 @@ class LcdController
             if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
                 $this->core->performHdma(); //H-Blank DMA
             }
+
             if ($this->mode0TriggerSTAT || ($this->mode2TriggerSTAT && $this->STATTracker == 0)) {
                 $this->core->memory[0xFF0F] |= 0x2; // if STAT bit 3 -> set IF bit1
             }
+
             $this->notifyScanline();
             $this->STATTracker = 2;
             $this->modeSTAT = 0;
@@ -198,6 +209,7 @@ class LcdController
             if ($this->mode2TriggerSTAT) {
                 $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
+
             $this->STATTracker = 1;
             $this->modeSTAT = 2;
         }
@@ -210,6 +222,7 @@ class LcdController
             if ($this->mode2TriggerSTAT && $this->STATTracker == 0) {
                 $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
+
             $this->STATTracker = 1;
             $this->modeSTAT = 3;
         }

@@ -252,7 +252,7 @@ class LaravelCanvas implements DrawContextInterface
         // Color enabled: average the 8 pixels of this Braille character.
         [$rAvg, $gAvg, $bAvg] = $this->averageBlockColor($canvasBuffer, $x, $y);
 
-        return "\e[48;2;{$rAvg};{$gAvg};{$bAvg}m{$char}\e[0m";
+        return sprintf('[48;2;%d;%d;%dm%s[0m', $rAvg, $gAvg, $bAvg, $char);
     }
 
     /**
@@ -268,7 +268,9 @@ class LaravelCanvas implements DrawContextInterface
      */
     private function averageBlockColor(array $canvasBuffer, int $x, int $y): array
     {
-        $rSum = $gSum = $bSum = 0;
+        $rSum = 0;
+        $gSum = 0;
+        $bSum = 0;
 
         // Each Braille char covers a block of 2 pixels wide (x-1 to x) and 4 pixels tall (y-3 to y).
         // $pixelX and $pixelY represent the pixel coordinates within this block.

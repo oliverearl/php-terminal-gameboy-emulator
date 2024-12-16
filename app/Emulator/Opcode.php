@@ -188,7 +188,9 @@ class Opcode
     {
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) | ($core->registerA >> 7);
-        $core->FZero = $core->FSubtract = $core->FHalfCarry = false;
+        $core->FZero = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -201,6 +203,7 @@ class Opcode
         $temp_var = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
         $core->memoryWrite($temp_var, $core->stackPointer & 0xFF);
         $core->memoryWrite(($temp_var + 1) & 0xFFFF, $core->stackPointer >> 8);
+
         $core->programCounter = ($core->programCounter + 2) & 0xFFFF;
     }
 
@@ -287,7 +290,9 @@ class Opcode
     {
         $core->FCarry = (($core->registerA & 1) == 1);
         $core->registerA = ($core->registerA >> 1) + (($core->registerA & 1) << 7);
-        $core->FZero = $core->FSubtract = $core->FHalfCarry = false;
+        $core->FZero = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -316,6 +321,7 @@ class Opcode
                 $core->multiplier = 2; //TODO: Move this into the delay done code.
                 $core->memory[0xFF4D] |= 0x80; //Set the double speed mode flag.
             }
+
             $core->memory[0xFF4D] &= 0xFE;
             //Reset the request bit.
         }
@@ -402,7 +408,9 @@ class Opcode
         $carry_flag = ($core->FCarry) ? 1 : 0;
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) | $carry_flag;
-        $core->FZero = $core->FSubtract = $core->FHalfCarry = false;
+        $core->FZero = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -499,7 +507,9 @@ class Opcode
         $carry_flag = ($core->FCarry) ? 0x80 : 0;
         $core->FCarry = (($core->registerA & 1) == 1);
         $core->registerA = ($core->registerA >> 1) + $carry_flag;
-        $core->FZero = $core->FSubtract = $core->FHalfCarry = false;
+        $core->FZero = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -599,12 +609,15 @@ class Opcode
         if ($core->FCarry) {
             $temp_var |= 0x100;
         }
+
         if ($core->FHalfCarry) {
             $temp_var |= 0x200;
         }
+
         if ($core->FSubtract) {
             $temp_var |= 0x400;
         }
+
         $core->registerA = ($temp_var = $core->DAATable[$temp_var]) >> 8;
         $core->FZero = (($temp_var & 0x80) == 0x80);
         $core->FSubtract = (($temp_var & 0x40) == 0x40);
@@ -709,7 +722,8 @@ class Opcode
     public static function opcode47(Core $core)
     {
         $core->registerA ^= 0xFF;
-        $core->FSubtract = $core->FHalfCarry = true;
+        $core->FSubtract = true;
+        $core->FHalfCarry = true;
     }
 
     /**
@@ -806,7 +820,8 @@ class Opcode
     public static function opcode55(Core $core)
     {
         $core->FCarry = true;
-        $core->FSubtract = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -904,7 +919,8 @@ class Opcode
     public static function opcode63(Core $core)
     {
         $core->FCarry = !$core->FCarry;
-        $core->FSubtract = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -1472,6 +1488,7 @@ class Opcode
             if (!$core->halt && !$core->IME && !$core->cGBC && ($core->memory[0xFF0F] & $core->memory[0xFFFF] & 0x1F) > 0) {
                 $core->skipPCIncrement = true;
             }
+
             $core->halt = true;
             while ($core->halt && ($core->stopEmulator & 1) === 0) {
                 /*We're hijacking the main interpreter loop to do this dirty business
@@ -1485,8 +1502,10 @@ class Opcode
                         $core->halt = false; //Get out of halt state if in halt state.
                         return; //Let the main interrupt handler compute the interrupt.
                     }
+
                     $testbit = 1 << ++$bitShift;
                 }
+
                 $core->CPUTicks = 1; //1 machine cycle under HALT...
                 //Timing:
                 $core->updateCore();
@@ -1946,8 +1965,10 @@ class Opcode
     {
         //number - same number == 0
         $core->registerA = 0;
-        $core->FHalfCarry = $core->FCarry = false;
-        $core->FZero = $core->FSubtract = true;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
+        $core->FZero = true;
+        $core->FSubtract = true;
     }
 
     /**
@@ -2067,11 +2088,15 @@ class Opcode
         //Optimized SBC A:
         if ($core->FCarry) {
             $core->FZero = false;
-            $core->FSubtract = $core->FHalfCarry = $core->FCarry = true;
+            $core->FSubtract = true;
+            $core->FHalfCarry = true;
+            $core->FCarry = true;
             $core->registerA = 0xFF;
         } else {
-            $core->FHalfCarry = $core->FCarry = false;
-            $core->FSubtract = $core->FZero = true;
+            $core->FHalfCarry = false;
+            $core->FCarry = false;
+            $core->FSubtract = true;
+            $core->FZero = true;
             $core->registerA = 0;
         }
     }
@@ -2086,7 +2111,8 @@ class Opcode
         $core->registerA &= $core->registerB;
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2099,7 +2125,8 @@ class Opcode
         $core->registerA &= $core->registerC;
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2112,7 +2139,8 @@ class Opcode
         $core->registerA &= $core->registerD;
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2125,7 +2153,8 @@ class Opcode
         $core->registerA &= $core->registerE;
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2138,7 +2167,8 @@ class Opcode
         $core->registerA &= ($core->registersHL >> 8);
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2151,7 +2181,8 @@ class Opcode
         $core->registerA &= ($core->registersHL & 0xFF);
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2164,7 +2195,8 @@ class Opcode
         $core->registerA &= $core->memoryRead($core->registersHL);
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2177,7 +2209,8 @@ class Opcode
         //number & same number = same number
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2189,7 +2222,9 @@ class Opcode
     {
         $core->registerA ^= $core->registerB;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2201,7 +2236,9 @@ class Opcode
     {
         $core->registerA ^= $core->registerC;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2213,7 +2250,9 @@ class Opcode
     {
         $core->registerA ^= $core->registerD;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2225,7 +2264,9 @@ class Opcode
     {
         $core->registerA ^= $core->registerE;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2237,7 +2278,9 @@ class Opcode
     {
         $core->registerA ^= ($core->registersHL >> 8);
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2249,7 +2292,9 @@ class Opcode
     {
         $core->registerA ^= ($core->registersHL & 0xFF);
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2261,7 +2306,9 @@ class Opcode
     {
         $core->registerA ^= $core->memoryRead($core->registersHL);
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2274,7 +2321,9 @@ class Opcode
         //number ^ same number == 0
         $core->registerA = 0;
         $core->FZero = true;
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -2286,7 +2335,9 @@ class Opcode
     {
         $core->registerA |= $core->registerB;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2298,7 +2349,9 @@ class Opcode
     {
         $core->registerA |= $core->registerC;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2310,7 +2363,9 @@ class Opcode
     {
         $core->registerA |= $core->registerD;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2322,7 +2377,9 @@ class Opcode
     {
         $core->registerA |= $core->registerE;
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2334,7 +2391,9 @@ class Opcode
     {
         $core->registerA |= ($core->registersHL >> 8);
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2346,7 +2405,9 @@ class Opcode
     {
         $core->registerA |= ($core->registersHL & 0xFF);
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2358,7 +2419,9 @@ class Opcode
     {
         $core->registerA |= $core->memoryRead($core->registersHL);
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2370,7 +2433,9 @@ class Opcode
     {
         //number | same number == same number
         $core->FZero = ($core->registerA == 0);
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -2478,8 +2543,10 @@ class Opcode
      */
     public static function opcode191(Core $core)
     {
-        $core->FHalfCarry = $core->FCarry = false;
-        $core->FZero = $core->FSubtract = true;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
+        $core->FZero = true;
+        $core->FSubtract = true;
     }
 
     /**
@@ -3033,7 +3100,8 @@ class Opcode
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
         $core->FZero = ($core->registerA == 0);
         $core->FHalfCarry = true;
-        $core->FSubtract = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -3063,7 +3131,8 @@ class Opcode
         $core->FHalfCarry = ((($core->stackPointer ^ $signedByte ^ $temp_value) & 0x10) == 0x10);
         $core->stackPointer = $temp_value;
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
-        $core->FZero = $core->FSubtract = false;
+        $core->FZero = false;
+        $core->FSubtract = false;
     }
 
     /**
@@ -3130,7 +3199,9 @@ class Opcode
         $core->registerA ^= $core->memoryRead($core->programCounter);
         $core->FZero = ($core->registerA == 0);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
-        $core->FSubtract = $core->FHalfCarry = $core->FCarry = false;
+        $core->FSubtract = false;
+        $core->FHalfCarry = false;
+        $core->FCarry = false;
     }
 
     /**
@@ -3230,7 +3301,9 @@ class Opcode
         $core->registerA |= $core->memoryRead($core->programCounter);
         $core->FZero = ($core->registerA == 0);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
-        $core->FSubtract = $core->FCarry = $core->FHalfCarry = false;
+        $core->FSubtract = false;
+        $core->FCarry = false;
+        $core->FHalfCarry = false;
     }
 
     /**
@@ -3259,7 +3332,8 @@ class Opcode
         $core->FCarry = ((($core->stackPointer ^ $signedByte ^ $core->registersHL) & 0x100) == 0x100);
         $core->FHalfCarry = ((($core->stackPointer ^ $signedByte ^ $core->registersHL) & 0x10) == 0x10);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
-        $core->FZero = $core->FSubtract = false;
+        $core->FZero = false;
+        $core->FSubtract = false;
     }
 
     /**

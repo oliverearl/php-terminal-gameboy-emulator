@@ -665,6 +665,7 @@ class Core
                         $this->memory[0xFF00 + $address] = $this->ffxxDump[$address];
                 }
             }
+
             --$address;
         }
     }
@@ -684,7 +685,10 @@ class Core
         $this->registerC = 0;
         $this->registerD = 0;
         $this->registerE = 0;
-        $this->FZero = $this->FSubtract = $this->FHalfCarry = $this->FCarry = false;
+        $this->FZero = false;
+        $this->FSubtract = false;
+        $this->FHalfCarry = false;
+        $this->FCarry = false;
         $this->registersHL = 0;
         $this->memory[0xFF00] = 0xF; //Set the joypad state.
     }
@@ -700,6 +704,7 @@ class Core
                 $this->memory[$romIndex] = $this->ROM[$romIndex]; //Load in the game ROM.
             }
         }
+
         // ROM name
         for ($address = 0x134; $address < 0x13F; ++$address) {
             if (ord($this->ROMImage[$address]) > 0) {
@@ -929,6 +934,7 @@ class Core
                 $this->memory[$address] = $this->ROM[$address]; //Replace the GameBoy Color boot ROM with the game ROM.
             }
         }
+
         $this->checkPaletteType();
 
         if (!$this->cGBC) {
@@ -939,6 +945,7 @@ class Core
             if (!Settings::$colorize) {
                 $this->transparentCutoff = 4;
             }
+
             $this->colorCount = 12;
 
             // @TODO
@@ -962,14 +969,17 @@ class Core
         } elseif ($this->cSRAM) {
             $this->numRAMBanks = 1;
         }
+
         if ($this->numRAMBanks > 0) {
             if (!$this->MBCRAMUtilized()) {
                 //For ROM and unknown MBC cartridges using the external RAM:
                 $this->MBCRAMBanksEnabled = true;
             }
+
             //Switched RAM Used
             $this->MBCRam = $this->getTypedArray($this->numRAMBanks * 0x2000, 0, 'uint8');
         }
+
         echo 'Actual bytes of MBC RAM allocated: ' . ($this->numRAMBanks * 0x2000) . PHP_EOL;
         //Setup the RAM for GBC mode.
         if ($this->cGBC) {
@@ -980,6 +990,7 @@ class Core
             $this->colorCount = 64;
             $this->transparentCutoff = 32;
         }
+
         $this->tileData = $this->arrayPad($this->tileCount * $this->colorCount, null);
         $this->tileReadState = $this->getTypedArray($this->tileCount, 0, 'uint8');
     }
@@ -1036,6 +1047,7 @@ class Core
         } else {
             $this->JoyPad |= (1 << $key);
         }
+
         $this->memory[0xFF00] = ($this->memory[0xFF00] & 0x30) + (((($this->memory[0xFF00] & 0x20) == 0) ? ($this->JoyPad >> 4) : 0xF) & ((($this->memory[0xFF00] & 0x10) == 0) ? ($this->JoyPad & 0xF) : 0xF));
     }
 
@@ -1061,14 +1073,15 @@ class Core
                         $this->updateCore();
                         $this->executeIteration();
                     }
+
                     //We can only get here if there was an internal error, but the loop was restarted.
                 } else {
                     echo 'Iterator restarted a faulted core.' . PHP_EOL;
                     pause();
                 }
             }
-        } catch (Exception $error) {
-            if ($error->getMessage() !== 'HALT_OVERRUN') {
+        } catch (Exception $exception) {
+            if ($exception->getMessage() !== 'HALT_OVERRUN') {
                 echo 'GameBoy runtime error' . PHP_EOL;
             }
         }
@@ -1086,6 +1099,7 @@ class Core
                 //Increment the program counter to the next instruction:
                 $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
             }
+
             $this->skipPCIncrement = false;
             //Get how many CPU cycles the current op code counts for:
             $this->CPUTicks = $this->TICKTable[$op];
@@ -1099,10 +1113,12 @@ class Core
                 case 2:
                     $this->untilEnable--;
             }
+
             //Execute Interrupt:
             if ($this->IME) {
                 $this->runInterrupt();
             }
+
             //Timing:
             $this->updateCore();
         }
@@ -1143,6 +1159,7 @@ class Core
             $this->DIVTicks -= 0x40;
             $this->memory[0xFF04] = ($this->memory[0xFF04] + 1) & 0xFF; // inc DIV
         }
+
         //LCD Controller Ticks
         $timedTicks = $this->CPUTicks / $this->multiplier;
         // LCD Timing
@@ -1163,9 +1180,11 @@ class Core
                     //Display frame
                     $this->drawToCanvas();
                 }
+
                 $this->stopEmulator |= 1; //End current loop.
                 $this->emulatorTicks = 0;
             }
+
             $this->audioTicks = 0;
         }
 
@@ -1218,9 +1237,11 @@ class Core
                             $this->tileData[$r] = null;
                             $r -= $this->tileCount;
                         } while ($r >= 0);
+
                         $this->tileReadState[$tileIndex] = 0;
                     }
                 }
+
                 $this->VRAM[$dmaDstRelative++] = $this->memoryRead($dmaSrc++);
             }
         } else {
@@ -1239,6 +1260,7 @@ class Core
                         $this->tileReadState[$tileIndex] = 0;
                     }
                 }
+
                 $this->memory[0x8000 + $dmaDstRelative++] = $this->memoryRead($dmaSrc++);
             }
         }
@@ -1281,6 +1303,7 @@ class Core
                     }
                 }
             }
+
             if (Settings::$autoFrameskip) {
                 //Auto Frame Skip:
                 if ($timeElapsed > Settings::$loopInterval) {
@@ -1293,6 +1316,7 @@ class Core
                     --Settings::$frameskipAmout;
                 }
             }
+
             $this->lastIteration = (int) (microtime(true) * 1000);
         }
     }
@@ -1353,11 +1377,13 @@ class Core
         if ($this->gbcRawPalette[$address_] == $data) {
             return;
         }
+
         $this->gbcRawPalette[$address_] = $data;
         if ($address_ >= 0x40 && ($address_ & 0x6) == 0) {
             // stay transparent
             return;
         }
+
         $value = ($this->gbcRawPalette[$address_ | 1] << 8) + $this->gbcRawPalette[$address_ & -2];
         $this->gbcPalette[$address_ >> 1] = 0x80000000 + (($value & 0x1F) << 19) + (($value & 0x3E0) << 6) + (($value & 0x7C00) >> 7);
         $this->invalidateAll($address_ >> 3);
@@ -1406,9 +1432,11 @@ class Core
                     $skippedTile = true;
                     continue;
                 }
+
                 $tileAttrib = (($mapAttrib & 0x07) << 2) + (($mapAttrib >> 5) & 0x03);
                 $tileNum += 384 * (($mapAttrib >> 3) & 0x01); // tile vram bank
             }
+
             $this->drawPartCopy($tileNum, $screenX, $line, $sourceImageLine, $tileAttrib);
         }
 
@@ -1427,9 +1455,11 @@ class Core
                         $skippedTile = true;
                         continue;
                     }
+
                     $tileAttrib = (($mapAttrib & 0x07) << 2) + (($mapAttrib >> 5) & 0x03); // mirroring
                     $tileNum += 384 * (($mapAttrib >> 3) & 0x01); // tile vram bank
                 }
+
                 $this->drawPartCopy($tileNum, $screenX, $line, $windowSourceTileLine, $tileAttrib);
             }
         }
@@ -1475,23 +1505,28 @@ class Core
             $pixixdy = -16;
             $pixix = 56;
         }
+
         if (($attribs & 1) == 0) {
             $pixixdx = -1;
             $pixix += 7;
             $pixixdy += 16;
         }
+
         for ($y = 8; --$y >= 0;) {
             $num = $this->weaveLookup[$this->VRAMReadGFX($offset++, $otherBank)] + ($this->weaveLookup[$this->VRAMReadGFX($offset++, $otherBank)] << 1);
             if ($num != 0) {
                 $transparent = false;
             }
+
             for ($x = 8; --$x >= 0;) {
                 $tempPix[$pixix] = $this->palette[$paletteStart + ($num & 3)] & -1;
                 $pixix += $pixixdx;
                 $num >>= 2;
             }
+
             $pixix += $pixixdy;
         }
+
         $this->tileData[$address_] = ($transparent) ? true : $tempPix;
 
         $this->tileReadState[$tileIndex] = 1;
@@ -1504,6 +1539,7 @@ class Core
         if (!$this->gfxSpriteShow) {
             return;
         }
+
         $minSpriteY = $line - (($this->gfxSpriteDouble) ? 15 : 7);
         // either only do priorityFlag == 0 (all foreground),
         // or first 0x80 (background) and then 0 (foreground)
@@ -1520,9 +1556,11 @@ class Core
                     if ($spriteX >= 160 || $spriteY < $minSpriteY || $offset < 0) {
                         continue;
                     }
+
                     if ($this->gfxSpriteDouble) {
                         $tileNum &= 0xFE;
                     }
+
                     $spriteAttrib = ($attributes >> 5) & 0x03; // flipx: from bit 0x20 to 0x01, flipy: from bit 0x40 to 0x02
                     if ($this->cGBC) {
                         $spriteAttrib += 0x20 + (($attributes & 0x07) << 2); // palette
@@ -1532,6 +1570,7 @@ class Core
                         // spriteAttrib: 0x04: OBJ1 palette, 0x08: OBJ2 palette
                         $spriteAttrib += 0x4 + (($attributes & 0x10) >> 2);
                     }
+
                     if ($priorityFlag == 0x80) {
                         // background
                         if ($this->gfxSpriteDouble) {
@@ -1566,6 +1605,7 @@ class Core
         if ($im === true) {
             return;
         }
+
         $dst = $x + $y * 160;
         $src = $sourceLine * 8;
         $dstEnd = ($x > 152) ? (($y + 1) * 160) : ($dst + 8);
@@ -1588,6 +1628,7 @@ class Core
         if ($im === true) {
             return;
         }
+
         $dst = $x + $y * 160;
         $src = $sourceLine * 8;
         $dstEnd = ($x > 152) ? (($y + 1) * 160) : ($dst + 8);
@@ -1596,6 +1637,7 @@ class Core
             $dst -= $x;
             $src -= $x;
         }
+
         while ($dst < $dstEnd) {
             //if ($im[$src] < 0 && $this->frameBuffer[$dst] >= 0) {
             $this->frameBuffer[$dst] = $im[$src];
@@ -1628,6 +1670,7 @@ class Core
                     if ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
                         return $this->MBCRam[$address + $this->currMBCRAMBankPosition];
                     }
+
                     //cout("Reading from disabled RAM.", 1);
                     return 0xFF;
                 } else {
@@ -1653,6 +1696,7 @@ class Core
                                 return ((($this->RTCDayOverFlow) ? 0x80 : 0) + (($this->RTCHALT) ? 0x40 : 0)) + $this->latchedHDays;
                         }
                     }
+
                     //cout("Reading from invalid or disabled RAM.", 1);
                     return 0xFF;
                 }
@@ -1780,6 +1824,7 @@ class Core
             $this->currentROMBank -= $this->ROM->count();
         }
     }
+
     public function setCurrentMBC5ROMBank()
     {
         //Read the cartridge ROM data from RAM memory:
@@ -1918,9 +1963,11 @@ class Core
                             $this->tileData[$r] = null;
                             $r -= $this->tileCount;
                         } while ($r >= 0);
+
                         $this->tileReadState[$tileIndex] = 0;
                     }
                 }
+
                 if ($this->currVRAMBank == 0) {
                     $this->memory[$address] = $data;
                 } else {
@@ -1950,6 +1997,7 @@ class Core
                             } else {
                                 echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
                             }
+
                             break;
                         case 0x09:
                             if ($data < 60) {
@@ -1957,6 +2005,7 @@ class Core
                             } else {
                                 echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
                             }
+
                             break;
                         case 0x0A:
                             if ($data < 24) {
@@ -1964,6 +2013,7 @@ class Core
                             } else {
                                 echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
                             }
+
                             break;
                         case 0x0B:
                             $this->RTCDays = ($data & 0xFF) | ($this->RTCDays & 0x100);
@@ -2010,6 +2060,7 @@ class Core
             } else {
                 //We might have encountered illegal RAM writing or such, so just do nothing...
             }
+
             //I/O Registers (GB + GBC):
         } elseif ($address == 0xFF00) {
             $this->memory[0xFF00] = ($data & 0x30) | (((($data & 0x20) == 0) ? ($this->JoyPad >> 4) : 0xF) & ((($data & 0x10) == 0) ? ($this->JoyPad & 0xF) : 0xF));
@@ -2042,8 +2093,10 @@ class Core
                     } else {
                         $this->displayShowOff();
                     }
+
                     $this->memory[0xFF0F] &= 0xFD;
                 }
+
                 $this->gfxWindowY = ($data & 0x40) == 0x40;
                 $this->gfxWindowDisplay = ($data & 0x20) == 0x20;
                 $this->gfxBackgroundX = ($data & 0x10) == 0x10;
@@ -2064,8 +2117,10 @@ class Core
                     } else {
                         $this->displayShowOff();
                     }
+
                     $this->memory[0xFF0F] &= 0xFD;
                 }
+
                 $this->gfxWindowY = ($data & 0x40) == 0x40;
                 $this->gfxWindowDisplay = ($data & 0x20) == 0x20;
                 $this->gfxBackgroundX = ($data & 0x10) == 0x10;
@@ -2079,6 +2134,7 @@ class Core
                 } else {
                     $this->bgEnabled = true;
                 }
+
                 $this->memory[0xFF40] = $data;
             }
         } elseif ($address == 0xFF41) {
@@ -2173,6 +2229,7 @@ class Core
                         for ($loopAmount = 0; $loopAmount < $endAmount; ++$loopAmount) {
                             $this->memoryWrite($dmaDst++, $this->memoryRead($dmaSrc++));
                         }
+
                         $this->memory[0xFF51] = (($dmaSrc & 0xFF00) >> 8);
                         $this->memory[0xFF52] = ($dmaSrc & 0x00F0);
                         $this->memory[0xFF53] = (($dmaDst & 0x1F00) >> 8);
@@ -2242,6 +2299,7 @@ class Core
                     $this->cGBC = ($data == 0x80);
                     echo 'Booted to GBC Mode: ' . $this->cGBC . PHP_EOL;
                 }
+
                 $this->memory[0xFF6C] = $data;
             }
         } elseif ($address == 0xFF70) {
@@ -2252,6 +2310,7 @@ class Core
                     $this->gbcRamBankPosition = (($this->gbcRamBank - 1) * 0x1000) - 0xD000;
                     $this->gbcRamBankPositionECHO = (($this->gbcRamBank - 1) * 0x1000) - 0xF000;
                 }
+
                 $this->memory[0xFF70] = ($data | 0x40); //Bit 6 cannot be written to.
             } else {
                 $this->memory[0xFF70] = $data;
