@@ -3326,7 +3326,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode219(Core $core)
+    public static function opcode219(Core $core): never
     {
         echo 'Illegal op code 0xDB called, pausing emulation.';
         exit();
@@ -3362,7 +3362,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode221(Core $core)
+    public static function opcode221(Core $core): never
     {
         echo 'Illegal op code 0xDD called, pausing emulation.';
         exit();
@@ -3448,7 +3448,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode227(Core $core)
+    public static function opcode227(Core $core): never
     {
         echo 'Illegal op code 0xE3 called, pausing emulation.';
         exit();
@@ -3461,7 +3461,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode228(Core $core)
+    public static function opcode228(Core $core): never
     {
         echo 'Illegal op code 0xE4 called, pausing emulation.';
         exit();
@@ -3564,7 +3564,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode235(Core $core)
+    public static function opcode235(Core $core): never
     {
         echo 'Illegal op code 0xEB called, pausing emulation.';
         exit();
@@ -3577,7 +3577,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode236(Core $core)
+    public static function opcode236(Core $core): never
     {
         echo 'Illegal op code 0xEC called, pausing emulation.';
         exit();
@@ -3590,7 +3590,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode237(Core $core)
+    public static function opcode237(Core $core): never
     {
         echo 'Illegal op code 0xED called, pausing emulation.';
         exit();
@@ -3804,7 +3804,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode252(Core $core)
+    public static function opcode252(Core $core): never
     {
         echo 'Illegal op code 0xFC called, pausing emulation.';
         exit();
@@ -3817,7 +3817,7 @@ class Opcode
      *
      * @param Core $core
      */
-    public static function opcode253(Core $core)
+    public static function opcode253(Core $core): never
     {
         echo 'Illegal op code 0xFD called, pausing emulation.';
         exit();

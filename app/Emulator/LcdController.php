@@ -7,8 +7,6 @@ class LcdController
     //Actual scan line...
     public $actualScanLine = 0;
 
-    protected $core;
-
     //Is the emulated LCD controller on?
     public $LCDisOn = false;
 
@@ -30,9 +28,8 @@ class LcdController
     //Tracker for STAT triggering.
     public $STATTracker = 0;
 
-    public function __construct($core)
+    public function __construct(protected $core)
     {
-        $this->core = $core;
     }
 
     public function matchLYC()

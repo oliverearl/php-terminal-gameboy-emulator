@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Emulator;
 
+use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
 use App\Exceptions\Core\CoreNotInitializedException;
@@ -12,12 +13,6 @@ use SplFixedArray;
 
 class Core
 {
-    // LCD Context
-    public ?DrawContextInterface $drawContext = null;
-
-    //The game's ROM.
-    public string $ROMImage;
-
     //The full ROM file dumped to an array.
     public SplFixedArray $ROM;
 
@@ -336,11 +331,8 @@ class Core
 
     public ?bool $cTIMER = null;
 
-    public function __construct($ROMImage, $drawContext)
+    public function __construct(public string $ROMImage, public ?DrawContextInterface $drawContext)
     {
-        $this->drawContext = $drawContext;
-        $this->ROMImage = $ROMImage;
-
         $this->tileCountInvalidator = $this->tileCount * 4;
 
         $this->ROMBanks[0x52] = 72;
@@ -592,8 +584,8 @@ class Core
     /**
      * Performs a number of checks that the emulator is working correctly.
      *
-     * @throws \App\Exceptions\Core\AlreadyRunningException
-     * @throws \App\Exceptions\Core\CoreNotInitializedException
+     * @throws AlreadyRunningException
+     * @throws CoreNotInitializedException
      */
     private function performSanityChecks(): void
     {
@@ -1071,7 +1063,7 @@ class Core
                     pause();
                 }
             }
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             if ($error->getMessage() != 'HALT_OVERRUN') {
                 echo 'GameBoy runtime error' . PHP_EOL;
             }
@@ -1448,7 +1440,7 @@ class Core
 
     public function drawPartCopy($tileIndex, $x, $y, $sourceLine, $attribs)
     {
-        $image = $this->tileData[$tileIndex + $this->tileCount * $attribs] ? $this->tileData[$tileIndex + $this->tileCount * $attribs] : $this->updateImage($tileIndex, $attribs);
+        $image = $this->tileData[$tileIndex + $this->tileCount * $attribs] ?: $this->updateImage($tileIndex, $attribs);
         $dst = $x + $y * 160;
         $src = $sourceLine * 8;
         $dstEnd = ($x > 152) ? (($y + 1) * 160) : ($dst + 8);
@@ -1573,7 +1565,7 @@ class Core
 
     public function drawPartFgSprite($tileIndex, $x, $y, $sourceLine, $attribs)
     {
-        $im = $this->tileData[$tileIndex + $this->tileCount * $attribs] ? $this->tileData[$tileIndex + $this->tileCount * $attribs] : $this->updateImage($tileIndex, $attribs);
+        $im = $this->tileData[$tileIndex + $this->tileCount * $attribs] ?: $this->updateImage($tileIndex, $attribs);
         if ($im === true) {
             return;
         }
@@ -1595,7 +1587,7 @@ class Core
 
     public function drawPartBgSprite($tileIndex, $x, $y, $sourceLine, $attribs)
     {
-        $im = $this->tileData[$tileIndex + $this->tileCount * $attribs] ? $this->tileData[$tileIndex + $this->tileCount * $attribs] : $this->updateImage($tileIndex, $attribs);
+        $im = $this->tileData[$tileIndex + $this->tileCount * $attribs] ?: $this->updateImage($tileIndex, $attribs);
         if ($im === true) {
             return;
         }
@@ -1799,17 +1791,11 @@ class Core
     public function setCurrentMBC1ROMBank()
     {
         //Read the cartridge ROM data from RAM memory:
-        switch ($this->ROMBank1offs) {
-            case 0x00:
-            case 0x20:
-            case 0x40:
-            case 0x60:
-                //Bank calls for 0x00, 0x20, 0x40, and 0x60 are really for 0x01, 0x21, 0x41, and 0x61.
-                $this->currentROMBank = $this->ROMBank1offs * 0x4000;
-                break;
-            default:
-                $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
-        }
+        $this->currentROMBank = match ($this->ROMBank1offs) {
+            //Bank calls for 0x00, 0x20, 0x40, and 0x60 are really for 0x01, 0x21, 0x41, and 0x61.
+            0x00, 0x20, 0x40, 0x60 => $this->ROMBank1offs * 0x4000,
+            default => ($this->ROMBank1offs - 1) * 0x4000,
+        };
         while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
             $this->currentROMBank -= $this->ROM->count();
         }
@@ -2076,7 +2062,7 @@ class Core
         } elseif ($address == 0xFF07) {
             $this->memory[0xFF07] = $data & 0x07;
             $this->TIMAEnabled = ($data & 0x04) == 0x04;
-            $this->TACClocker = pow(4, (($data & 0x3) != 0) ? ($data & 0x3) : 4); //TODO: Find a way to not make a conditional in here...
+            $this->TACClocker = 4 ** (($data & 0x3) != 0) ? ($data & 0x3) : 4; //TODO: Find a way to not make a conditional in here...
         } elseif ($address == 0xFF40) {
             if ($this->cGBC) {
                 $temp_var = ($data & 0x80) == 0x80;
@@ -2370,7 +2356,7 @@ class Core
             }
 
             return $typedArrayTemp;
-        } catch (\Exception $error) {
+        } catch (Exception) {
             echo 'Could not convert an array to a typed array' . PHP_EOL;
 
             return $baseArray;
@@ -2386,7 +2372,7 @@ class Core
             }
 
             return $arrayTemp;
-        } catch (\Exception $error) {
+        } catch (Exception) {
             return $baseArray;
         }
     }

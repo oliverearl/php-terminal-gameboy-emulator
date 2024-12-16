@@ -65,7 +65,7 @@ class LaravelCanvas implements DrawContextInterface
      * If true, pixels are represented by RGBA values and a color background is used.
      * If false, pixels are Boolean and represented as black/white Braille patterns.
      */
-    private bool $colorEnabled;
+    private readonly bool $colorEnabled;
 
     /**
      * The timestamp of the current second used to calculate FPS.
