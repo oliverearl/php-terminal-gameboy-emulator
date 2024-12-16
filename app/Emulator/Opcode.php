@@ -297,29 +297,27 @@ class Opcode
      */
     public static function opcode16(Core $core)
     {
-        if ($core->cGBC) {
-            /*TODO: Emulate the speed switch delay:
-            Delay Amount:
-            16 ms when going to double-speed.
-            32 ms when going to single-speed.
-            Also, bits 4 and 5 of 0xFF00 should read as set (1), while the switch is in process.
-             */
-
-            // Speed change requested.
-            if (($core->memory[0xFF4D] & 0x01) == 0x01) {
-                //Go back to single speed mode.
-                if (($core->memory[0xFF4D] & 0x80) == 0x80) {
-                    // cout("Going into single clock speed mode.", 0);
-                    $core->multiplier = 1; //TODO: Move this into the delay done code.
-                    $core->memory[0xFF4D] &= 0x7F; //Clear the double speed mode flag.
-                    //Go to double speed mode.
-                } else {
-                    // cout("Going into double clock speed mode.", 0);
-                    $core->multiplier = 2; //TODO: Move this into the delay done code.
-                    $core->memory[0xFF4D] |= 0x80; //Set the double speed mode flag.
-                }
-                $core->memory[0xFF4D] &= 0xFE; //Reset the request bit.
+        /*TODO: Emulate the speed switch delay:
+          Delay Amount:
+          16 ms when going to double-speed.
+          32 ms when going to single-speed.
+          Also, bits 4 and 5 of 0xFF00 should read as set (1), while the switch is in process.
+           */
+        // Speed change requested.
+        if ($core->cGBC && ($core->memory[0xFF4D] & 0x01) === 0x01) {
+            //Go back to single speed mode.
+            if (($core->memory[0xFF4D] & 0x80) === 0x80) {
+                // cout("Going into single clock speed mode.", 0);
+                $core->multiplier = 1; //TODO: Move this into the delay done code.
+                $core->memory[0xFF4D] &= 0x7F; //Clear the double speed mode flag.
+                //Go to double speed mode.
+            } else {
+                // cout("Going into double clock speed mode.", 0);
+                $core->multiplier = 2; //TODO: Move this into the delay done code.
+                $core->memory[0xFF4D] |= 0x80; //Set the double speed mode flag.
             }
+            $core->memory[0xFF4D] &= 0xFE;
+            //Reset the request bit.
         }
     }
 

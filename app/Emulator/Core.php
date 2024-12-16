@@ -13,6 +13,10 @@ use SplFixedArray;
 
 class Core
 {
+    public bool $cBATT;
+
+    public int $numROMBanks;
+
     //The full ROM file dumped to an array.
     public SplFixedArray $ROM;
 
@@ -1064,7 +1068,7 @@ class Core
                 }
             }
         } catch (Exception $error) {
-            if ($error->getMessage() != 'HALT_OVERRUN') {
+            if ($error->getMessage() !== 'HALT_OVERRUN') {
                 echo 'GameBoy runtime error' . PHP_EOL;
             }
         }
@@ -1112,7 +1116,7 @@ class Core
 
         while ($bitShift < 5) {
             //Check to see if an interrupt is enabled AND requested.
-            if (($testbit & $interrupts) == $testbit) {
+            if (($testbit & $interrupts) === $testbit) {
                 $this->IME = false; //Reset the interrupt enabling.
                 $this->memory[0xFF0F] -= $testbit; //Reset the interrupt request.
                 //Set the stack pointer to the current program counter value:
@@ -1154,11 +1158,10 @@ class Core
             $this->emulatorTicks += $this->audioTicks;
             if ($this->emulatorTicks >= Settings::$machineCyclesPerLoop) {
                 //Make sure we don't overdo the audio.
-                if (($this->stopEmulator & 1) == 0) {
-                    //LCD off takes at least 2 frames.
-                    if ($this->drewBlank == 0) {
-                        $this->drawToCanvas(); //Display frame
-                    }
+                //LCD off takes at least 2 frames.
+                if (($this->stopEmulator & 1) === 0 && $this->drewBlank === 0) {
+                    //Display frame
+                    $this->drawToCanvas();
                 }
                 $this->stopEmulator |= 1; //End current loop.
                 $this->emulatorTicks = 0;
@@ -1320,11 +1323,7 @@ class Core
                     $b = $this->frameBuffer[$bufferIndex] & 0xFF;
 
                     // 350 is a good threshold for black and white
-                    if ($r + $g + $b > 350) {
-                        $this->canvasBuffer[$bufferIndex] = true;
-                    } else {
-                        $this->canvasBuffer[$bufferIndex] = false;
-                    }
+                    $this->canvasBuffer[$bufferIndex] = $r + $g + $b > 350;
                 }
             }
 
@@ -1522,7 +1521,7 @@ class Core
                         continue;
                     }
                     if ($this->gfxSpriteDouble) {
-                        $tileNum = $tileNum & 0xFE;
+                        $tileNum &= 0xFE;
                     }
                     $spriteAttrib = ($attributes >> 5) & 0x03; // flipx: from bit 0x20 to 0x01, flipy: from bit 0x40 to 0x02
                     if ($this->cGBC) {
@@ -1544,17 +1543,15 @@ class Core
                         } else {
                             $this->drawPartBgSprite($tileNum, $spriteX, $line, $offset, $spriteAttrib);
                         }
-                    } else {
+                    } elseif ($this->gfxSpriteDouble) {
                         // foreground
-                        if ($this->gfxSpriteDouble) {
-                            if (($spriteAttrib & 2) != 0) {
-                                $this->drawPartFgSprite(($tileNum | 1) - ($offset >> 3), $spriteX, $line, $offset & 7, $spriteAttrib);
-                            } else {
-                                $this->drawPartFgSprite(($tileNum & -2) + ($offset >> 3), $spriteX, $line, $offset & 7, $spriteAttrib);
-                            }
+                        if (($spriteAttrib & 2) !== 0) {
+                            $this->drawPartFgSprite(($tileNum | 1) - ($offset >> 3), $spriteX, $line, $offset & 7, $spriteAttrib);
                         } else {
-                            $this->drawPartFgSprite($tileNum, $spriteX, $line, $offset, $spriteAttrib);
+                            $this->drawPartFgSprite(($tileNum & -2) + ($offset >> 3), $spriteX, $line, $offset & 7, $spriteAttrib);
                         }
+                    } else {
+                        $this->drawPartFgSprite($tileNum, $spriteX, $line, $offset, $spriteAttrib);
                     }
                 } else {
                     $oamIx -= 3;
@@ -1758,7 +1755,7 @@ class Core
     public function VRAMReadGFX($address, $gbcBank)
     {
         //Graphics Side Reading The VRAM
-        return (!$gbcBank) ? $this->memory[0x8000 + $address] : $this->VRAM[$address];
+        return ($gbcBank) ? $this->VRAM[$address] : $this->memory[0x8000 + $address];
     }
 
     public function setCurrentMBC1ROMBank()
@@ -1849,19 +1846,17 @@ class Core
                         //MBC3 RAM bank switching
                         $this->currMBCRAMBankPosition = ($this->currMBCRAMBank << 13) -   0xA000;
                     }
-                } else {
+                } elseif ($data === 0) {
                     //MBC3WriteRTCLatch
-                    if ($data == 0) {
-                        $this->RTCisLatched = false;
-                    } elseif (!$this->RTCisLatched) {
-                        //Copy over the current RTC time for reading.
-                        $this->RTCisLatched = true;
-                        $this->latchedSeconds = (int) floor($this->RTCSeconds);
-                        $this->latchedMinutes = $this->RTCMinutes;
-                        $this->latchedHours = $this->RTCHours;
-                        $this->latchedLDays = ($this->RTCDays & 0xFF);
-                        $this->latchedHDays = $this->RTCDays >> 8;
-                    }
+                    $this->RTCisLatched = false;
+                } elseif (!$this->RTCisLatched) {
+                    //Copy over the current RTC time for reading.
+                    $this->RTCisLatched = true;
+                    $this->latchedSeconds = (int) floor($this->RTCSeconds);
+                    $this->latchedMinutes = $this->RTCMinutes;
+                    $this->latchedHours = $this->RTCHours;
+                    $this->latchedLDays = ($this->RTCDays & 0xFF);
+                    $this->latchedHDays = $this->RTCDays >> 8;
                 }
             } elseif ($this->cMBC5 || $this->cRUMBLE) {
                 if ($address < 0x2000) {
@@ -1939,49 +1934,47 @@ class Core
                     if ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
                         $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;
                     }
-                } else {
+                } elseif ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
                     //MBC3 RTC + RAM:
                     //memoryWriteMBC3RAM
-                    if ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
-                        switch ($this->currMBCRAMBank) {
-                            case 0x00:
-                            case 0x01:
-                            case 0x02:
-                            case 0x03:
-                                $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;
-                                break;
-                            case 0x08:
-                                if ($data < 60) {
-                                    $this->RTCSeconds = $data;
-                                } else {
-                                    echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
-                                }
-                                break;
-                            case 0x09:
-                                if ($data < 60) {
-                                    $this->RTCMinutes = $data;
-                                } else {
-                                    echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
-                                }
-                                break;
-                            case 0x0A:
-                                if ($data < 24) {
-                                    $this->RTCHours = $data;
-                                } else {
-                                    echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
-                                }
-                                break;
-                            case 0x0B:
-                                $this->RTCDays = ($data & 0xFF) | ($this->RTCDays & 0x100);
-                                break;
-                            case 0x0C:
-                                $this->RTCDayOverFlow = ($data & 0x80) == 0x80;
-                                $this->RTCHALT = ($data & 0x40) == 0x40;
-                                $this->RTCDays = (($data & 0x1) << 8) | ($this->RTCDays & 0xFF);
-                                break;
-                            default:
-                                echo 'Invalid MBC3 bank address selected: ' . $this->currMBCRAMBank . PHP_EOL;
-                        }
+                    switch ($this->currMBCRAMBank) {
+                        case 0x00:
+                        case 0x01:
+                        case 0x02:
+                        case 0x03:
+                            $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;
+                            break;
+                        case 0x08:
+                            if ($data < 60) {
+                                $this->RTCSeconds = $data;
+                            } else {
+                                echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
+                            }
+                            break;
+                        case 0x09:
+                            if ($data < 60) {
+                                $this->RTCMinutes = $data;
+                            } else {
+                                echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
+                            }
+                            break;
+                        case 0x0A:
+                            if ($data < 24) {
+                                $this->RTCHours = $data;
+                            } else {
+                                echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
+                            }
+                            break;
+                        case 0x0B:
+                            $this->RTCDays = ($data & 0xFF) | ($this->RTCDays & 0x100);
+                            break;
+                        case 0x0C:
+                            $this->RTCDayOverFlow = ($data & 0x80) == 0x80;
+                            $this->RTCHALT = ($data & 0x40) == 0x40;
+                            $this->RTCDays = (($data & 0x1) << 8) | ($this->RTCDays & 0xFF);
+                            break;
+                        default:
+                            echo 'Invalid MBC3 bank address selected: ' . $this->currMBCRAMBank . PHP_EOL;
                     }
                 }
             } else {
@@ -2139,11 +2132,7 @@ class Core
                 $this->invalidateAll(2);
             }
         } elseif ($address == 0xFF4D) {
-            if ($this->cGBC) {
-                $this->memory[0xFF4D] = ($data & 0x7F) + ($this->memory[0xFF4D] & 0x80);
-            } else {
-                $this->memory[0xFF4D] = $data;
-            }
+            $this->memory[0xFF4D] = $this->cGBC ? ($data & 0x7F) + ($this->memory[0xFF4D] & 0x80) : $data;
         } elseif ($address == 0xFF4F) {
             if ($this->cGBC) {
                 $this->currVRAMBank = $data & 0x01;
@@ -2157,28 +2146,20 @@ class Core
                 $this->memory[0xFF50] = $data; //Bits are sustained in memory?
             }
         } elseif ($address == 0xFF51) {
-            if ($this->cGBC) {
-                if (!$this->hdmaRunning) {
-                    $this->memory[0xFF51] = $data;
-                }
+            if ($this->cGBC && !$this->hdmaRunning) {
+                $this->memory[0xFF51] = $data;
             }
         } elseif ($address == 0xFF52) {
-            if ($this->cGBC) {
-                if (!$this->hdmaRunning) {
-                    $this->memory[0xFF52] = $data & 0xF0;
-                }
+            if ($this->cGBC && !$this->hdmaRunning) {
+                $this->memory[0xFF52] = $data & 0xF0;
             }
         } elseif ($address == 0xFF53) {
-            if ($this->cGBC) {
-                if (!$this->hdmaRunning) {
-                    $this->memory[0xFF53] = $data & 0x1F;
-                }
+            if ($this->cGBC && !$this->hdmaRunning) {
+                $this->memory[0xFF53] = $data & 0x1F;
             }
         } elseif ($address == 0xFF54) {
-            if ($this->cGBC) {
-                if (!$this->hdmaRunning) {
-                    $this->memory[0xFF54] = $data & 0xF0;
-                }
+            if ($this->cGBC && !$this->hdmaRunning) {
+                $this->memory[0xFF54] = $data & 0xF0;
             }
         } elseif ($address == 0xFF55) {
             if ($this->cGBC) {
@@ -2196,15 +2177,14 @@ class Core
                         $this->memory[0xFF52] = ($dmaSrc & 0x00F0);
                         $this->memory[0xFF53] = (($dmaDst & 0x1F00) >> 8);
                         $this->memory[0xFF54] = ($dmaDst & 0x00F0);
-                        $this->memory[0xFF55] = 0xFF; //Transfer completed.
-                    } else {
+                        $this->memory[0xFF55] = 0xFF;
+                        //Transfer completed.
+                    } elseif ($data > 0x80) {
                         //H-Blank DMA
-                        if ($data > 0x80) {
-                            $this->hdmaRunning = true;
-                            $this->memory[0xFF55] = $data & 0x7F;
-                        } else {
-                            $this->memory[0xFF55] = 0xFF;
-                        }
+                        $this->hdmaRunning = true;
+                        $this->memory[0xFF55] = $data & 0x7F;
+                    } else {
+                        $this->memory[0xFF55] = 0xFF;
                     }
                 } elseif (($data & 0x80) == 0) {
                     //Stop H-Blank DMA
@@ -2324,7 +2304,8 @@ class Core
     {
         try {
             $typedArrayTemp = ($bit32) ? (($unsigned) ? new Uint32Array(count($baseArray)) : new Int32Array(count($baseArray))) : new Uint8Array(count($baseArray));
-            for ($address = 0; $address < count($baseArray); ++$address) {
+            $counter = count($baseArray);
+            for ($address = 0; $address < $counter; ++$address) {
                 $typedArrayTemp[$address] = $baseArray[$address];
             }
 
@@ -2340,7 +2321,8 @@ class Core
     {
         try {
             $arrayTemp = array_fill(0, count($baseArray), 0);
-            for ($address = 0; $address < count($baseArray); ++$address) {
+            $counter = count($baseArray);
+            for ($address = 0; $address < $counter; ++$address) {
                 $arrayTemp[$address] = $baseArray[$address];
             }
 
