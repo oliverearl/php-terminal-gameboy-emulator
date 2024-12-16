@@ -1644,19 +1644,14 @@ class Core
                             case 0x02:
                             case 0x03:
                                 return $this->MBCRam[$address + $this->currMBCRAMBankPosition];
-                                break;
                             case 0x08:
                                 return $this->latchedSeconds;
-                                break;
                             case 0x09:
                                 return $this->latchedMinutes;
-                                break;
                             case 0x0A:
                                 return $this->latchedHours;
-                                break;
                             case 0x0B:
                                 return $this->latchedLDays;
-                                break;
                             case 0x0C:
                                 return ((($this->RTCDayOverFlow) ? 0x80 : 0) + (($this->RTCHALT) ? 0x40 : 0)) + $this->latchedHDays;
                         }
@@ -1691,60 +1686,42 @@ class Core
         } elseif ($address >= 0xFF00) {
             switch ($address) {
                 case 0xFF00:
-                    return 0xC0 | $this->memory[0xFF00]; //Top nibble returns as set.
-                    break;
+                    return 0xC0 | $this->memory[0xFF00];
                 case 0xFF01:
                     return (($this->memory[0xFF02] & 0x1) == 0x1) ? 0xFF : $this->memory[0xFF01];
-                    break;
                 case 0xFF02:
                     if ($this->cGBC) {
                         return 0x7C | $this->memory[0xFF02];
                     } else {
                         return 0x7E | $this->memory[0xFF02];
                     }
-                    break;
                 case 0xFF07:
                     return 0xF8 | $this->memory[0xFF07];
-                    break;
                 case 0xFF0F:
                     return 0xE0 | $this->memory[0xFF0F];
-                    break;
                 case 0xFF10:
                     return 0x80 | $this->memory[0xFF10];
-                    break;
                 case 0xFF11:
                     return 0x3F | $this->memory[0xFF11];
-                    break;
                 case 0xFF14:
                     return 0xBF | $this->memory[0xFF14];
-                    break;
                 case 0xFF16:
                     return 0x3F | $this->memory[0xFF16];
-                    break;
                 case 0xFF19:
                     return 0xBF | $this->memory[0xFF19];
-                    break;
                 case 0xFF1A:
                     return 0x7F | $this->memory[0xFF1A];
-                    break;
                 case 0xFF1B:
-                    return 0xFF;
-                    break;
-                case 0xFF1C:
-                    return 0x9F | $this->memory[0xFF1C];
-                    break;
-                case 0xFF1E:
-                    return 0xBF | $this->memory[0xFF1E];
-                    break;
                 case 0xFF20:
                     return 0xFF;
-                    break;
+                case 0xFF1C:
+                    return 0x9F | $this->memory[0xFF1C];
+                case 0xFF1E:
+                    return 0xBF | $this->memory[0xFF1E];
                 case 0xFF23:
                     return 0xBF | $this->memory[0xFF23];
-                    break;
                 case 0xFF26:
                     return 0x70 | $this->memory[0xFF26];
-                    break;
                 case 0xFF30:
                 case 0xFF31:
                 case 0xFF32:
@@ -1762,16 +1739,12 @@ class Core
                 case 0xFF3E:
                 case 0xFF3F:
                     return (($this->memory[0xFF26] & 0x4) == 0x4) ? 0xFF : $this->memory[$address];
-                    break;
                 case 0xFF41:
                     return 0x80 | $this->memory[0xFF41] | $this->lcdController->modeSTAT;
-                    break;
                 case 0xFF44:
                     return ($this->lcdController->LCDisOn) ? $this->memory[0xFF44] : 0;
-                    break;
                 case 0xFF4F:
                     return $this->currVRAMBank;
-                    break;
                 default:
                     //memoryReadNormal
                     return $this->memory[$address];
@@ -2388,8 +2361,6 @@ class Core
 
     public function arrayPad($length, $defaultValue)
     {
-        $arrayHandle = array_fill(0, $length, $defaultValue);
-
-        return $arrayHandle;
+        return array_fill(0, $length, $defaultValue);
     }
 }
