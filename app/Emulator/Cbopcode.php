@@ -102,7 +102,7 @@ class Cbopcode
     /**
      * Cbopcode #0x00.
      */
-    private static function cbopcode0(Core $core)
+    private static function cbopcode0(Core $core): void
     {
         $core->FCarry = (($core->registerB & 0x80) == 0x80);
         $core->registerB = (($core->registerB << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -114,7 +114,7 @@ class Cbopcode
     /**
      * Cbopcode #0x01.
      */
-    private static function cbopcode1(Core $core)
+    private static function cbopcode1(Core $core): void
     {
         $core->FCarry = (($core->registerC & 0x80) == 0x80);
         $core->registerC = (($core->registerC << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -126,7 +126,7 @@ class Cbopcode
     /**
      * Cbopcode #0x02.
      */
-    private static function cbopcode2(Core $core)
+    private static function cbopcode2(Core $core): void
     {
         $core->FCarry = (($core->registerD & 0x80) == 0x80);
         $core->registerD = (($core->registerD << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -138,7 +138,7 @@ class Cbopcode
     /**
      * Cbopcode #0x03.
      */
-    private static function cbopcode3(Core $core)
+    private static function cbopcode3(Core $core): void
     {
         $core->FCarry = (($core->registerE & 0x80) == 0x80);
         $core->registerE = (($core->registerE << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -150,7 +150,7 @@ class Cbopcode
     /**
      * Cbopcode #0x04.
      */
-    private static function cbopcode4(Core $core)
+    private static function cbopcode4(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x8000) == 0x8000);
         $core->registersHL = (($core->registersHL << 1) & 0xFE00) + (($core->FCarry) ? 0x100 : 0) + ($core->registersHL & 0xFF);
@@ -162,7 +162,7 @@ class Cbopcode
     /**
      * Cbopcode #0x05.
      */
-    private static function cbopcode5(Core $core)
+    private static function cbopcode5(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x80) == 0x80);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -174,7 +174,7 @@ class Cbopcode
     /**
      * Cbopcode #0x06.
      */
-    private static function cbopcode6(Core $core)
+    private static function cbopcode6(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $core->FCarry = (($temp_var & 0x80) == 0x80);
@@ -188,7 +188,7 @@ class Cbopcode
     /**
      * Cbopcode #0x07.
      */
-    private static function cbopcode7(Core $core)
+    private static function cbopcode7(Core $core): void
     {
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -200,7 +200,7 @@ class Cbopcode
     /**
      * Cbopcode #0x08.
      */
-    private static function cbopcode8(Core $core)
+    private static function cbopcode8(Core $core): void
     {
         $core->FCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB = (($core->FCarry) ? 0x80 : 0) + ($core->registerB >> 1);
@@ -212,7 +212,7 @@ class Cbopcode
     /**
      * Cbopcode #0x09.
      */
-    private static function cbopcode9(Core $core)
+    private static function cbopcode9(Core $core): void
     {
         $core->FCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC = (($core->FCarry) ? 0x80 : 0) + ($core->registerC >> 1);
@@ -224,7 +224,7 @@ class Cbopcode
     /**
      * Cbopcode #0x0A.
      */
-    private static function cbopcode10(Core $core)
+    private static function cbopcode10(Core $core): void
     {
         $core->FCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD = (($core->FCarry) ? 0x80 : 0) + ($core->registerD >> 1);
@@ -236,7 +236,7 @@ class Cbopcode
     /**
      * Cbopcode #0x0B.
      */
-    private static function cbopcode11(Core $core)
+    private static function cbopcode11(Core $core): void
     {
         $core->FCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE = (($core->FCarry) ? 0x80 : 0) + ($core->registerE >> 1);
@@ -248,7 +248,7 @@ class Cbopcode
     /**
      * Cbopcode #0x0C.
      */
-    private static function cbopcode12(Core $core)
+    private static function cbopcode12(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->FCarry) ? 0x8000 : 0) + (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0xFF);
@@ -260,7 +260,7 @@ class Cbopcode
     /**
      * Cbopcode #0x0D.
      */
-    private static function cbopcode13(Core $core)
+    private static function cbopcode13(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x01) == 0x01);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->FCarry) ? 0x80 : 0) + (($core->registersHL & 0xFF) >> 1);
@@ -272,7 +272,7 @@ class Cbopcode
     /**
      * Cbopcode #0x0E.
      */
-    private static function cbopcode14(Core $core)
+    private static function cbopcode14(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $core->FCarry = (($temp_var & 0x01) == 0x01);
@@ -286,7 +286,7 @@ class Cbopcode
     /**
      * Cbopcode #0x0F.
      */
-    private static function cbopcode15(Core $core)
+    private static function cbopcode15(Core $core): void
     {
         $core->FCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA = (($core->FCarry) ? 0x80 : 0) + ($core->registerA >> 1);
@@ -298,7 +298,7 @@ class Cbopcode
     /**
      * Cbopcode #0x10.
      */
-    private static function cbopcode16(Core $core)
+    private static function cbopcode16(Core $core): void
     {
         $newFCarry = (($core->registerB & 0x80) == 0x80);
         $core->registerB = (($core->registerB << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -311,7 +311,7 @@ class Cbopcode
     /**
      * Cbopcode #0x11.
      */
-    private static function cbopcode17(Core $core)
+    private static function cbopcode17(Core $core): void
     {
         $newFCarry = (($core->registerC & 0x80) == 0x80);
         $core->registerC = (($core->registerC << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -324,7 +324,7 @@ class Cbopcode
     /**
      * Cbopcode #0x12.
      */
-    private static function cbopcode18(Core $core)
+    private static function cbopcode18(Core $core): void
     {
         $newFCarry = (($core->registerD & 0x80) == 0x80);
         $core->registerD = (($core->registerD << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -337,7 +337,7 @@ class Cbopcode
     /**
      * Cbopcode #0x13.
      */
-    private static function cbopcode19(Core $core)
+    private static function cbopcode19(Core $core): void
     {
         $newFCarry = (($core->registerE & 0x80) == 0x80);
         $core->registerE = (($core->registerE << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -350,7 +350,7 @@ class Cbopcode
     /**
      * Cbopcode #0x14.
      */
-    private static function cbopcode20(Core $core)
+    private static function cbopcode20(Core $core): void
     {
         $newFCarry = (($core->registersHL & 0x8000) == 0x8000);
         $core->registersHL = (($core->registersHL << 1) & 0xFE00) + (($core->FCarry) ? 0x100 : 0) + ($core->registersHL & 0xFF);
@@ -363,7 +363,7 @@ class Cbopcode
     /**
      * Cbopcode #0x15.
      */
-    private static function cbopcode21(Core $core)
+    private static function cbopcode21(Core $core): void
     {
         $newFCarry = (($core->registersHL & 0x80) == 0x80);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -376,7 +376,7 @@ class Cbopcode
     /**
      * Cbopcode #0x16.
      */
-    private static function cbopcode22(Core $core)
+    private static function cbopcode22(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $newFCarry = (($temp_var & 0x80) == 0x80);
@@ -391,7 +391,7 @@ class Cbopcode
     /**
      * Cbopcode #0x17.
      */
-    private static function cbopcode23(Core $core)
+    private static function cbopcode23(Core $core): void
     {
         $newFCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) + (($core->FCarry) ? 1 : 0);
@@ -404,7 +404,7 @@ class Cbopcode
     /**
      * Cbopcode #0x18.
      */
-    private static function cbopcode24(Core $core)
+    private static function cbopcode24(Core $core): void
     {
         $newFCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB = (($core->FCarry) ? 0x80 : 0) + ($core->registerB >> 1);
@@ -417,7 +417,7 @@ class Cbopcode
     /**
      * Cbopcode #0x19.
      */
-    private static function cbopcode25(Core $core)
+    private static function cbopcode25(Core $core): void
     {
         $newFCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC = (($core->FCarry) ? 0x80 : 0) + ($core->registerC >> 1);
@@ -430,7 +430,7 @@ class Cbopcode
     /**
      * Cbopcode #0x1A.
      */
-    private static function cbopcode26(Core $core)
+    private static function cbopcode26(Core $core): void
     {
         $newFCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD = (($core->FCarry) ? 0x80 : 0) + ($core->registerD >> 1);
@@ -443,7 +443,7 @@ class Cbopcode
     /**
      * Cbopcode #0x1B.
      */
-    private static function cbopcode27(Core $core)
+    private static function cbopcode27(Core $core): void
     {
         $newFCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE = (($core->FCarry) ? 0x80 : 0) + ($core->registerE >> 1);
@@ -456,7 +456,7 @@ class Cbopcode
     /**
      * Cbopcode #0x1C.
      */
-    private static function cbopcode28(Core $core)
+    private static function cbopcode28(Core $core): void
     {
         $newFCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->FCarry) ? 0x8000 : 0) + (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0xFF);
@@ -469,7 +469,7 @@ class Cbopcode
     /**
      * Cbopcode #0x1D.
      */
-    private static function cbopcode29(Core $core)
+    private static function cbopcode29(Core $core): void
     {
         $newFCarry = (($core->registersHL & 0x01) == 0x01);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->FCarry) ? 0x80 : 0) + (($core->registersHL & 0xFF) >> 1);
@@ -482,7 +482,7 @@ class Cbopcode
     /**
      * Cbopcode #0x1E.
      */
-    private static function cbopcode30(Core $core)
+    private static function cbopcode30(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $newFCarry = (($temp_var & 0x01) == 0x01);
@@ -497,7 +497,7 @@ class Cbopcode
     /**
      * Cbopcode #0x1F.
      */
-    private static function cbopcode31(Core $core)
+    private static function cbopcode31(Core $core): void
     {
         $newFCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA = (($core->FCarry) ? 0x80 : 0) + ($core->registerA >> 1);
@@ -510,7 +510,7 @@ class Cbopcode
     /**
      * Cbopcode #0x20.
      */
-    private static function cbopcode32(Core $core)
+    private static function cbopcode32(Core $core): void
     {
         $core->FCarry = (($core->registerB & 0x80) == 0x80);
         $core->registerB = ($core->registerB << 1) & 0xFF;
@@ -522,7 +522,7 @@ class Cbopcode
     /**
      * Cbopcode #0x21.
      */
-    private static function cbopcode33(Core $core)
+    private static function cbopcode33(Core $core): void
     {
         $core->FCarry = (($core->registerC & 0x80) == 0x80);
         $core->registerC = ($core->registerC << 1) & 0xFF;
@@ -534,7 +534,7 @@ class Cbopcode
     /**
      * Cbopcode #0x22.
      */
-    private static function cbopcode34(Core $core)
+    private static function cbopcode34(Core $core): void
     {
         $core->FCarry = (($core->registerD & 0x80) == 0x80);
         $core->registerD = ($core->registerD << 1) & 0xFF;
@@ -546,7 +546,7 @@ class Cbopcode
     /**
      * Cbopcode #0x23.
      */
-    private static function cbopcode35(Core $core)
+    private static function cbopcode35(Core $core): void
     {
         $core->FCarry = (($core->registerE & 0x80) == 0x80);
         $core->registerE = ($core->registerE << 1) & 0xFF;
@@ -558,7 +558,7 @@ class Cbopcode
     /**
      * Cbopcode #0x24.
      */
-    private static function cbopcode36(Core $core)
+    private static function cbopcode36(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x8000) == 0x8000);
         $core->registersHL = (($core->registersHL << 1) & 0xFE00) + ($core->registersHL & 0xFF);
@@ -570,7 +570,7 @@ class Cbopcode
     /**
      * Cbopcode #0x25.
      */
-    private static function cbopcode37(Core $core)
+    private static function cbopcode37(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x0080) == 0x0080);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL << 1) & 0xFF);
@@ -582,7 +582,7 @@ class Cbopcode
     /**
      * Cbopcode #0x26.
      */
-    private static function cbopcode38(Core $core)
+    private static function cbopcode38(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $core->FCarry = (($temp_var & 0x80) == 0x80);
@@ -596,7 +596,7 @@ class Cbopcode
     /**
      * Cbopcode #0x27.
      */
-    private static function cbopcode39(Core $core)
+    private static function cbopcode39(Core $core): void
     {
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = ($core->registerA << 1) & 0xFF;
@@ -608,7 +608,7 @@ class Cbopcode
     /**
      * Cbopcode #0x28.
      */
-    private static function cbopcode40(Core $core)
+    private static function cbopcode40(Core $core): void
     {
         $core->FCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB = ($core->registerB & 0x80) + ($core->registerB >> 1);
@@ -620,7 +620,7 @@ class Cbopcode
     /**
      * Cbopcode #0x29.
      */
-    private static function cbopcode41(Core $core)
+    private static function cbopcode41(Core $core): void
     {
         $core->FCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC = ($core->registerC & 0x80) + ($core->registerC >> 1);
@@ -632,7 +632,7 @@ class Cbopcode
     /**
      * Cbopcode #0x2A.
      */
-    private static function cbopcode42(Core $core)
+    private static function cbopcode42(Core $core): void
     {
         $core->FCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD = ($core->registerD & 0x80) + ($core->registerD >> 1);
@@ -644,7 +644,7 @@ class Cbopcode
     /**
      * Cbopcode #0x2B.
      */
-    private static function cbopcode43(Core $core)
+    private static function cbopcode43(Core $core): void
     {
         $core->FCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE = ($core->registerE & 0x80) + ($core->registerE >> 1);
@@ -657,7 +657,7 @@ class Cbopcode
      *
      * Cbopcode #0x2C.
      */
-    private static function cbopcode44(Core $core)
+    private static function cbopcode44(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0x80FF);
@@ -669,7 +669,7 @@ class Cbopcode
     /**
      * Cbopcode #0x2D.
      */
-    private static function cbopcode45(Core $core)
+    private static function cbopcode45(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x0001) == 0x0001);
         $core->registersHL = ($core->registersHL & 0xFF80) + (($core->registersHL & 0xFF) >> 1);
@@ -681,7 +681,7 @@ class Cbopcode
     /**
      * Cbopcode #0x2E.
      */
-    private static function cbopcode46(Core $core)
+    private static function cbopcode46(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $core->FCarry = (($temp_var & 0x01) == 0x01);
@@ -695,7 +695,7 @@ class Cbopcode
     /**
      * Cbopcode #0x2F.
      */
-    private static function cbopcode47(Core $core)
+    private static function cbopcode47(Core $core): void
     {
         $core->FCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA = ($core->registerA & 0x80) + ($core->registerA >> 1);
@@ -707,7 +707,7 @@ class Cbopcode
     /**
      * Cbopcode #0x30.
      */
-    private static function cbopcode48(Core $core)
+    private static function cbopcode48(Core $core): void
     {
         $core->registerB = (($core->registerB & 0xF) << 4) + ($core->registerB >> 4);
         $core->FZero = ($core->registerB == 0);
@@ -719,7 +719,7 @@ class Cbopcode
     /**
      * Cbopcode #0x31.
      */
-    private static function cbopcode49(Core $core)
+    private static function cbopcode49(Core $core): void
     {
         $core->registerC = (($core->registerC & 0xF) << 4) + ($core->registerC >> 4);
         $core->FZero = ($core->registerC == 0);
@@ -731,7 +731,7 @@ class Cbopcode
     /**
      * Cbopcode #0x32.
      */
-    private static function cbopcode50(Core $core)
+    private static function cbopcode50(Core $core): void
     {
         $core->registerD = (($core->registerD & 0xF) << 4) + ($core->registerD >> 4);
         $core->FZero = ($core->registerD == 0);
@@ -743,7 +743,7 @@ class Cbopcode
     /**
      * Cbopcode #0x33.
      */
-    private static function cbopcode51(Core $core)
+    private static function cbopcode51(Core $core): void
     {
         $core->registerE = (($core->registerE & 0xF) << 4) + ($core->registerE >> 4);
         $core->FZero = ($core->registerE == 0);
@@ -755,7 +755,7 @@ class Cbopcode
     /**
      * Cbopcode #0x34.
      */
-    private static function cbopcode52(Core $core)
+    private static function cbopcode52(Core $core): void
     {
         $core->registersHL = (($core->registersHL & 0xF00) << 4) + (($core->registersHL & 0xF000) >> 4) + ($core->registersHL & 0xFF);
         $core->FZero = ($core->registersHL <= 0xFF);
@@ -767,7 +767,7 @@ class Cbopcode
     /**
      * Cbopcode #0x35.
      */
-    private static function cbopcode53(Core $core)
+    private static function cbopcode53(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL & 0xF) << 4) + (($core->registersHL & 0xF0) >> 4);
         $core->FZero = (($core->registersHL & 0xFF) == 0);
@@ -779,7 +779,7 @@ class Cbopcode
     /**
      * Cbopcode #0x36.
      */
-    private static function cbopcode54(Core $core)
+    private static function cbopcode54(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $temp_var = (($temp_var & 0xF) << 4) + ($temp_var >> 4);
@@ -794,7 +794,7 @@ class Cbopcode
     /**
      * Cbopcode #0x37.
      */
-    private static function cbopcode55(Core $core)
+    private static function cbopcode55(Core $core): void
     {
         $core->registerA = (($core->registerA & 0xF) << 4) + ($core->registerA >> 4);
         $core->FZero = ($core->registerA == 0);
@@ -806,7 +806,7 @@ class Cbopcode
     /**
      * Cbopcode #0x38.
      */
-    private static function cbopcode56(Core $core)
+    private static function cbopcode56(Core $core): void
     {
         $core->FCarry = (($core->registerB & 0x01) == 0x01);
         $core->registerB >>= 1;
@@ -818,7 +818,7 @@ class Cbopcode
     /**
      * Cbopcode #0x39.
      */
-    private static function cbopcode57(Core $core)
+    private static function cbopcode57(Core $core): void
     {
         $core->FCarry = (($core->registerC & 0x01) == 0x01);
         $core->registerC >>= 1;
@@ -830,7 +830,7 @@ class Cbopcode
     /**
      * Cbopcode #0x3A.
      */
-    private static function cbopcode58(Core $core)
+    private static function cbopcode58(Core $core): void
     {
         $core->FCarry = (($core->registerD & 0x01) == 0x01);
         $core->registerD >>= 1;
@@ -842,7 +842,7 @@ class Cbopcode
     /**
      * Cbopcode #0x3B.
      */
-    private static function cbopcode59(Core $core)
+    private static function cbopcode59(Core $core): void
     {
         $core->FCarry = (($core->registerE & 0x01) == 0x01);
         $core->registerE >>= 1;
@@ -854,7 +854,7 @@ class Cbopcode
     /**
      * Cbopcode #0x3C.
      */
-    private static function cbopcode60(Core $core)
+    private static function cbopcode60(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x0100) == 0x0100);
         $core->registersHL = (($core->registersHL >> 1) & 0xFF00) + ($core->registersHL & 0xFF);
@@ -866,7 +866,7 @@ class Cbopcode
     /**
      * Cbopcode #0x3D.
      */
-    private static function cbopcode61(Core $core)
+    private static function cbopcode61(Core $core): void
     {
         $core->FCarry = (($core->registersHL & 0x0001) == 0x0001);
         $core->registersHL = ($core->registersHL & 0xFF00) + (($core->registersHL & 0xFF) >> 1);
@@ -878,7 +878,7 @@ class Cbopcode
     /**
      * Cbopcode #0x3E.
      */
-    private static function cbopcode62(Core $core)
+    private static function cbopcode62(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $core->FCarry = (($temp_var & 0x01) == 0x01);
@@ -891,7 +891,7 @@ class Cbopcode
     /**
      * Cbopcode #0x3F.
      */
-    private static function cbopcode63(Core $core)
+    private static function cbopcode63(Core $core): void
     {
         $core->FCarry = (($core->registerA & 0x01) == 0x01);
         $core->registerA >>= 1;
@@ -903,7 +903,7 @@ class Cbopcode
     /**
      * Cbopcode #0x40.
      */
-    private static function cbopcode64(Core $core)
+    private static function cbopcode64(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -913,7 +913,7 @@ class Cbopcode
     /**
      * Cbopcode #0x41.
      */
-    private static function cbopcode65(Core $core)
+    private static function cbopcode65(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -923,7 +923,7 @@ class Cbopcode
     /**
      * Cbopcode #0x42.
      */
-    private static function cbopcode66(Core $core)
+    private static function cbopcode66(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -933,7 +933,7 @@ class Cbopcode
     /**
      * Cbopcode #0x43.
      */
-    private static function cbopcode67(Core $core)
+    private static function cbopcode67(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -943,7 +943,7 @@ class Cbopcode
     /**
      * Cbopcode #0x44.
      */
-    private static function cbopcode68(Core $core)
+    private static function cbopcode68(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -953,7 +953,7 @@ class Cbopcode
     /**
      * Cbopcode #0x45.
      */
-    private static function cbopcode69(Core $core)
+    private static function cbopcode69(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -963,7 +963,7 @@ class Cbopcode
     /**
      * Cbopcode #0x46.
      */
-    private static function cbopcode70(Core $core)
+    private static function cbopcode70(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -973,7 +973,7 @@ class Cbopcode
     /**
      * Cbopcode #0x47.
      */
-    private static function cbopcode71(Core $core)
+    private static function cbopcode71(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -983,7 +983,7 @@ class Cbopcode
     /**
      * Cbopcode #0x48.
      */
-    private static function cbopcode72(Core $core)
+    private static function cbopcode72(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -993,7 +993,7 @@ class Cbopcode
     /**
      * Cbopcode #0x49.
      */
-    private static function cbopcode73(Core $core)
+    private static function cbopcode73(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1003,7 +1003,7 @@ class Cbopcode
     /**
      * Cbopcode #0x4A.
      */
-    private static function cbopcode74(Core $core)
+    private static function cbopcode74(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1013,7 +1013,7 @@ class Cbopcode
     /**
      * Cbopcode #0x4B.
      */
-    private static function cbopcode75(Core $core)
+    private static function cbopcode75(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1023,7 +1023,7 @@ class Cbopcode
     /**
      * Cbopcode #0x4C.
      */
-    private static function cbopcode76(Core $core)
+    private static function cbopcode76(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1033,7 +1033,7 @@ class Cbopcode
     /**
      * Cbopcode #0x4D.
      */
-    private static function cbopcode77(Core $core)
+    private static function cbopcode77(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1043,7 +1043,7 @@ class Cbopcode
     /**
      * Cbopcode #0x4E.
      */
-    private static function cbopcode78(Core $core)
+    private static function cbopcode78(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1053,7 +1053,7 @@ class Cbopcode
     /**
      * Cbopcode #0x4F.
      */
-    private static function cbopcode79(Core $core)
+    private static function cbopcode79(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1063,7 +1063,7 @@ class Cbopcode
     /**
      * Cbopcode #0x50.
      */
-    private static function cbopcode80(Core $core)
+    private static function cbopcode80(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1073,7 +1073,7 @@ class Cbopcode
     /**
      * Cbopcode #0x51.
      */
-    private static function cbopcode81(Core $core)
+    private static function cbopcode81(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1083,7 +1083,7 @@ class Cbopcode
     /**
      * Cbopcode #0x52.
      */
-    private static function cbopcode82(Core $core)
+    private static function cbopcode82(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1093,7 +1093,7 @@ class Cbopcode
     /**
      * Cbopcode #0x53.
      */
-    private static function cbopcode83(Core $core)
+    private static function cbopcode83(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1103,7 +1103,7 @@ class Cbopcode
     /**
      * Cbopcode #0x54.
      */
-    private static function cbopcode84(Core $core)
+    private static function cbopcode84(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1113,7 +1113,7 @@ class Cbopcode
     /**
      * Cbopcode #0x55.
      */
-    private static function cbopcode85(Core $core)
+    private static function cbopcode85(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1123,7 +1123,7 @@ class Cbopcode
     /**
      * Cbopcode #0x56.
      */
-    private static function cbopcode86(Core $core)
+    private static function cbopcode86(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1133,7 +1133,7 @@ class Cbopcode
     /**
      * Cbopcode #0x57.
      */
-    private static function cbopcode87(Core $core)
+    private static function cbopcode87(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1143,7 +1143,7 @@ class Cbopcode
     /**
      * Cbopcode #0x58.
      */
-    private static function cbopcode88(Core $core)
+    private static function cbopcode88(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1153,7 +1153,7 @@ class Cbopcode
     /**
      * Cbopcode #0x59.
      */
-    private static function cbopcode89(Core $core)
+    private static function cbopcode89(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1163,7 +1163,7 @@ class Cbopcode
     /**
      * Cbopcode #0x5A.
      */
-    private static function cbopcode90(Core $core)
+    private static function cbopcode90(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1173,7 +1173,7 @@ class Cbopcode
     /**
      * Cbopcode #0x5B.
      */
-    private static function cbopcode91(Core $core)
+    private static function cbopcode91(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1183,7 +1183,7 @@ class Cbopcode
     /**
      * Cbopcode #0x5C.
      */
-    private static function cbopcode92(Core $core)
+    private static function cbopcode92(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1193,7 +1193,7 @@ class Cbopcode
     /**
      * Cbopcode #0x5D.
      */
-    private static function cbopcode93(Core $core)
+    private static function cbopcode93(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1203,7 +1203,7 @@ class Cbopcode
     /**
      * Cbopcode #0x5E.
      */
-    private static function cbopcode94(Core $core)
+    private static function cbopcode94(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1213,7 +1213,7 @@ class Cbopcode
     /**
      * Cbopcode #0x5F.
      */
-    private static function cbopcode95(Core $core)
+    private static function cbopcode95(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1223,7 +1223,7 @@ class Cbopcode
     /**
      * Cbopcode #0x60.
      */
-    private static function cbopcode96(Core $core)
+    private static function cbopcode96(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1233,7 +1233,7 @@ class Cbopcode
     /**
      * Cbopcode #0x61.
      */
-    private static function cbopcode97(Core $core)
+    private static function cbopcode97(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1243,7 +1243,7 @@ class Cbopcode
     /**
      * Cbopcode #0x62.
      */
-    private static function cbopcode98(Core $core)
+    private static function cbopcode98(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1253,7 +1253,7 @@ class Cbopcode
     /**
      * Cbopcode #0x63.
      */
-    private static function cbopcode99(Core $core)
+    private static function cbopcode99(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1263,7 +1263,7 @@ class Cbopcode
     /**
      * Cbopcode #0x64.
      */
-    private static function cbopcode100(Core $core)
+    private static function cbopcode100(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1273,7 +1273,7 @@ class Cbopcode
     /**
      * Cbopcode #0x65.
      */
-    private static function cbopcode101(Core $core)
+    private static function cbopcode101(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1283,7 +1283,7 @@ class Cbopcode
     /**
      * Cbopcode #0x66.
      */
-    private static function cbopcode102(Core $core)
+    private static function cbopcode102(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1293,7 +1293,7 @@ class Cbopcode
     /**
      * Cbopcode #0x67.
      */
-    private static function cbopcode103(Core $core)
+    private static function cbopcode103(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1303,7 +1303,7 @@ class Cbopcode
     /**
      * Cbopcode #0x68.
      */
-    private static function cbopcode104(Core $core)
+    private static function cbopcode104(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1313,7 +1313,7 @@ class Cbopcode
     /**
      * Cbopcode #0x69.
      */
-    private static function cbopcode105(Core $core)
+    private static function cbopcode105(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1323,7 +1323,7 @@ class Cbopcode
     /**
      * Cbopcode #0x6A.
      */
-    private static function cbopcode106(Core $core)
+    private static function cbopcode106(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1333,7 +1333,7 @@ class Cbopcode
     /**
      * Cbopcode #0x6B.
      */
-    private static function cbopcode107(Core $core)
+    private static function cbopcode107(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1343,7 +1343,7 @@ class Cbopcode
     /**
      * Cbopcode #0x6C.
      */
-    private static function cbopcode108(Core $core)
+    private static function cbopcode108(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1353,7 +1353,7 @@ class Cbopcode
     /**
      * Cbopcode #0x6D.
      */
-    private static function cbopcode109(Core $core)
+    private static function cbopcode109(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1363,7 +1363,7 @@ class Cbopcode
     /**
      * Cbopcode #0x6E.
      */
-    private static function cbopcode110(Core $core)
+    private static function cbopcode110(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1373,7 +1373,7 @@ class Cbopcode
     /**
      * Cbopcode #0x6F.
      */
-    private static function cbopcode111(Core $core)
+    private static function cbopcode111(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1383,7 +1383,7 @@ class Cbopcode
     /**
      * Cbopcode #0x70.
      */
-    private static function cbopcode112(Core $core)
+    private static function cbopcode112(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1393,7 +1393,7 @@ class Cbopcode
     /**
      * Cbopcode #0x71.
      */
-    private static function cbopcode113(Core $core)
+    private static function cbopcode113(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1403,7 +1403,7 @@ class Cbopcode
     /**
      * Cbopcode #0x72.
      */
-    private static function cbopcode114(Core $core)
+    private static function cbopcode114(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1413,7 +1413,7 @@ class Cbopcode
     /**
      * Cbopcode #0x73.
      */
-    private static function cbopcode115(Core $core)
+    private static function cbopcode115(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1423,7 +1423,7 @@ class Cbopcode
     /**
      * Cbopcode #0x74.
      */
-    private static function cbopcode116(Core $core)
+    private static function cbopcode116(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1433,7 +1433,7 @@ class Cbopcode
     /**
      * Cbopcode #0x75.
      */
-    private static function cbopcode117(Core $core)
+    private static function cbopcode117(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1443,7 +1443,7 @@ class Cbopcode
     /**
      * Cbopcode #0x76.
      */
-    private static function cbopcode118(Core $core)
+    private static function cbopcode118(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1453,7 +1453,7 @@ class Cbopcode
     /**
      * Cbopcode #0x77.
      */
-    private static function cbopcode119(Core $core)
+    private static function cbopcode119(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1463,7 +1463,7 @@ class Cbopcode
     /**
      * Cbopcode #0x78.
      */
-    private static function cbopcode120(Core $core)
+    private static function cbopcode120(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1473,7 +1473,7 @@ class Cbopcode
     /**
      * Cbopcode #0x79.
      */
-    private static function cbopcode121(Core $core)
+    private static function cbopcode121(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1483,7 +1483,7 @@ class Cbopcode
     /**
      * Cbopcode #0x7A.
      */
-    private static function cbopcode122(Core $core)
+    private static function cbopcode122(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1493,7 +1493,7 @@ class Cbopcode
     /**
      * Cbopcode #0x7B.
      */
-    private static function cbopcode123(Core $core)
+    private static function cbopcode123(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1503,7 +1503,7 @@ class Cbopcode
     /**
      * Cbopcode #0x7C.
      */
-    private static function cbopcode124(Core $core)
+    private static function cbopcode124(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1513,7 +1513,7 @@ class Cbopcode
     /**
      * Cbopcode #0x7D.
      */
-    private static function cbopcode125(Core $core)
+    private static function cbopcode125(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1523,7 +1523,7 @@ class Cbopcode
     /**
      * Cbopcode #0x7E.
      */
-    private static function cbopcode126(Core $core)
+    private static function cbopcode126(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1533,7 +1533,7 @@ class Cbopcode
     /**
      * Cbopcode #0x7F.
      */
-    private static function cbopcode127(Core $core)
+    private static function cbopcode127(Core $core): void
     {
         $core->FHalfCarry = true;
         $core->FSubtract = false;
@@ -1543,7 +1543,7 @@ class Cbopcode
     /**
      * Cbopcode #0x80.
      */
-    private static function cbopcode128(Core $core)
+    private static function cbopcode128(Core $core): void
     {
         $core->registerB &= 0xFE;
     }
@@ -1551,7 +1551,7 @@ class Cbopcode
     /**
      * Cbopcode #0x81.
      */
-    private static function cbopcode129(Core $core)
+    private static function cbopcode129(Core $core): void
     {
         $core->registerC &= 0xFE;
     }
@@ -1559,7 +1559,7 @@ class Cbopcode
     /**
      * Cbopcode #0x82.
      */
-    private static function cbopcode130(Core $core)
+    private static function cbopcode130(Core $core): void
     {
         $core->registerD &= 0xFE;
     }
@@ -1567,7 +1567,7 @@ class Cbopcode
     /**
      * Cbopcode #0x83.
      */
-    private static function cbopcode131(Core $core)
+    private static function cbopcode131(Core $core): void
     {
         $core->registerE &= 0xFE;
     }
@@ -1575,7 +1575,7 @@ class Cbopcode
     /**
      * Cbopcode #0x84.
      */
-    private static function cbopcode132(Core $core)
+    private static function cbopcode132(Core $core): void
     {
         $core->registersHL &= 0xFEFF;
     }
@@ -1583,7 +1583,7 @@ class Cbopcode
     /**
      * Cbopcode #0x85.
      */
-    private static function cbopcode133(Core $core)
+    private static function cbopcode133(Core $core): void
     {
         $core->registersHL &= 0xFFFE;
     }
@@ -1591,7 +1591,7 @@ class Cbopcode
     /**
      * Cbopcode #0x86.
      */
-    private static function cbopcode134(Core $core)
+    private static function cbopcode134(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xFE);
     }
@@ -1599,7 +1599,7 @@ class Cbopcode
     /**
      * Cbopcode #0x87.
      */
-    private static function cbopcode135(Core $core)
+    private static function cbopcode135(Core $core): void
     {
         $core->registerA &= 0xFE;
     }
@@ -1607,7 +1607,7 @@ class Cbopcode
     /**
      * Cbopcode #0x88.
      */
-    private static function cbopcode136(Core $core)
+    private static function cbopcode136(Core $core): void
     {
         $core->registerB &= 0xFD;
     }
@@ -1615,7 +1615,7 @@ class Cbopcode
     /**
      * Cbopcode #0x89.
      */
-    private static function cbopcode137(Core $core)
+    private static function cbopcode137(Core $core): void
     {
         $core->registerC &= 0xFD;
     }
@@ -1623,7 +1623,7 @@ class Cbopcode
     /**
      * Cbopcode #0x8A.
      */
-    private static function cbopcode138(Core $core)
+    private static function cbopcode138(Core $core): void
     {
         $core->registerD &= 0xFD;
     }
@@ -1631,7 +1631,7 @@ class Cbopcode
     /**
      * Cbopcode #0x8B.
      */
-    private static function cbopcode139(Core $core)
+    private static function cbopcode139(Core $core): void
     {
         $core->registerE &= 0xFD;
     }
@@ -1639,7 +1639,7 @@ class Cbopcode
     /**
      * Cbopcode #0x8C.
      */
-    private static function cbopcode140(Core $core)
+    private static function cbopcode140(Core $core): void
     {
         $core->registersHL &= 0xFDFF;
     }
@@ -1647,7 +1647,7 @@ class Cbopcode
     /**
      * Cbopcode #0x8D.
      */
-    private static function cbopcode141(Core $core)
+    private static function cbopcode141(Core $core): void
     {
         $core->registersHL &= 0xFFFD;
     }
@@ -1655,7 +1655,7 @@ class Cbopcode
     /**
      * Cbopcode #0x8E.
      */
-    private static function cbopcode142(Core $core)
+    private static function cbopcode142(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xFD);
     }
@@ -1663,7 +1663,7 @@ class Cbopcode
     /**
      * Cbopcode #0x8F.
      */
-    private static function cbopcode143(Core $core)
+    private static function cbopcode143(Core $core): void
     {
         $core->registerA &= 0xFD;
     }
@@ -1671,7 +1671,7 @@ class Cbopcode
     /**
      * Cbopcode #0x90.
      */
-    private static function cbopcode144(Core $core)
+    private static function cbopcode144(Core $core): void
     {
         $core->registerB &= 0xFB;
     }
@@ -1679,7 +1679,7 @@ class Cbopcode
     /**
      * Cbopcode #0x91.
      */
-    private static function cbopcode145(Core $core)
+    private static function cbopcode145(Core $core): void
     {
         $core->registerC &= 0xFB;
     }
@@ -1687,7 +1687,7 @@ class Cbopcode
     /**
      * Cbopcode #0x92.
      */
-    private static function cbopcode146(Core $core)
+    private static function cbopcode146(Core $core): void
     {
         $core->registerD &= 0xFB;
     }
@@ -1695,7 +1695,7 @@ class Cbopcode
     /**
      * Cbopcode #0x93.
      */
-    private static function cbopcode147(Core $core)
+    private static function cbopcode147(Core $core): void
     {
         $core->registerE &= 0xFB;
     }
@@ -1703,7 +1703,7 @@ class Cbopcode
     /**
      * Cbopcode #0x94.
      */
-    private static function cbopcode148(Core $core)
+    private static function cbopcode148(Core $core): void
     {
         $core->registersHL &= 0xFBFF;
     }
@@ -1711,7 +1711,7 @@ class Cbopcode
     /**
      * Cbopcode #0x95.
      */
-    private static function cbopcode149(Core $core)
+    private static function cbopcode149(Core $core): void
     {
         $core->registersHL &= 0xFFFB;
     }
@@ -1719,7 +1719,7 @@ class Cbopcode
     /**
      * Cbopcode #0x96.
      */
-    private static function cbopcode150(Core $core)
+    private static function cbopcode150(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xFB);
     }
@@ -1727,7 +1727,7 @@ class Cbopcode
     /**
      * Cbopcode #0x97.
      */
-    private static function cbopcode151(Core $core)
+    private static function cbopcode151(Core $core): void
     {
         $core->registerA &= 0xFB;
     }
@@ -1735,7 +1735,7 @@ class Cbopcode
     /**
      * Cbopcode #0x98.
      */
-    private static function cbopcode152(Core $core)
+    private static function cbopcode152(Core $core): void
     {
         $core->registerB &= 0xF7;
     }
@@ -1743,7 +1743,7 @@ class Cbopcode
     /**
      * Cbopcode #0x99.
      */
-    private static function cbopcode153(Core $core)
+    private static function cbopcode153(Core $core): void
     {
         $core->registerC &= 0xF7;
     }
@@ -1751,7 +1751,7 @@ class Cbopcode
     /**
      * Cbopcode #0x9A.
      */
-    private static function cbopcode154(Core $core)
+    private static function cbopcode154(Core $core): void
     {
         $core->registerD &= 0xF7;
     }
@@ -1759,7 +1759,7 @@ class Cbopcode
     /**
      * Cbopcode #0x9B.
      */
-    private static function cbopcode155(Core $core)
+    private static function cbopcode155(Core $core): void
     {
         $core->registerE &= 0xF7;
     }
@@ -1767,7 +1767,7 @@ class Cbopcode
     /**
      * Cbopcode #0x9C.
      */
-    private static function cbopcode156(Core $core)
+    private static function cbopcode156(Core $core): void
     {
         $core->registersHL &= 0xF7FF;
     }
@@ -1775,7 +1775,7 @@ class Cbopcode
     /**
      * Cbopcode #0x9D.
      */
-    private static function cbopcode157(Core $core)
+    private static function cbopcode157(Core $core): void
     {
         $core->registersHL &= 0xFFF7;
     }
@@ -1783,7 +1783,7 @@ class Cbopcode
     /**
      * Cbopcode #0x9E.
      */
-    private static function cbopcode158(Core $core)
+    private static function cbopcode158(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xF7);
     }
@@ -1791,7 +1791,7 @@ class Cbopcode
     /**
      * Cbopcode #0x9F.
      */
-    private static function cbopcode159(Core $core)
+    private static function cbopcode159(Core $core): void
     {
         $core->registerA &= 0xF7;
     }
@@ -1799,7 +1799,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA0.
      */
-    private static function cbopcode160(Core $core)
+    private static function cbopcode160(Core $core): void
     {
         $core->registerB &= 0xEF;
     }
@@ -1807,7 +1807,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA1.
      */
-    private static function cbopcode161(Core $core)
+    private static function cbopcode161(Core $core): void
     {
         $core->registerC &= 0xEF;
     }
@@ -1815,7 +1815,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA2.
      */
-    private static function cbopcode162(Core $core)
+    private static function cbopcode162(Core $core): void
     {
         $core->registerD &= 0xEF;
     }
@@ -1823,7 +1823,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA3.
      */
-    private static function cbopcode163(Core $core)
+    private static function cbopcode163(Core $core): void
     {
         $core->registerE &= 0xEF;
     }
@@ -1831,7 +1831,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA4.
      */
-    private static function cbopcode164(Core $core)
+    private static function cbopcode164(Core $core): void
     {
         $core->registersHL &= 0xEFFF;
     }
@@ -1839,7 +1839,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA5.
      */
-    private static function cbopcode165(Core $core)
+    private static function cbopcode165(Core $core): void
     {
         $core->registersHL &= 0xFFEF;
     }
@@ -1847,7 +1847,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA6.
      */
-    private static function cbopcode166(Core $core)
+    private static function cbopcode166(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xEF);
     }
@@ -1855,7 +1855,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA7.
      */
-    private static function cbopcode167(Core $core)
+    private static function cbopcode167(Core $core): void
     {
         $core->registerA &= 0xEF;
     }
@@ -1863,7 +1863,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA8.
      */
-    private static function cbopcode168(Core $core)
+    private static function cbopcode168(Core $core): void
     {
         $core->registerB &= 0xDF;
     }
@@ -1871,7 +1871,7 @@ class Cbopcode
     /**
      * Cbopcode #0xA9.
      */
-    private static function cbopcode169(Core $core)
+    private static function cbopcode169(Core $core): void
     {
         $core->registerC &= 0xDF;
     }
@@ -1879,7 +1879,7 @@ class Cbopcode
     /**
      * Cbopcode #0xAA.
      */
-    private static function cbopcode170(Core $core)
+    private static function cbopcode170(Core $core): void
     {
         $core->registerD &= 0xDF;
     }
@@ -1887,7 +1887,7 @@ class Cbopcode
     /**
      * Cbopcode #0xAB.
      */
-    private static function cbopcode171(Core $core)
+    private static function cbopcode171(Core $core): void
     {
         $core->registerE &= 0xDF;
     }
@@ -1895,7 +1895,7 @@ class Cbopcode
     /**
      * Cbopcode #0xAC.
      */
-    private static function cbopcode172(Core $core)
+    private static function cbopcode172(Core $core): void
     {
         $core->registersHL &= 0xDFFF;
     }
@@ -1903,7 +1903,7 @@ class Cbopcode
     /**
      * Cbopcode #0xAD.
      */
-    private static function cbopcode173(Core $core)
+    private static function cbopcode173(Core $core): void
     {
         $core->registersHL &= 0xFFDF;
     }
@@ -1911,7 +1911,7 @@ class Cbopcode
     /**
      * Cbopcode #0xAE.
      */
-    private static function cbopcode174(Core $core)
+    private static function cbopcode174(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xDF);
     }
@@ -1919,7 +1919,7 @@ class Cbopcode
     /**
      * Cbopcode #0xAF.
      */
-    private static function cbopcode175(Core $core)
+    private static function cbopcode175(Core $core): void
     {
         $core->registerA &= 0xDF;
     }
@@ -1927,7 +1927,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB0.
      */
-    private static function cbopcode176(Core $core)
+    private static function cbopcode176(Core $core): void
     {
         $core->registerB &= 0xBF;
     }
@@ -1935,7 +1935,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB1.
      */
-    private static function cbopcode177(Core $core)
+    private static function cbopcode177(Core $core): void
     {
         $core->registerC &= 0xBF;
     }
@@ -1943,7 +1943,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB2.
      */
-    private static function cbopcode178(Core $core)
+    private static function cbopcode178(Core $core): void
     {
         $core->registerD &= 0xBF;
     }
@@ -1951,7 +1951,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB3.
      */
-    private static function cbopcode179(Core $core)
+    private static function cbopcode179(Core $core): void
     {
         $core->registerE &= 0xBF;
     }
@@ -1959,7 +1959,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB4.
      */
-    private static function cbopcode180(Core $core)
+    private static function cbopcode180(Core $core): void
     {
         $core->registersHL &= 0xBFFF;
     }
@@ -1967,7 +1967,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB5.
      */
-    private static function cbopcode181(Core $core)
+    private static function cbopcode181(Core $core): void
     {
         $core->registersHL &= 0xFFBF;
     }
@@ -1975,7 +1975,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB6.
      */
-    private static function cbopcode182(Core $core)
+    private static function cbopcode182(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0xBF);
     }
@@ -1983,7 +1983,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB7.
      */
-    private static function cbopcode183(Core $core)
+    private static function cbopcode183(Core $core): void
     {
         $core->registerA &= 0xBF;
     }
@@ -1991,7 +1991,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB8.
      */
-    private static function cbopcode184(Core $core)
+    private static function cbopcode184(Core $core): void
     {
         $core->registerB &= 0x7F;
     }
@@ -1999,7 +1999,7 @@ class Cbopcode
     /**
      * Cbopcode #0xB9.
      */
-    private static function cbopcode185(Core $core)
+    private static function cbopcode185(Core $core): void
     {
         $core->registerC &= 0x7F;
     }
@@ -2007,7 +2007,7 @@ class Cbopcode
     /**
      * Cbopcode #0xBA.
      */
-    private static function cbopcode186(Core $core)
+    private static function cbopcode186(Core $core): void
     {
         $core->registerD &= 0x7F;
     }
@@ -2015,7 +2015,7 @@ class Cbopcode
     /**
      * Cbopcode #0xBB.
      */
-    private static function cbopcode187(Core $core)
+    private static function cbopcode187(Core $core): void
     {
         $core->registerE &= 0x7F;
     }
@@ -2023,7 +2023,7 @@ class Cbopcode
     /**
      * Cbopcode #0xBC.
      */
-    private static function cbopcode188(Core $core)
+    private static function cbopcode188(Core $core): void
     {
         $core->registersHL &= 0x7FFF;
     }
@@ -2031,7 +2031,7 @@ class Cbopcode
     /**
      * Cbopcode #0xBD.
      */
-    private static function cbopcode189(Core $core)
+    private static function cbopcode189(Core $core): void
     {
         $core->registersHL &= 0xFF7F;
     }
@@ -2039,7 +2039,7 @@ class Cbopcode
     /**
      * Cbopcode #0xBE.
      */
-    private static function cbopcode190(Core $core)
+    private static function cbopcode190(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) & 0x7F);
     }
@@ -2047,7 +2047,7 @@ class Cbopcode
     /**
      * Cbopcode #0xBF.
      */
-    private static function cbopcode191(Core $core)
+    private static function cbopcode191(Core $core): void
     {
         $core->registerA &= 0x7F;
     }
@@ -2055,7 +2055,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC0.
      */
-    private static function cbopcode192(Core $core)
+    private static function cbopcode192(Core $core): void
     {
         $core->registerB |= 0x01;
     }
@@ -2063,7 +2063,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC1.
      */
-    private static function cbopcode193(Core $core)
+    private static function cbopcode193(Core $core): void
     {
         $core->registerC |= 0x01;
     }
@@ -2071,7 +2071,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC2.
      */
-    private static function cbopcode194(Core $core)
+    private static function cbopcode194(Core $core): void
     {
         $core->registerD |= 0x01;
     }
@@ -2079,7 +2079,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC3.
      */
-    private static function cbopcode195(Core $core)
+    private static function cbopcode195(Core $core): void
     {
         $core->registerE |= 0x01;
     }
@@ -2087,7 +2087,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC4.
      */
-    private static function cbopcode196(Core $core)
+    private static function cbopcode196(Core $core): void
     {
         $core->registersHL |= 0x0100;
     }
@@ -2095,7 +2095,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC5.
      */
-    private static function cbopcode197(Core $core)
+    private static function cbopcode197(Core $core): void
     {
         $core->registersHL |= 0x01;
     }
@@ -2103,7 +2103,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC6.
      */
-    private static function cbopcode198(Core $core)
+    private static function cbopcode198(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x01);
     }
@@ -2111,7 +2111,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC7.
      */
-    private static function cbopcode199(Core $core)
+    private static function cbopcode199(Core $core): void
     {
         $core->registerA |= 0x01;
     }
@@ -2119,7 +2119,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC8.
      */
-    private static function cbopcode200(Core $core)
+    private static function cbopcode200(Core $core): void
     {
         $core->registerB |= 0x02;
     }
@@ -2127,7 +2127,7 @@ class Cbopcode
     /**
      * Cbopcode #0xC9.
      */
-    private static function cbopcode201(Core $core)
+    private static function cbopcode201(Core $core): void
     {
         $core->registerC |= 0x02;
     }
@@ -2135,7 +2135,7 @@ class Cbopcode
     /**
      * Cbopcode #0xCA.
      */
-    private static function cbopcode202(Core $core)
+    private static function cbopcode202(Core $core): void
     {
         $core->registerD |= 0x02;
     }
@@ -2143,7 +2143,7 @@ class Cbopcode
     /**
      * Cbopcode #0xCB.
      */
-    private static function cbopcode203(Core $core)
+    private static function cbopcode203(Core $core): void
     {
         $core->registerE |= 0x02;
     }
@@ -2151,7 +2151,7 @@ class Cbopcode
     /**
      * Cbopcode #0xCC.
      */
-    private static function cbopcode204(Core $core)
+    private static function cbopcode204(Core $core): void
     {
         $core->registersHL |= 0x0200;
     }
@@ -2159,7 +2159,7 @@ class Cbopcode
     /**
      * Cbopcode #0xCD.
      */
-    private static function cbopcode205(Core $core)
+    private static function cbopcode205(Core $core): void
     {
         $core->registersHL |= 0x02;
     }
@@ -2167,7 +2167,7 @@ class Cbopcode
     /**
      * Cbopcode #0xCE.
      */
-    private static function cbopcode206(Core $core)
+    private static function cbopcode206(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x02);
     }
@@ -2175,7 +2175,7 @@ class Cbopcode
     /**
      * Cbopcode #0xCF.
      */
-    private static function cbopcode207(Core $core)
+    private static function cbopcode207(Core $core): void
     {
         $core->registerA |= 0x02;
     }
@@ -2183,7 +2183,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD0.
      */
-    private static function cbopcode208(Core $core)
+    private static function cbopcode208(Core $core): void
     {
         $core->registerB |= 0x04;
     }
@@ -2191,7 +2191,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD1.
      */
-    private static function cbopcode209(Core $core)
+    private static function cbopcode209(Core $core): void
     {
         $core->registerC |= 0x04;
     }
@@ -2199,7 +2199,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD2.
      */
-    private static function cbopcode210(Core $core)
+    private static function cbopcode210(Core $core): void
     {
         $core->registerD |= 0x04;
     }
@@ -2207,7 +2207,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD3.
      */
-    private static function cbopcode211(Core $core)
+    private static function cbopcode211(Core $core): void
     {
         $core->registerE |= 0x04;
     }
@@ -2215,7 +2215,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD4.
      */
-    private static function cbopcode212(Core $core)
+    private static function cbopcode212(Core $core): void
     {
         $core->registersHL |= 0x0400;
     }
@@ -2223,7 +2223,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD5.
      */
-    private static function cbopcode213(Core $core)
+    private static function cbopcode213(Core $core): void
     {
         $core->registersHL |= 0x04;
     }
@@ -2231,7 +2231,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD6.
      */
-    private static function cbopcode214(Core $core)
+    private static function cbopcode214(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x04);
     }
@@ -2239,7 +2239,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD7.
      */
-    private static function cbopcode215(Core $core)
+    private static function cbopcode215(Core $core): void
     {
         $core->registerA |= 0x04;
     }
@@ -2247,7 +2247,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD8.
      */
-    private static function cbopcode216(Core $core)
+    private static function cbopcode216(Core $core): void
     {
         $core->registerB |= 0x08;
     }
@@ -2255,7 +2255,7 @@ class Cbopcode
     /**
      * Cbopcode #0xD9.
      */
-    private static function cbopcode217(Core $core)
+    private static function cbopcode217(Core $core): void
     {
         $core->registerC |= 0x08;
     }
@@ -2263,7 +2263,7 @@ class Cbopcode
     /**
      * Cbopcode #0xDA.
      */
-    private static function cbopcode218(Core $core)
+    private static function cbopcode218(Core $core): void
     {
         $core->registerD |= 0x08;
     }
@@ -2271,7 +2271,7 @@ class Cbopcode
     /**
      * Cbopcode #0xDB.
      */
-    private static function cbopcode219(Core $core)
+    private static function cbopcode219(Core $core): void
     {
         $core->registerE |= 0x08;
     }
@@ -2279,7 +2279,7 @@ class Cbopcode
     /**
      * Cbopcode #0xDC.
      */
-    private static function cbopcode220(Core $core)
+    private static function cbopcode220(Core $core): void
     {
         $core->registersHL |= 0x0800;
     }
@@ -2287,7 +2287,7 @@ class Cbopcode
     /**
      * Cbopcode #0xDD.
      */
-    private static function cbopcode221(Core $core)
+    private static function cbopcode221(Core $core): void
     {
         $core->registersHL |= 0x08;
     }
@@ -2295,7 +2295,7 @@ class Cbopcode
     /**
      * Cbopcode #0xDE.
      */
-    private static function cbopcode222(Core $core)
+    private static function cbopcode222(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x08);
     }
@@ -2303,7 +2303,7 @@ class Cbopcode
     /**
      * Cbopcode #0xDF.
      */
-    private static function cbopcode223(Core $core)
+    private static function cbopcode223(Core $core): void
     {
         $core->registerA |= 0x08;
     }
@@ -2311,7 +2311,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE0.
      */
-    private static function cbopcode224(Core $core)
+    private static function cbopcode224(Core $core): void
     {
         $core->registerB |= 0x10;
     }
@@ -2319,7 +2319,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE1.
      */
-    private static function cbopcode225(Core $core)
+    private static function cbopcode225(Core $core): void
     {
         $core->registerC |= 0x10;
     }
@@ -2327,7 +2327,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE2.
      */
-    private static function cbopcode226(Core $core)
+    private static function cbopcode226(Core $core): void
     {
         $core->registerD |= 0x10;
     }
@@ -2335,7 +2335,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE3.
      */
-    private static function cbopcode227(Core $core)
+    private static function cbopcode227(Core $core): void
     {
         $core->registerE |= 0x10;
     }
@@ -2343,7 +2343,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE4.
      */
-    private static function cbopcode228(Core $core)
+    private static function cbopcode228(Core $core): void
     {
         $core->registersHL |= 0x1000;
     }
@@ -2351,7 +2351,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE5.
      */
-    private static function cbopcode229(Core $core)
+    private static function cbopcode229(Core $core): void
     {
         $core->registersHL |= 0x10;
     }
@@ -2359,7 +2359,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE6.
      */
-    private static function cbopcode230(Core $core)
+    private static function cbopcode230(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x10);
     }
@@ -2367,7 +2367,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE7.
      */
-    private static function cbopcode231(Core $core)
+    private static function cbopcode231(Core $core): void
     {
         $core->registerA |= 0x10;
     }
@@ -2375,7 +2375,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE8.
      */
-    private static function cbopcode232(Core $core)
+    private static function cbopcode232(Core $core): void
     {
         $core->registerB |= 0x20;
     }
@@ -2383,7 +2383,7 @@ class Cbopcode
     /**
      * Cbopcode #0xE9.
      */
-    private static function cbopcode233(Core $core)
+    private static function cbopcode233(Core $core): void
     {
         $core->registerC |= 0x20;
     }
@@ -2391,7 +2391,7 @@ class Cbopcode
     /**
      * Cbopcode #0xEA.
      */
-    private static function cbopcode234(Core $core)
+    private static function cbopcode234(Core $core): void
     {
         $core->registerD |= 0x20;
     }
@@ -2399,7 +2399,7 @@ class Cbopcode
     /**
      * Cbopcode #0xEB.
      */
-    private static function cbopcode235(Core $core)
+    private static function cbopcode235(Core $core): void
     {
         $core->registerE |= 0x20;
     }
@@ -2407,7 +2407,7 @@ class Cbopcode
     /**
      * Cbopcode #0xEC.
      */
-    private static function cbopcode236(Core $core)
+    private static function cbopcode236(Core $core): void
     {
         $core->registersHL |= 0x2000;
     }
@@ -2415,7 +2415,7 @@ class Cbopcode
     /**
      * Cbopcode #0xED.
      */
-    private static function cbopcode237(Core $core)
+    private static function cbopcode237(Core $core): void
     {
         $core->registersHL |= 0x20;
     }
@@ -2423,7 +2423,7 @@ class Cbopcode
     /**
      * Cbopcode #0xEE.
      */
-    private static function cbopcode238(Core $core)
+    private static function cbopcode238(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x20);
     }
@@ -2431,7 +2431,7 @@ class Cbopcode
     /**
      * Cbopcode #0xEF.
      */
-    private static function cbopcode239(Core $core)
+    private static function cbopcode239(Core $core): void
     {
         $core->registerA |= 0x20;
     }
@@ -2439,7 +2439,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF0.
      */
-    private static function cbopcode240(Core $core)
+    private static function cbopcode240(Core $core): void
     {
         $core->registerB |= 0x40;
     }
@@ -2447,7 +2447,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF1.
      */
-    private static function cbopcode241(Core $core)
+    private static function cbopcode241(Core $core): void
     {
         $core->registerC |= 0x40;
     }
@@ -2455,7 +2455,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF2.
      */
-    private static function cbopcode242(Core $core)
+    private static function cbopcode242(Core $core): void
     {
         $core->registerD |= 0x40;
     }
@@ -2463,7 +2463,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF3.
      */
-    private static function cbopcode243(Core $core)
+    private static function cbopcode243(Core $core): void
     {
         $core->registerE |= 0x40;
     }
@@ -2471,7 +2471,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF4.
      */
-    private static function cbopcode244(Core $core)
+    private static function cbopcode244(Core $core): void
     {
         $core->registersHL |= 0x4000;
     }
@@ -2479,7 +2479,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF5.
      */
-    private static function cbopcode245(Core $core)
+    private static function cbopcode245(Core $core): void
     {
         $core->registersHL |= 0x40;
     }
@@ -2487,7 +2487,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF6.
      */
-    private static function cbopcode246(Core $core)
+    private static function cbopcode246(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x40);
     }
@@ -2495,7 +2495,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF7.
      */
-    private static function cbopcode247(Core $core)
+    private static function cbopcode247(Core $core): void
     {
         $core->registerA |= 0x40;
     }
@@ -2503,7 +2503,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF8.
      */
-    private static function cbopcode248(Core $core)
+    private static function cbopcode248(Core $core): void
     {
         $core->registerB |= 0x80;
     }
@@ -2511,7 +2511,7 @@ class Cbopcode
     /**
      * Cbopcode #0xF9.
      */
-    private static function cbopcode249(Core $core)
+    private static function cbopcode249(Core $core): void
     {
         $core->registerC |= 0x80;
     }
@@ -2519,7 +2519,7 @@ class Cbopcode
     /**
      * Cbopcode #0xFA.
      */
-    private static function cbopcode250(Core $core)
+    private static function cbopcode250(Core $core): void
     {
         $core->registerD |= 0x80;
     }
@@ -2527,7 +2527,7 @@ class Cbopcode
     /**
      * Cbopcode #0xFB.
      */
-    private static function cbopcode251(Core $core)
+    private static function cbopcode251(Core $core): void
     {
         $core->registerE |= 0x80;
     }
@@ -2535,7 +2535,7 @@ class Cbopcode
     /**
      * Cbopcode #0xFC.
      */
-    private static function cbopcode252(Core $core)
+    private static function cbopcode252(Core $core): void
     {
         $core->registersHL |= 0x8000;
     }
@@ -2543,7 +2543,7 @@ class Cbopcode
     /**
      * Cbopcode #0xFD.
      */
-    private static function cbopcode253(Core $core)
+    private static function cbopcode253(Core $core): void
     {
         $core->registersHL |= 0x80;
     }
@@ -2551,7 +2551,7 @@ class Cbopcode
     /**
      * Cbopcode #0xFE.
      */
-    private static function cbopcode254(Core $core)
+    private static function cbopcode254(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->registersHL) | 0x80);
     }
@@ -2559,7 +2559,7 @@ class Cbopcode
     /**
      * Cbopcode #0xFF.
      */
-    private static function cbopcode255(Core $core)
+    private static function cbopcode255(Core $core): void
     {
         $core->registerA |= 0x80;
     }

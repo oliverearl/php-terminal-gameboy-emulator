@@ -32,7 +32,7 @@ class LcdController
     {
     }
 
-    public function matchLYC()
+    public function matchLYC(): void
     {
         // LY - LYC Compare
         // If LY==LCY
@@ -46,7 +46,7 @@ class LcdController
         }
     }
 
-    public function notifyScanline()
+    public function notifyScanline(): void
     {
         if ($this->actualScanLine == 0) {
             $this->core->windowSourceLine = 0;
@@ -75,7 +75,7 @@ class LcdController
      * Scan Line and STAT Mode Control
      * @param  int $line Memory Scanline
      */
-    public function scanLine($line)
+    public function scanLine($line): void
     {
         //When turned off = Do nothing!
         if ($this->LCDisOn) {
@@ -184,7 +184,7 @@ class LcdController
         }
     }
 
-    public function scanLineMode0()
+    public function scanLineMode0(): void
     {
         // H-Blank
         if ($this->modeSTAT != 0) {
@@ -202,7 +202,7 @@ class LcdController
         }
     }
 
-    public function scanLineMode2()
+    public function scanLineMode2(): void
     {
         // OAM in use
         if ($this->modeSTAT != 2) {
@@ -215,7 +215,7 @@ class LcdController
         }
     }
 
-    public function scanLineMode3()
+    public function scanLineMode3(): void
     {
         // OAM in use
         if ($this->modeSTAT != 3) {

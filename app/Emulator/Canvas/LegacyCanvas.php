@@ -8,9 +8,8 @@ class LegacyCanvas implements DrawContextInterface
 {
     /**
      * The blank brailler char
-     * @var String
      */
-    protected $brailleCharOffset;
+    protected string $brailleCharOffset;
 
     protected $canvas;
 
@@ -40,9 +39,8 @@ class LegacyCanvas implements DrawContextInterface
      *   |3 6|
      *   |7 8|
      *   `````
-     * @var array
      */
-    protected $pixelMap;
+    protected array $pixelMap;
 
     protected $width = 0;
 

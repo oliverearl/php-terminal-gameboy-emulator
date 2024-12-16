@@ -358,7 +358,7 @@ class Core
         $this->lcdController = new LcdController($this);
     }
 
-    public function saveState()
+    public function saveState(): array
     {
         return [
             $this->ROM->toArray(),
@@ -461,7 +461,7 @@ class Core
         ];
     }
 
-    public function returnFromState($returnedFrom)
+    public function returnFromState($returnedFrom): void
     {
         $address = 0;
         $state = $returnedFrom->slice(0);
@@ -570,7 +570,7 @@ class Core
         $this->drawToCanvas();
     }
 
-    public function start()
+    public function start(): void
     {
         Settings::$frameskipAmout = 0; //Reset the frame skip setting.
         $this->initMemory(); //Write the startup memory.
@@ -604,7 +604,7 @@ class Core
         }
     }
 
-    public function initMemory()
+    public function initMemory(): void
     {
         //Initialize the RAM:
         $this->memory = $this->getTypedArray(0x10000, 0, 'uint8');
@@ -622,7 +622,7 @@ class Core
         }
     }
 
-    public function initSkipBootstrap()
+    public function initSkipBootstrap(): void
     {
         //Start as an unset device:
         echo 'Starting without the GBC boot ROM' . PHP_EOL;
@@ -670,7 +670,7 @@ class Core
         }
     }
 
-    public function initBootstrap()
+    public function initBootstrap(): void
     {
         //Start as an unset device:
         echo 'Starting the GBC boot ROM.' . PHP_EOL;
@@ -693,7 +693,7 @@ class Core
         $this->memory[0xFF00] = 0xF; //Set the joypad state.
     }
 
-    public function ROMLoad()
+    public function ROMLoad(): void
     {
         //Load the first two ROM banks (0x0000 - 0x7FFF) into regular gameboy memory:
         $this->ROM = new SplFixedArray(strlen($this->ROMImage));
@@ -925,7 +925,7 @@ class Core
         }
     }
 
-    public function disableBootROM()
+    public function disableBootROM(): void
     {
         //Remove any traces of the boot ROM from ROM memory.
         for ($address = 0; $address < 0x900; ++$address) {
@@ -957,7 +957,7 @@ class Core
         }
     }
 
-    public function setupRAM()
+    public function setupRAM(): void
     {
         //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
         if ($this->cMBC2) {
@@ -995,12 +995,12 @@ class Core
         $this->tileReadState = $this->getTypedArray($this->tileCount, 0, 'uint8');
     }
 
-    public function MBCRAMUtilized()
+    public function MBCRAMUtilized(): bool
     {
         return $this->cMBC1 || $this->cMBC2 || $this->cMBC3 || $this->cMBC5 || $this->cRUMBLE;
     }
 
-    public function initLCD()
+    public function initLCD(): void
     {
         $this->transparentCutoff = (Settings::$colorize || $this->cGBC) ? 32 : 4;
         if (count($this->weaveLookup) == 0) {
@@ -1040,7 +1040,7 @@ class Core
         $this->drawContext->draw($this->canvasBuffer);
     }
 
-    public function joyPadEvent($key, $down)
+    public function joyPadEvent($key, $down): void
     {
         if ($down) {
             $this->JoyPad &= 0xFF ^ (1 << $key);
@@ -1051,7 +1051,7 @@ class Core
         $this->memory[0xFF00] = ($this->memory[0xFF00] & 0x30) + (((($this->memory[0xFF00] & 0x20) == 0) ? ($this->JoyPad >> 4) : 0xF) & ((($this->memory[0xFF00] & 0x10) == 0) ? ($this->JoyPad & 0xF) : 0xF));
     }
 
-    public function run()
+    public function run(): void
     {
         //The preprocessing before the actual iteration loop:
         try {
@@ -1087,7 +1087,7 @@ class Core
         }
     }
 
-    public function executeIteration()
+    public function executeIteration(): void
     {
         //Iterate the interpreter loop:
         $op = 0;
@@ -1124,7 +1124,7 @@ class Core
         }
     }
 
-    public function runInterrupt()
+    public function runInterrupt(): void
     {
         $bitShift = 0;
         $testbit = 1;
@@ -1151,7 +1151,7 @@ class Core
         }
     }
 
-    public function updateCore()
+    public function updateCore(): void
     {
         // DIV control
         $this->DIVTicks += $this->CPUTicks;
@@ -1203,7 +1203,7 @@ class Core
         }
     }
 
-    public function displayShowOff()
+    public function displayShowOff(): void
     {
         if ($this->drewBlank == 0) {
             if ($this->drawContext->isColorEnabled()) {
@@ -1217,7 +1217,7 @@ class Core
         }
     }
 
-    public function performHdma()
+    public function performHdma(): void
     {
         $this->CPUTicks += 1 + (8 * $this->multiplier);
 
@@ -1277,7 +1277,7 @@ class Core
         }
     }
 
-    public function clockUpdate()
+    public function clockUpdate(): void
     {
         //We're tying in the same timer for RTC and frame skipping, since we can and this reduces load.
         if (Settings::$autoFrameskip || $this->cTIMER) {
@@ -1321,7 +1321,7 @@ class Core
         }
     }
 
-    public function drawToCanvas()
+    public function drawToCanvas(): void
     {
         //Draw the frame buffer to the canvas:
         if (Settings::$frameskipAmout == 0 || $this->frameCount > 0) {
@@ -1364,7 +1364,7 @@ class Core
         }
     }
 
-    public function invalidateAll($pal)
+    public function invalidateAll($pal): void
     {
         $stop = ($pal + 1) * $this->tileCountInvalidator;
         for ($r = $pal * $this->tileCountInvalidator; $r < $stop; ++$r) {
@@ -1372,7 +1372,7 @@ class Core
         }
     }
 
-    public function setGBCPalettePre($address_, $data)
+    public function setGBCPalettePre($address_, $data): void
     {
         if ($this->gbcRawPalette[$address_] == $data) {
             return;
@@ -1389,7 +1389,7 @@ class Core
         $this->invalidateAll($address_ >> 3);
     }
 
-    public function setGBCPalette($address_, $data)
+    public function setGBCPalette($address_, $data): void
     {
         $this->setGBCPalettePre($address_, $data);
         if (($address_ & 0x6) == 0) {
@@ -1397,7 +1397,7 @@ class Core
         }
     }
 
-    public function decodePalette($startIndex, $data)
+    public function decodePalette($startIndex, $data): void
     {
         if (!$this->cGBC) {
             $this->gbPalette[$startIndex] = $this->colors[$data & 0x03] & 0x00FFFFFF; // color 0: transparent
@@ -1467,7 +1467,7 @@ class Core
         return $skippedTile;
     }
 
-    public function drawPartCopy($tileIndex, $x, $y, $sourceLine, $attribs)
+    public function drawPartCopy($tileIndex, $x, $y, $sourceLine, $attribs): void
     {
         $image = $this->tileData[$tileIndex + $this->tileCount * $attribs] ?: $this->updateImage($tileIndex, $attribs);
         $dst = $x + $y * 160;
@@ -1484,7 +1484,7 @@ class Core
         }
     }
 
-    public function checkPaletteType()
+    public function checkPaletteType(): void
     {
         //Reference the correct palette ahead of time...
         $this->palette = ($this->cGBC) ? $this->gbcPalette : ((Settings::$colorize) ? $this->gbColorizedPalette : $this->gbPalette);
@@ -1534,7 +1534,7 @@ class Core
         return $this->tileData[$address_];
     }
 
-    public function drawSpritesForLine($line)
+    public function drawSpritesForLine($line): void
     {
         if (!$this->gfxSpriteShow) {
             return;
@@ -1599,7 +1599,7 @@ class Core
         }
     }
 
-    public function drawPartFgSprite($tileIndex, $x, $y, $sourceLine, $attribs)
+    public function drawPartFgSprite($tileIndex, $x, $y, $sourceLine, $attribs): void
     {
         $im = $this->tileData[$tileIndex + $this->tileCount * $attribs] ?: $this->updateImage($tileIndex, $attribs);
         if ($im === true) {
@@ -1622,7 +1622,7 @@ class Core
         }
     }
 
-    public function drawPartBgSprite($tileIndex, $x, $y, $sourceLine, $attribs)
+    public function drawPartBgSprite($tileIndex, $x, $y, $sourceLine, $attribs): void
     {
         $im = $this->tileData[$tileIndex + $this->tileCount * $attribs] ?: $this->updateImage($tileIndex, $attribs);
         if ($im === true) {
@@ -1802,7 +1802,7 @@ class Core
         return ($gbcBank) ? $this->VRAM[$address] : $this->memory[0x8000 + $address];
     }
 
-    public function setCurrentMBC1ROMBank()
+    public function setCurrentMBC1ROMBank(): void
     {
         //Read the cartridge ROM data from RAM memory:
         $this->currentROMBank = match ($this->ROMBank1offs) {
@@ -1815,7 +1815,7 @@ class Core
         }
     }
 
-    public function setCurrentMBC2AND3ROMBank()
+    public function setCurrentMBC2AND3ROMBank(): void
     {
         //Read the cartridge ROM data from RAM memory:
         //Only map bank 0 to bank 1 here (MBC2 is like MBC1, but can only do 16 banks, so only the bank 0 quirk appears for MBC2):
@@ -1825,7 +1825,7 @@ class Core
         }
     }
 
-    public function setCurrentMBC5ROMBank()
+    public function setCurrentMBC5ROMBank(): void
     {
         //Read the cartridge ROM data from RAM memory:
         $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
@@ -1835,7 +1835,7 @@ class Core
     }
 
     //Memory Writing:
-    public function memoryWrite($address, $data)
+    public function memoryWrite($address, ?string $data): void
     {
         if ($address < 0x8000) {
             if ($this->cMBC1) {
@@ -2339,7 +2339,7 @@ class Core
         return $ubyte; //If this function is called, no wrapping requested.
     }
 
-    public function nswtuw($uword)
+    public function nswtuw($uword): int
     {
         //Keep an unsigned word unsigned:
         if ($uword < 0) {
@@ -2391,7 +2391,10 @@ class Core
         }
     }
 
-    public function getTypedArray($length, $defaultValue, $numberType)
+    /**
+     * @return mixed[]
+     */
+    public function getTypedArray($length, $defaultValue, $numberType): array
     {
         // @PHP - We dont have typed arrays and unsigned int in PHP
         // This function just creates an array and initialize with a value
@@ -2400,7 +2403,7 @@ class Core
         return $arrayHandle;
     }
 
-    public function arrayPad($length, $defaultValue)
+    public function arrayPad($length, $defaultValue): array
     {
         return array_fill(0, $length, $defaultValue);
     }

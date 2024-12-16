@@ -103,7 +103,7 @@ class Opcode
      *
      * NOP
      */
-    public static function opcode0(Core $core)
+    public static function opcode0(Core $core): void
     {
         // Do Nothing...
     }
@@ -113,7 +113,7 @@ class Opcode
      *
      * LD BC, nn
      */
-    public static function opcode1(Core $core)
+    public static function opcode1(Core $core): void
     {
         $core->registerC = $core->memoryRead($core->programCounter);
         $core->registerB = $core->memoryRead(($core->programCounter + 1) & 0xFFFF);
@@ -125,7 +125,7 @@ class Opcode
      *
      * LD (BC), A
      */
-    public static function opcode2(Core $core)
+    public static function opcode2(Core $core): void
     {
         $core->memoryWrite(($core->registerB << 8) + $core->registerC, $core->registerA);
     }
@@ -135,7 +135,7 @@ class Opcode
      *
      * INC BC
      */
-    public static function opcode3(Core $core)
+    public static function opcode3(Core $core): void
     {
         $temp_var = ((($core->registerB << 8) + $core->registerC) + 1);
         $core->registerB = (($temp_var >> 8) & 0xFF);
@@ -147,7 +147,7 @@ class Opcode
      *
      * INC B
      */
-    public static function opcode4(Core $core)
+    public static function opcode4(Core $core): void
     {
         $core->registerB = (($core->registerB + 1) & 0xFF);
         $core->FZero = ($core->registerB == 0);
@@ -160,7 +160,7 @@ class Opcode
      *
      * DEC B
      */
-    public static function opcode5(Core $core)
+    public static function opcode5(Core $core): void
     {
         $core->registerB = $core->unsbtub($core->registerB - 1);
         $core->FZero = ($core->registerB == 0);
@@ -173,7 +173,7 @@ class Opcode
      *
      * LD B, n
      */
-    public static function opcode6(Core $core)
+    public static function opcode6(Core $core): void
     {
         $core->registerB = $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -184,7 +184,7 @@ class Opcode
      *
      * RCLA
      */
-    public static function opcode7(Core $core)
+    public static function opcode7(Core $core): void
     {
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
         $core->registerA = (($core->registerA << 1) & 0xFF) | ($core->registerA >> 7);
@@ -198,7 +198,7 @@ class Opcode
      *
      * LD (nn), SP
      */
-    public static function opcode8(Core $core)
+    public static function opcode8(Core $core): void
     {
         $temp_var = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
         $core->memoryWrite($temp_var, $core->stackPointer & 0xFF);
@@ -212,7 +212,7 @@ class Opcode
      *
      * ADD HL, BC
      */
-    public static function opcode9(Core $core)
+    public static function opcode9(Core $core): void
     {
         $n2 = ($core->registerB << 8) + $core->registerC;
         $dirtySum = $core->registersHL + $n2;
@@ -227,7 +227,7 @@ class Opcode
      *
      * LD A, (BC)
      */
-    public static function opcode10(Core $core)
+    public static function opcode10(Core $core): void
     {
         $core->registerA = $core->memoryRead(($core->registerB << 8) + $core->registerC);
     }
@@ -237,7 +237,7 @@ class Opcode
      *
      * DEC BC
      */
-    public static function opcode11(Core $core)
+    public static function opcode11(Core $core): void
     {
         $temp_var = $core->unswtuw((($core->registerB << 8) + $core->registerC) - 1);
         $core->registerB = ($temp_var >> 8);
@@ -249,7 +249,7 @@ class Opcode
      *
      * INC C
      */
-    public static function opcode12(Core $core)
+    public static function opcode12(Core $core): void
     {
         $core->registerC = (($core->registerC + 1) & 0xFF);
         $core->FZero = ($core->registerC == 0);
@@ -262,7 +262,7 @@ class Opcode
      *
      * DEC C
      */
-    public static function opcode13(Core $core)
+    public static function opcode13(Core $core): void
     {
         $core->registerC = $core->unsbtub($core->registerC - 1);
         $core->FZero = ($core->registerC == 0);
@@ -275,7 +275,7 @@ class Opcode
      *
      * LD C, n
      */
-    public static function opcode14(Core $core)
+    public static function opcode14(Core $core): void
     {
         $core->registerC = $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -286,7 +286,7 @@ class Opcode
      *
      * RRCA
      */
-    public static function opcode15(Core $core)
+    public static function opcode15(Core $core): void
     {
         $core->FCarry = (($core->registerA & 1) == 1);
         $core->registerA = ($core->registerA >> 1) + (($core->registerA & 1) << 7);
@@ -300,7 +300,7 @@ class Opcode
      *
      * STOP
      */
-    public static function opcode16(Core $core)
+    public static function opcode16(Core $core): void
     {
         /*TODO: Emulate the speed switch delay:
           Delay Amount:
@@ -332,7 +332,7 @@ class Opcode
      *
      * LD DE, nn
      */
-    public static function opcode17(Core $core)
+    public static function opcode17(Core $core): void
     {
         $core->registerE = $core->memoryRead($core->programCounter);
         $core->registerD = $core->memoryRead(($core->programCounter + 1) & 0xFFFF);
@@ -344,7 +344,7 @@ class Opcode
      *
      * LD (DE), A
      */
-    public static function opcode18(Core $core)
+    public static function opcode18(Core $core): void
     {
         $core->memoryWrite(($core->registerD << 8) + $core->registerE, $core->registerA);
     }
@@ -354,7 +354,7 @@ class Opcode
      *
      * INC DE
      */
-    public static function opcode19(Core $core)
+    public static function opcode19(Core $core): void
     {
         $temp_var = ((($core->registerD << 8) + $core->registerE) + 1);
         $core->registerD = (($temp_var >> 8) & 0xFF);
@@ -366,7 +366,7 @@ class Opcode
      *
      * INC D
      */
-    public static function opcode20(Core $core)
+    public static function opcode20(Core $core): void
     {
         $core->registerD = (($core->registerD + 1) & 0xFF);
         $core->FZero = ($core->registerD == 0);
@@ -379,7 +379,7 @@ class Opcode
      *
      * DEC D
      */
-    public static function opcode21(Core $core)
+    public static function opcode21(Core $core): void
     {
         $core->registerD = $core->unsbtub($core->registerD - 1);
         $core->FZero = ($core->registerD == 0);
@@ -392,7 +392,7 @@ class Opcode
      *
      * LD D, n
      */
-    public static function opcode22(Core $core)
+    public static function opcode22(Core $core): void
     {
         $core->registerD = $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -403,7 +403,7 @@ class Opcode
      *
      * RLA
      */
-    public static function opcode23(Core $core)
+    public static function opcode23(Core $core): void
     {
         $carry_flag = ($core->FCarry) ? 1 : 0;
         $core->FCarry = (($core->registerA & 0x80) == 0x80);
@@ -418,7 +418,7 @@ class Opcode
      *
      * JR n
      */
-    public static function opcode24(Core $core)
+    public static function opcode24(Core $core): void
     {
         $core->programCounter = $core->nswtuw($core->programCounter + $core->usbtsb($core->memoryRead($core->programCounter)) + 1);
     }
@@ -428,7 +428,7 @@ class Opcode
      *
      * ADD HL, DE
      */
-    public static function opcode25(Core $core)
+    public static function opcode25(Core $core): void
     {
         $n2 = ($core->registerD << 8) + $core->registerE;
         $dirtySum = $core->registersHL + $n2;
@@ -443,7 +443,7 @@ class Opcode
      *
      * LD A, (DE)
      */
-    public static function opcode26(Core $core)
+    public static function opcode26(Core $core): void
     {
         $core->registerA = $core->memoryRead(($core->registerD << 8) + $core->registerE);
     }
@@ -453,7 +453,7 @@ class Opcode
      *
      * DEC DE
      */
-    public static function opcode27(Core $core)
+    public static function opcode27(Core $core): void
     {
         $temp_var = $core->unswtuw((($core->registerD << 8) + $core->registerE) - 1);
         $core->registerD = ($temp_var >> 8);
@@ -465,7 +465,7 @@ class Opcode
      *
      * INC E
      */
-    public static function opcode28(Core $core)
+    public static function opcode28(Core $core): void
     {
         $core->registerE = (($core->registerE + 1) & 0xFF);
         $core->FZero = ($core->registerE == 0);
@@ -478,7 +478,7 @@ class Opcode
      *
      * DEC E
      */
-    public static function opcode29(Core $core)
+    public static function opcode29(Core $core): void
     {
         $core->registerE = $core->unsbtub($core->registerE - 1);
         $core->FZero = ($core->registerE == 0);
@@ -491,7 +491,7 @@ class Opcode
      *
      * LD E, n
      */
-    public static function opcode30(Core $core)
+    public static function opcode30(Core $core): void
     {
         $core->registerE = $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -502,7 +502,7 @@ class Opcode
      *
      * RRA
      */
-    public static function opcode31(Core $core)
+    public static function opcode31(Core $core): void
     {
         $carry_flag = ($core->FCarry) ? 0x80 : 0;
         $core->FCarry = (($core->registerA & 1) == 1);
@@ -517,7 +517,7 @@ class Opcode
      *
      * JR cc, n
      */
-    public static function opcode32(Core $core)
+    public static function opcode32(Core $core): void
     {
         if (!$core->FZero) {
             $core->programCounter = $core->nswtuw($core->programCounter + $core->usbtsb($core->memoryRead($core->programCounter)) + 1);
@@ -532,7 +532,7 @@ class Opcode
      *
      * LD HL, nn
      */
-    public static function opcode33(Core $core)
+    public static function opcode33(Core $core): void
     {
         $core->registersHL = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 2) & 0xFFFF;
@@ -543,7 +543,7 @@ class Opcode
      *
      * LDI (HL), A
      */
-    public static function opcode34(Core $core)
+    public static function opcode34(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerA);
         $core->registersHL = (($core->registersHL + 1) & 0xFFFF);
@@ -554,7 +554,7 @@ class Opcode
      *
      * INC HL
      */
-    public static function opcode35(Core $core)
+    public static function opcode35(Core $core): void
     {
         $core->registersHL = (($core->registersHL + 1) & 0xFFFF);
     }
@@ -564,7 +564,7 @@ class Opcode
      *
      * INC H
      */
-    public static function opcode36(Core $core)
+    public static function opcode36(Core $core): void
     {
         $H = ((($core->registersHL >> 8) + 1) & 0xFF);
         $core->FZero = ($H == 0);
@@ -578,7 +578,7 @@ class Opcode
      *
      * DEC H
      */
-    public static function opcode37(Core $core)
+    public static function opcode37(Core $core): void
     {
         $H = $core->unsbtub(($core->registersHL >> 8) - 1);
         $core->FZero = ($H == 0);
@@ -592,7 +592,7 @@ class Opcode
      *
      * LD H, n
      */
-    public static function opcode38(Core $core)
+    public static function opcode38(Core $core): void
     {
         $core->registersHL = ($core->memoryRead($core->programCounter) << 8) + ($core->registersHL & 0xFF);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -603,7 +603,7 @@ class Opcode
      *
      * DAA
      */
-    public static function opcode39(Core $core)
+    public static function opcode39(Core $core): void
     {
         $temp_var = $core->registerA;
         if ($core->FCarry) {
@@ -630,7 +630,7 @@ class Opcode
      *
      * JR cc, n
      */
-    public static function opcode40(Core $core)
+    public static function opcode40(Core $core): void
     {
         if ($core->FZero) {
             $core->programCounter = $core->nswtuw($core->programCounter + $core->usbtsb($core->memoryRead($core->programCounter)) + 1);
@@ -645,7 +645,7 @@ class Opcode
      *
      * ADD HL, HL
      */
-    public static function opcode41(Core $core)
+    public static function opcode41(Core $core): void
     {
         ;
         $core->FHalfCarry = (($core->registersHL & 0xFFF) > 0x7FF);
@@ -659,7 +659,7 @@ class Opcode
      *
      * LDI A, (HL)
      */
-    public static function opcode42(Core $core)
+    public static function opcode42(Core $core): void
     {
         $core->registerA = $core->memoryRead($core->registersHL);
         $core->registersHL = (($core->registersHL + 1) & 0xFFFF);
@@ -670,7 +670,7 @@ class Opcode
      *
      * DEC HL
      */
-    public static function opcode43(Core $core)
+    public static function opcode43(Core $core): void
     {
         $core->registersHL = $core->unswtuw($core->registersHL - 1);
     }
@@ -680,7 +680,7 @@ class Opcode
      *
      * INC L
      */
-    public static function opcode44(Core $core)
+    public static function opcode44(Core $core): void
     {
         $L = (($core->registersHL + 1) & 0xFF);
         $core->FZero = ($L == 0);
@@ -694,7 +694,7 @@ class Opcode
      *
      * DEC L
      */
-    public static function opcode45(Core $core)
+    public static function opcode45(Core $core): void
     {
         $L = $core->unsbtub(($core->registersHL & 0xFF) - 1);
         $core->FZero = ($L == 0);
@@ -708,7 +708,7 @@ class Opcode
      *
      * LD L, n
      */
-    public static function opcode46(Core $core)
+    public static function opcode46(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -719,7 +719,7 @@ class Opcode
      *
      * CPL
      */
-    public static function opcode47(Core $core)
+    public static function opcode47(Core $core): void
     {
         $core->registerA ^= 0xFF;
         $core->FSubtract = true;
@@ -731,7 +731,7 @@ class Opcode
      *
      * JR cc, n
      */
-    public static function opcode48(Core $core)
+    public static function opcode48(Core $core): void
     {
         if (!$core->FCarry) {
             $core->programCounter = $core->nswtuw($core->programCounter + $core->usbtsb($core->memoryRead($core->programCounter)) + 1);
@@ -746,7 +746,7 @@ class Opcode
      *
      * LD SP, nn
      */
-    public static function opcode49(Core $core)
+    public static function opcode49(Core $core): void
     {
         $core->stackPointer = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 2) & 0xFFFF;
@@ -757,7 +757,7 @@ class Opcode
      *
      * LDD (HL), A
      */
-    public static function opcode50(Core $core)
+    public static function opcode50(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerA);
         $core->registersHL = $core->unswtuw($core->registersHL - 1);
@@ -768,7 +768,7 @@ class Opcode
      *
      * INC SP
      */
-    public static function opcode51(Core $core)
+    public static function opcode51(Core $core): void
     {
         $core->stackPointer = ($core->stackPointer + 1) & 0xFFFF;
     }
@@ -778,7 +778,7 @@ class Opcode
      *
      * INC (HL)
      */
-    public static function opcode52(Core $core)
+    public static function opcode52(Core $core): void
     {
         $temp_var = (($core->memoryRead($core->registersHL) + 1) & 0xFF);
         $core->FZero = ($temp_var == 0);
@@ -792,7 +792,7 @@ class Opcode
      *
      * DEC (HL)
      */
-    public static function opcode53(Core $core)
+    public static function opcode53(Core $core): void
     {
         $temp_var = $core->unsbtub($core->memoryRead($core->registersHL) - 1);
         $core->FZero = ($temp_var == 0);
@@ -806,7 +806,7 @@ class Opcode
      *
      * LD (HL), n
      */
-    public static function opcode54(Core $core)
+    public static function opcode54(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->memoryRead($core->programCounter));
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -817,7 +817,7 @@ class Opcode
      *
      * SCF
      */
-    public static function opcode55(Core $core)
+    public static function opcode55(Core $core): void
     {
         $core->FCarry = true;
         $core->FSubtract = false;
@@ -829,7 +829,7 @@ class Opcode
      *
      * JR cc, n
      */
-    public static function opcode56(Core $core)
+    public static function opcode56(Core $core): void
     {
         if ($core->FCarry) {
             $core->programCounter = $core->nswtuw($core->programCounter + $core->usbtsb($core->memoryRead($core->programCounter)) + 1);
@@ -844,7 +844,7 @@ class Opcode
      *
      * ADD HL, SP
      */
-    public static function opcode57(Core $core)
+    public static function opcode57(Core $core): void
     {
         $dirtySum = $core->registersHL + $core->stackPointer;
         $core->FHalfCarry = (($core->registersHL & 0xFFF) + ($core->stackPointer & 0xFFF) > 0xFFF);
@@ -858,7 +858,7 @@ class Opcode
      *
      *  LDD A, (HL)
      */
-    public static function opcode58(Core $core)
+    public static function opcode58(Core $core): void
     {
         $core->registerA = $core->memoryRead($core->registersHL);
         $core->registersHL = $core->unswtuw($core->registersHL - 1);
@@ -869,7 +869,7 @@ class Opcode
      *
      * DEC SP
      */
-    public static function opcode59(Core $core)
+    public static function opcode59(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
     }
@@ -879,7 +879,7 @@ class Opcode
      *
      * INC A
      */
-    public static function opcode60(Core $core)
+    public static function opcode60(Core $core): void
     {
         $core->registerA = (($core->registerA + 1) & 0xFF);
         $core->FZero = ($core->registerA == 0);
@@ -892,7 +892,7 @@ class Opcode
      *
      * DEC A
      */
-    public static function opcode61(Core $core)
+    public static function opcode61(Core $core): void
     {
         $core->registerA = $core->unsbtub($core->registerA - 1);
         $core->FZero = ($core->registerA == 0);
@@ -905,7 +905,7 @@ class Opcode
      *
      * LD A, n
      */
-    public static function opcode62(Core $core)
+    public static function opcode62(Core $core): void
     {
         $core->registerA = $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -916,7 +916,7 @@ class Opcode
      *
      * CCF
      */
-    public static function opcode63(Core $core)
+    public static function opcode63(Core $core): void
     {
         $core->FCarry = !$core->FCarry;
         $core->FSubtract = false;
@@ -928,7 +928,7 @@ class Opcode
      *
      * LD B, B
      */
-    public static function opcode64(Core $core)
+    public static function opcode64(Core $core): void
     {
         //Do nothing...
     }
@@ -938,7 +938,7 @@ class Opcode
      *
      * LD B, C
      */
-    public static function opcode65(Core $core)
+    public static function opcode65(Core $core): void
     {
         $core->registerB = $core->registerC;
     }
@@ -948,7 +948,7 @@ class Opcode
      *
      * LD B, D
      */
-    public static function opcode66(Core $core)
+    public static function opcode66(Core $core): void
     {
         $core->registerB = $core->registerD;
     }
@@ -958,7 +958,7 @@ class Opcode
      *
      * LD B, E
      */
-    public static function opcode67(Core $core)
+    public static function opcode67(Core $core): void
     {
         $core->registerB = $core->registerE;
     }
@@ -968,7 +968,7 @@ class Opcode
      *
      * LD B, H
      */
-    public static function opcode68(Core $core)
+    public static function opcode68(Core $core): void
     {
         $core->registerB = ($core->registersHL >> 8);
     }
@@ -978,7 +978,7 @@ class Opcode
      *
      * LD B, L
      */
-    public static function opcode69(Core $core)
+    public static function opcode69(Core $core): void
     {
         $core->registerB = ($core->registersHL & 0xFF);
     }
@@ -988,7 +988,7 @@ class Opcode
      *
      * LD B, (HL)
      */
-    public static function opcode70(Core $core)
+    public static function opcode70(Core $core): void
     {
         $core->registerB = $core->memoryRead($core->registersHL);
     }
@@ -998,7 +998,7 @@ class Opcode
      *
      * LD B, A
      */
-    public static function opcode71(Core $core)
+    public static function opcode71(Core $core): void
     {
         $core->registerB = $core->registerA;
     }
@@ -1008,7 +1008,7 @@ class Opcode
      *
      * LD C, B
      */
-    public static function opcode72(Core $core)
+    public static function opcode72(Core $core): void
     {
         $core->registerC = $core->registerB;
     }
@@ -1018,7 +1018,7 @@ class Opcode
      *
      * LD C, C
      */
-    public static function opcode73(Core $core)
+    public static function opcode73(Core $core): void
     {
         //Do nothing...
     }
@@ -1028,7 +1028,7 @@ class Opcode
      *
      * LD C, D
      */
-    public static function opcode74(Core $core)
+    public static function opcode74(Core $core): void
     {
         $core->registerC = $core->registerD;
     }
@@ -1038,7 +1038,7 @@ class Opcode
      *
      * LD C, E
      */
-    public static function opcode75(Core $core)
+    public static function opcode75(Core $core): void
     {
         $core->registerC = $core->registerE;
     }
@@ -1048,7 +1048,7 @@ class Opcode
      *
      * LD C, H
      */
-    public static function opcode76(Core $core)
+    public static function opcode76(Core $core): void
     {
         $core->registerC = ($core->registersHL >> 8);
     }
@@ -1058,7 +1058,7 @@ class Opcode
      *
      * LD C, L
      */
-    public static function opcode77(Core $core)
+    public static function opcode77(Core $core): void
     {
         $core->registerC = ($core->registersHL & 0xFF);
     }
@@ -1068,7 +1068,7 @@ class Opcode
      *
      * LD C, (HL)
      */
-    public static function opcode78(Core $core)
+    public static function opcode78(Core $core): void
     {
         $core->registerC = $core->memoryRead($core->registersHL);
     }
@@ -1078,7 +1078,7 @@ class Opcode
      *
      * LD C, A
      */
-    public static function opcode79(Core $core)
+    public static function opcode79(Core $core): void
     {
         $core->registerC = $core->registerA;
     }
@@ -1088,7 +1088,7 @@ class Opcode
      *
      * LD D, B
      */
-    public static function opcode80(Core $core)
+    public static function opcode80(Core $core): void
     {
         $core->registerD = $core->registerB;
     }
@@ -1098,7 +1098,7 @@ class Opcode
      *
      * LD D, C
      */
-    public static function opcode81(Core $core)
+    public static function opcode81(Core $core): void
     {
         $core->registerD = $core->registerC;
     }
@@ -1108,7 +1108,7 @@ class Opcode
      *
      * LD D, D
      */
-    public static function opcode82(Core $core)
+    public static function opcode82(Core $core): void
     {
         //Do nothing...
     }
@@ -1118,7 +1118,7 @@ class Opcode
      *
      * LD D, E
      */
-    public static function opcode83(Core $core)
+    public static function opcode83(Core $core): void
     {
         $core->registerD = $core->registerE;
     }
@@ -1128,7 +1128,7 @@ class Opcode
      *
      * LD D, H
      */
-    public static function opcode84(Core $core)
+    public static function opcode84(Core $core): void
     {
         $core->registerD = ($core->registersHL >> 8);
     }
@@ -1138,7 +1138,7 @@ class Opcode
      *
      * LD D, L
      */
-    public static function opcode85(Core $core)
+    public static function opcode85(Core $core): void
     {
         $core->registerD = ($core->registersHL & 0xFF);
     }
@@ -1148,7 +1148,7 @@ class Opcode
      *
      * LD D, (HL)
      */
-    public static function opcode86(Core $core)
+    public static function opcode86(Core $core): void
     {
         $core->registerD = $core->memoryRead($core->registersHL);
     }
@@ -1158,7 +1158,7 @@ class Opcode
      *
      * LD D, A
      */
-    public static function opcode87(Core $core)
+    public static function opcode87(Core $core): void
     {
         $core->registerD = $core->registerA;
     }
@@ -1168,7 +1168,7 @@ class Opcode
      *
      * LD E, B
      */
-    public static function opcode88(Core $core)
+    public static function opcode88(Core $core): void
     {
         $core->registerE = $core->registerB;
     }
@@ -1178,7 +1178,7 @@ class Opcode
      *
      * LD E, C
      */
-    public static function opcode89(Core $core)
+    public static function opcode89(Core $core): void
     {
         $core->registerE = $core->registerC;
     }
@@ -1188,7 +1188,7 @@ class Opcode
      *
      * LD E, D
      */
-    public static function opcode90(Core $core)
+    public static function opcode90(Core $core): void
     {
         $core->registerE = $core->registerD;
     }
@@ -1198,7 +1198,7 @@ class Opcode
      *
      * LD E, E
      */
-    public static function opcode91(Core $core)
+    public static function opcode91(Core $core): void
     {
         //Do nothing...
     }
@@ -1208,7 +1208,7 @@ class Opcode
      *
      * LD E, H
      */
-    public static function opcode92(Core $core)
+    public static function opcode92(Core $core): void
     {
         $core->registerE = ($core->registersHL >> 8);
     }
@@ -1218,7 +1218,7 @@ class Opcode
      *
      * LD E, L
      */
-    public static function opcode93(Core $core)
+    public static function opcode93(Core $core): void
     {
         $core->registerE = ($core->registersHL & 0xFF);
     }
@@ -1228,7 +1228,7 @@ class Opcode
      *
      * LD E, (HL)
      */
-    public static function opcode94(Core $core)
+    public static function opcode94(Core $core): void
     {
         $core->registerE = $core->memoryRead($core->registersHL);
     }
@@ -1238,7 +1238,7 @@ class Opcode
      *
      * LD E, A
      */
-    public static function opcode95(Core $core)
+    public static function opcode95(Core $core): void
     {
         $core->registerE = $core->registerA;
     }
@@ -1248,7 +1248,7 @@ class Opcode
      *
      * LD H, B
      */
-    public static function opcode96(Core $core)
+    public static function opcode96(Core $core): void
     {
         $core->registersHL = ($core->registerB << 8) + ($core->registersHL & 0xFF);
     }
@@ -1258,7 +1258,7 @@ class Opcode
      *
      * LD H, C
      */
-    public static function opcode97(Core $core)
+    public static function opcode97(Core $core): void
     {
         $core->registersHL = ($core->registerC << 8) + ($core->registersHL & 0xFF);
     }
@@ -1268,7 +1268,7 @@ class Opcode
      *
      * LD H, D
      */
-    public static function opcode98(Core $core)
+    public static function opcode98(Core $core): void
     {
         $core->registersHL = ($core->registerD << 8) + ($core->registersHL & 0xFF);
     }
@@ -1278,7 +1278,7 @@ class Opcode
      *
      * LD H, E
      */
-    public static function opcode99(Core $core)
+    public static function opcode99(Core $core): void
     {
         $core->registersHL = ($core->registerE << 8) + ($core->registersHL & 0xFF);
     }
@@ -1288,7 +1288,7 @@ class Opcode
      *
      * LD H, H
      */
-    public static function opcode100(Core $core)
+    public static function opcode100(Core $core): void
     {
         //Do nothing...
     }
@@ -1298,7 +1298,7 @@ class Opcode
      *
      * LD H, L
      */
-    public static function opcode101(Core $core)
+    public static function opcode101(Core $core): void
     {
         $core->registersHL = (($core->registersHL & 0xFF) << 8) + ($core->registersHL & 0xFF);
     }
@@ -1308,7 +1308,7 @@ class Opcode
      *
      * LD H, (HL)
      */
-    public static function opcode102(Core $core)
+    public static function opcode102(Core $core): void
     {
         $core->registersHL = ($core->memoryRead($core->registersHL) << 8) + ($core->registersHL & 0xFF);
     }
@@ -1318,7 +1318,7 @@ class Opcode
      *
      * LD H, A
      */
-    public static function opcode103(Core $core)
+    public static function opcode103(Core $core): void
     {
         $core->registersHL = ($core->registerA << 8) + ($core->registersHL & 0xFF);
     }
@@ -1328,7 +1328,7 @@ class Opcode
      *
      * LD L, B
      */
-    public static function opcode104(Core $core)
+    public static function opcode104(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->registerB;
     }
@@ -1338,7 +1338,7 @@ class Opcode
      *
      * LD L, C
      */
-    public static function opcode105(Core $core)
+    public static function opcode105(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->registerC;
     }
@@ -1348,7 +1348,7 @@ class Opcode
      *
      * LD L, D
      */
-    public static function opcode106(Core $core)
+    public static function opcode106(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->registerD;
     }
@@ -1358,7 +1358,7 @@ class Opcode
      *
      * LD L, E
      */
-    public static function opcode107(Core $core)
+    public static function opcode107(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->registerE;
     }
@@ -1368,7 +1368,7 @@ class Opcode
      *
      * LD L, H
      */
-    public static function opcode108(Core $core)
+    public static function opcode108(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + ($core->registersHL >> 8);
     }
@@ -1378,7 +1378,7 @@ class Opcode
      *
      * LD L, L
      */
-    public static function opcode109(Core $core)
+    public static function opcode109(Core $core): void
     {
         //Do nothing...
     }
@@ -1388,7 +1388,7 @@ class Opcode
      *
      * LD L, (HL)
      */
-    public static function opcode110(Core $core)
+    public static function opcode110(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->memoryRead($core->registersHL);
     }
@@ -1398,7 +1398,7 @@ class Opcode
      *
      * LD L, A
      */
-    public static function opcode111(Core $core)
+    public static function opcode111(Core $core): void
     {
         $core->registersHL = ($core->registersHL & 0xFF00) + $core->registerA;
     }
@@ -1408,7 +1408,7 @@ class Opcode
      *
      * LD (HL), B
      */
-    public static function opcode112(Core $core)
+    public static function opcode112(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerB);
     }
@@ -1418,7 +1418,7 @@ class Opcode
      *
      * LD (HL), C
      */
-    public static function opcode113(Core $core)
+    public static function opcode113(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerC);
     }
@@ -1428,7 +1428,7 @@ class Opcode
      *
      * LD (HL), D
      */
-    public static function opcode114(Core $core)
+    public static function opcode114(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerD);
     }
@@ -1438,7 +1438,7 @@ class Opcode
      *
      * LD (HL), E
      */
-    public static function opcode115(Core $core)
+    public static function opcode115(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerE);
     }
@@ -1448,7 +1448,7 @@ class Opcode
      *
      * LD (HL), H
      */
-    public static function opcode116(Core $core)
+    public static function opcode116(Core $core): void
     {
         $core->memoryWrite($core->registersHL, ($core->registersHL >> 8));
     }
@@ -1458,7 +1458,7 @@ class Opcode
      *
      * LD (HL), L
      */
-    public static function opcode117(Core $core)
+    public static function opcode117(Core $core): void
     {
         $core->memoryWrite($core->registersHL, ($core->registersHL & 0xFF));
     }
@@ -1521,7 +1521,7 @@ class Opcode
      *
      * LD (HL), A
      */
-    public static function opcode119(Core $core)
+    public static function opcode119(Core $core): void
     {
         $core->memoryWrite($core->registersHL, $core->registerA);
     }
@@ -1531,7 +1531,7 @@ class Opcode
      *
      * LD A, B
      */
-    public static function opcode120(Core $core)
+    public static function opcode120(Core $core): void
     {
         $core->registerA = $core->registerB;
     }
@@ -1541,7 +1541,7 @@ class Opcode
      *
      * LD A, C
      */
-    public static function opcode121(Core $core)
+    public static function opcode121(Core $core): void
     {
         $core->registerA = $core->registerC;
     }
@@ -1551,7 +1551,7 @@ class Opcode
      *
      * LD A, D
      */
-    public static function opcode122(Core $core)
+    public static function opcode122(Core $core): void
     {
         $core->registerA = $core->registerD;
     }
@@ -1561,7 +1561,7 @@ class Opcode
      *
      * LD A, E
      */
-    public static function opcode123(Core $core)
+    public static function opcode123(Core $core): void
     {
         $core->registerA = $core->registerE;
     }
@@ -1571,7 +1571,7 @@ class Opcode
      *
      * LD A, H
      */
-    public static function opcode124(Core $core)
+    public static function opcode124(Core $core): void
     {
         $core->registerA = ($core->registersHL >> 8);
     }
@@ -1581,7 +1581,7 @@ class Opcode
      *
      * LD A, L
      */
-    public static function opcode125(Core $core)
+    public static function opcode125(Core $core): void
     {
         $core->registerA = ($core->registersHL & 0xFF);
     }
@@ -1591,7 +1591,7 @@ class Opcode
      *
      * LD, A, (HL)
      */
-    public static function opcode126(Core $core)
+    public static function opcode126(Core $core): void
     {
         $core->registerA = $core->memoryRead($core->registersHL);
     }
@@ -1601,7 +1601,7 @@ class Opcode
      *
      * LD A, A
      */
-    public static function opcode127(Core $core)
+    public static function opcode127(Core $core): void
     {
         //Do Nothing...
     }
@@ -1611,7 +1611,7 @@ class Opcode
      *
      * ADD A, B
      */
-    public static function opcode128(Core $core)
+    public static function opcode128(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerB;
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1626,7 +1626,7 @@ class Opcode
      *
      * ADD A, C
      */
-    public static function opcode129(Core $core)
+    public static function opcode129(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerC;
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1641,7 +1641,7 @@ class Opcode
      *
      * ADD A, D
      */
-    public static function opcode130(Core $core)
+    public static function opcode130(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerD;
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1656,7 +1656,7 @@ class Opcode
      *
      * ADD A, E
      */
-    public static function opcode131(Core $core)
+    public static function opcode131(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerE;
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1671,7 +1671,7 @@ class Opcode
      *
      * ADD A, H
      */
-    public static function opcode132(Core $core)
+    public static function opcode132(Core $core): void
     {
         $dirtySum = $core->registerA + ($core->registersHL >> 8);
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1686,7 +1686,7 @@ class Opcode
      *
      * ADD A, L
      */
-    public static function opcode133(Core $core)
+    public static function opcode133(Core $core): void
     {
         $dirtySum = $core->registerA + ($core->registersHL & 0xFF);
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1701,7 +1701,7 @@ class Opcode
      *
      * ADD A, (HL)
      */
-    public static function opcode134(Core $core)
+    public static function opcode134(Core $core): void
     {
         $dirtySum = $core->registerA + $core->memoryRead($core->registersHL);
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1716,7 +1716,7 @@ class Opcode
      *
      * ADD A, A
      */
-    public static function opcode135(Core $core)
+    public static function opcode135(Core $core): void
     {
         $dirtySum = $core->registerA * 2;
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -1731,7 +1731,7 @@ class Opcode
      *
      * ADC A, B
      */
-    public static function opcode136(Core $core)
+    public static function opcode136(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerB + (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) + ($core->registerB & 0xF) + (($core->FCarry) ? 1 : 0) > 0xF);
@@ -1746,7 +1746,7 @@ class Opcode
      *
      * ADC A, C
      */
-    public static function opcode137(Core $core)
+    public static function opcode137(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerC + (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) + ($core->registerC & 0xF) + (($core->FCarry) ? 1 : 0) > 0xF);
@@ -1761,7 +1761,7 @@ class Opcode
      *
      * ADC A, D
      */
-    public static function opcode138(Core $core)
+    public static function opcode138(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerD + (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) + ($core->registerD & 0xF) + (($core->FCarry) ? 1 : 0) > 0xF);
@@ -1776,7 +1776,7 @@ class Opcode
      *
      * ADC A, E
      */
-    public static function opcode139(Core $core)
+    public static function opcode139(Core $core): void
     {
         $dirtySum = $core->registerA + $core->registerE + (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) + ($core->registerE & 0xF) + (($core->FCarry) ? 1 : 0) > 0xF);
@@ -1791,7 +1791,7 @@ class Opcode
      *
      * ADC A, H
      */
-    public static function opcode140(Core $core)
+    public static function opcode140(Core $core): void
     {
         $tempValue = ($core->registersHL >> 8);
         $dirtySum = $core->registerA + $tempValue + (($core->FCarry) ? 1 : 0);
@@ -1807,7 +1807,7 @@ class Opcode
      *
      * ADC A, L
      */
-    public static function opcode141(Core $core)
+    public static function opcode141(Core $core): void
     {
         $tempValue = ($core->registersHL & 0xFF);
         $dirtySum = $core->registerA + $tempValue + (($core->FCarry) ? 1 : 0);
@@ -1823,7 +1823,7 @@ class Opcode
      *
      * ADC A, (HL)
      */
-    public static function opcode142(Core $core)
+    public static function opcode142(Core $core): void
     {
         $tempValue = $core->memoryRead($core->registersHL);
         $dirtySum = $core->registerA + $tempValue + (($core->FCarry) ? 1 : 0);
@@ -1839,7 +1839,7 @@ class Opcode
      *
      * ADC A, A
      */
-    public static function opcode143(Core $core)
+    public static function opcode143(Core $core): void
     {
         $dirtySum = ($core->registerA * 2) + (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) + ($core->registerA & 0xF) + (($core->FCarry) ? 1 : 0) > 0xF);
@@ -1854,7 +1854,7 @@ class Opcode
      *
      * SUB A, B
      */
-    public static function opcode144(Core $core)
+    public static function opcode144(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerB;
         $core->FHalfCarry = ($core->registerA & 0xF) < ($core->registerB & 0xF);
@@ -1869,7 +1869,7 @@ class Opcode
      *
      * SUB A, C
      */
-    public static function opcode145(Core $core)
+    public static function opcode145(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerC;
         $core->FHalfCarry = ($core->registerA & 0xF) < ($core->registerC & 0xF);
@@ -1884,7 +1884,7 @@ class Opcode
      *
      * SUB A, D
      */
-    public static function opcode146(Core $core)
+    public static function opcode146(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerD;
         $core->FHalfCarry = ($core->registerA & 0xF) < ($core->registerD & 0xF);
@@ -1899,7 +1899,7 @@ class Opcode
      *
      * SUB A, E
      */
-    public static function opcode147(Core $core)
+    public static function opcode147(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerE;
         $core->FHalfCarry = ($core->registerA & 0xF) < ($core->registerE & 0xF);
@@ -1914,7 +1914,7 @@ class Opcode
      *
      * SUB A, H
      */
-    public static function opcode148(Core $core)
+    public static function opcode148(Core $core): void
     {
         $temp_var = $core->registersHL >> 8;
         $dirtySum = $core->registerA - $temp_var;
@@ -1930,7 +1930,7 @@ class Opcode
      *
      * SUB A, L
      */
-    public static function opcode149(Core $core)
+    public static function opcode149(Core $core): void
     {
         $dirtySum = $core->registerA - ($core->registersHL & 0xFF);
         $core->FHalfCarry = ($core->registerA & 0xF) < ($core->registersHL & 0xF);
@@ -1945,7 +1945,7 @@ class Opcode
      *
      * SUB A, (HL)
      */
-    public static function opcode150(Core $core)
+    public static function opcode150(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $dirtySum = $core->registerA - $temp_var;
@@ -1961,7 +1961,7 @@ class Opcode
      *
      * SUB A, A
      */
-    public static function opcode151(Core $core)
+    public static function opcode151(Core $core): void
     {
         //number - same number == 0
         $core->registerA = 0;
@@ -1976,7 +1976,7 @@ class Opcode
      *
      * SBC A, B
      */
-    public static function opcode152(Core $core)
+    public static function opcode152(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerB - (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) - ($core->registerB & 0xF) - (($core->FCarry) ? 1 : 0) < 0);
@@ -1991,7 +1991,7 @@ class Opcode
      *
      * SBC A, C
      */
-    public static function opcode153(Core $core)
+    public static function opcode153(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerC - (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) - ($core->registerC & 0xF) - (($core->FCarry) ? 1 : 0) < 0);
@@ -2006,7 +2006,7 @@ class Opcode
      *
      * SBC A, D
      */
-    public static function opcode154(Core $core)
+    public static function opcode154(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerD - (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) - ($core->registerD & 0xF) - (($core->FCarry) ? 1 : 0) < 0);
@@ -2021,7 +2021,7 @@ class Opcode
      *
      * SBC A, E
      */
-    public static function opcode155(Core $core)
+    public static function opcode155(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerE - (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) - ($core->registerE & 0xF) - (($core->FCarry) ? 1 : 0) < 0);
@@ -2036,7 +2036,7 @@ class Opcode
      *
      * SBC A, H
      */
-    public static function opcode156(Core $core)
+    public static function opcode156(Core $core): void
     {
         $temp_var = $core->registersHL >> 8;
         $dirtySum = $core->registerA - $temp_var - (($core->FCarry) ? 1 : 0);
@@ -2052,7 +2052,7 @@ class Opcode
      *
      * SBC A, L
      */
-    public static function opcode157(Core $core)
+    public static function opcode157(Core $core): void
     {
         $dirtySum = $core->registerA - ($core->registersHL & 0xFF) - (($core->FCarry) ? 1 : 0);
         $core->FHalfCarry = (($core->registerA & 0xF) - ($core->registersHL & 0xF) - (($core->FCarry) ? 1 : 0) < 0);
@@ -2067,7 +2067,7 @@ class Opcode
      *
      * SBC A, (HL)
      */
-    public static function opcode158(Core $core)
+    public static function opcode158(Core $core): void
     {
         $temp_var = $core->memoryRead($core->registersHL);
         $dirtySum = $core->registerA - $temp_var - (($core->FCarry) ? 1 : 0);
@@ -2083,7 +2083,7 @@ class Opcode
      *
      * SBC A, A
      */
-    public static function opcode159(Core $core)
+    public static function opcode159(Core $core): void
     {
         //Optimized SBC A:
         if ($core->FCarry) {
@@ -2106,7 +2106,7 @@ class Opcode
      *
      * AND B
      */
-    public static function opcode160(Core $core)
+    public static function opcode160(Core $core): void
     {
         $core->registerA &= $core->registerB;
         $core->FZero = ($core->registerA == 0);
@@ -2120,7 +2120,7 @@ class Opcode
      *
      * AND C
      */
-    public static function opcode161(Core $core)
+    public static function opcode161(Core $core): void
     {
         $core->registerA &= $core->registerC;
         $core->FZero = ($core->registerA == 0);
@@ -2134,7 +2134,7 @@ class Opcode
      *
      * AND D
      */
-    public static function opcode162(Core $core)
+    public static function opcode162(Core $core): void
     {
         $core->registerA &= $core->registerD;
         $core->FZero = ($core->registerA == 0);
@@ -2148,7 +2148,7 @@ class Opcode
      *
      * AND E
      */
-    public static function opcode163(Core $core)
+    public static function opcode163(Core $core): void
     {
         $core->registerA &= $core->registerE;
         $core->FZero = ($core->registerA == 0);
@@ -2162,7 +2162,7 @@ class Opcode
      *
      * AND H
      */
-    public static function opcode164(Core $core)
+    public static function opcode164(Core $core): void
     {
         $core->registerA &= ($core->registersHL >> 8);
         $core->FZero = ($core->registerA == 0);
@@ -2176,7 +2176,7 @@ class Opcode
      *
      * AND L
      */
-    public static function opcode165(Core $core)
+    public static function opcode165(Core $core): void
     {
         $core->registerA &= ($core->registersHL & 0xFF);
         $core->FZero = ($core->registerA == 0);
@@ -2190,7 +2190,7 @@ class Opcode
      *
      * AND (HL)
      */
-    public static function opcode166(Core $core)
+    public static function opcode166(Core $core): void
     {
         $core->registerA &= $core->memoryRead($core->registersHL);
         $core->FZero = ($core->registerA == 0);
@@ -2204,7 +2204,7 @@ class Opcode
      *
      * AND A
      */
-    public static function opcode167(Core $core)
+    public static function opcode167(Core $core): void
     {
         //number & same number = same number
         $core->FZero = ($core->registerA == 0);
@@ -2218,7 +2218,7 @@ class Opcode
      *
      * XOR B
      */
-    public static function opcode168(Core $core)
+    public static function opcode168(Core $core): void
     {
         $core->registerA ^= $core->registerB;
         $core->FZero = ($core->registerA == 0);
@@ -2232,7 +2232,7 @@ class Opcode
      *
      * XOR C
      */
-    public static function opcode169(Core $core)
+    public static function opcode169(Core $core): void
     {
         $core->registerA ^= $core->registerC;
         $core->FZero = ($core->registerA == 0);
@@ -2246,7 +2246,7 @@ class Opcode
      *
      * XOR D
      */
-    public static function opcode170(Core $core)
+    public static function opcode170(Core $core): void
     {
         $core->registerA ^= $core->registerD;
         $core->FZero = ($core->registerA == 0);
@@ -2260,7 +2260,7 @@ class Opcode
      *
      * XOR E
      */
-    public static function opcode171(Core $core)
+    public static function opcode171(Core $core): void
     {
         $core->registerA ^= $core->registerE;
         $core->FZero = ($core->registerA == 0);
@@ -2274,7 +2274,7 @@ class Opcode
      *
      * XOR H
      */
-    public static function opcode172(Core $core)
+    public static function opcode172(Core $core): void
     {
         $core->registerA ^= ($core->registersHL >> 8);
         $core->FZero = ($core->registerA == 0);
@@ -2288,7 +2288,7 @@ class Opcode
      *
      * XOR L
      */
-    public static function opcode173(Core $core)
+    public static function opcode173(Core $core): void
     {
         $core->registerA ^= ($core->registersHL & 0xFF);
         $core->FZero = ($core->registerA == 0);
@@ -2302,7 +2302,7 @@ class Opcode
      *
      * XOR (HL)
      */
-    public static function opcode174(Core $core)
+    public static function opcode174(Core $core): void
     {
         $core->registerA ^= $core->memoryRead($core->registersHL);
         $core->FZero = ($core->registerA == 0);
@@ -2316,7 +2316,7 @@ class Opcode
      *
      * XOR A
      */
-    public static function opcode175(Core $core)
+    public static function opcode175(Core $core): void
     {
         //number ^ same number == 0
         $core->registerA = 0;
@@ -2331,7 +2331,7 @@ class Opcode
      *
      * OR B
      */
-    public static function opcode176(Core $core)
+    public static function opcode176(Core $core): void
     {
         $core->registerA |= $core->registerB;
         $core->FZero = ($core->registerA == 0);
@@ -2345,7 +2345,7 @@ class Opcode
      *
      * OR C
      */
-    public static function opcode177(Core $core)
+    public static function opcode177(Core $core): void
     {
         $core->registerA |= $core->registerC;
         $core->FZero = ($core->registerA == 0);
@@ -2359,7 +2359,7 @@ class Opcode
      *
      * OR D
      */
-    public static function opcode178(Core $core)
+    public static function opcode178(Core $core): void
     {
         $core->registerA |= $core->registerD;
         $core->FZero = ($core->registerA == 0);
@@ -2373,7 +2373,7 @@ class Opcode
      *
      * OR E
      */
-    public static function opcode179(Core $core)
+    public static function opcode179(Core $core): void
     {
         $core->registerA |= $core->registerE;
         $core->FZero = ($core->registerA == 0);
@@ -2387,7 +2387,7 @@ class Opcode
      *
      * OR H
      */
-    public static function opcode180(Core $core)
+    public static function opcode180(Core $core): void
     {
         $core->registerA |= ($core->registersHL >> 8);
         $core->FZero = ($core->registerA == 0);
@@ -2401,7 +2401,7 @@ class Opcode
      *
      * OR L
      */
-    public static function opcode181(Core $core)
+    public static function opcode181(Core $core): void
     {
         $core->registerA |= ($core->registersHL & 0xFF);
         $core->FZero = ($core->registerA == 0);
@@ -2415,7 +2415,7 @@ class Opcode
      *
      * OR (HL)
      */
-    public static function opcode182(Core $core)
+    public static function opcode182(Core $core): void
     {
         $core->registerA |= $core->memoryRead($core->registersHL);
         $core->FZero = ($core->registerA == 0);
@@ -2429,7 +2429,7 @@ class Opcode
      *
      * OR A
      */
-    public static function opcode183(Core $core)
+    public static function opcode183(Core $core): void
     {
         //number | same number == same number
         $core->FZero = ($core->registerA == 0);
@@ -2443,7 +2443,7 @@ class Opcode
      *
      * CP B
      */
-    public static function opcode184(Core $core)
+    public static function opcode184(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerB;
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2457,7 +2457,7 @@ class Opcode
      *
      * CP C
      */
-    public static function opcode185(Core $core)
+    public static function opcode185(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerC;
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2471,7 +2471,7 @@ class Opcode
      *
      * CP D
      */
-    public static function opcode186(Core $core)
+    public static function opcode186(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerD;
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2485,7 +2485,7 @@ class Opcode
      *
      * CP E
      */
-    public static function opcode187(Core $core)
+    public static function opcode187(Core $core): void
     {
         $dirtySum = $core->registerA - $core->registerE;
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2499,7 +2499,7 @@ class Opcode
      *
      * CP H
      */
-    public static function opcode188(Core $core)
+    public static function opcode188(Core $core): void
     {
         $dirtySum = $core->registerA - ($core->registersHL >> 8);
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2513,7 +2513,7 @@ class Opcode
      *
      * CP L
      */
-    public static function opcode189(Core $core)
+    public static function opcode189(Core $core): void
     {
         $dirtySum = $core->registerA - ($core->registersHL & 0xFF);
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2527,7 +2527,7 @@ class Opcode
      *
      * CP (HL)
      */
-    public static function opcode190(Core $core)
+    public static function opcode190(Core $core): void
     {
         $dirtySum = $core->registerA - $core->memoryRead($core->registersHL);
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -2541,7 +2541,7 @@ class Opcode
      *
      * CP A
      */
-    public static function opcode191(Core $core)
+    public static function opcode191(Core $core): void
     {
         $core->FHalfCarry = false;
         $core->FCarry = false;
@@ -2554,7 +2554,7 @@ class Opcode
      *
      * RET !FZ
      */
-    public static function opcode192(Core $core)
+    public static function opcode192(Core $core): void
     {
         if (!$core->FZero) {
             $core->programCounter = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
@@ -2568,7 +2568,7 @@ class Opcode
      *
      * POP BC
      */
-    public static function opcode193(Core $core)
+    public static function opcode193(Core $core): void
     {
         $core->registerC = $core->memoryRead($core->stackPointer);
         $core->registerB = $core->memoryRead(($core->stackPointer + 1) & 0xFFFF);
@@ -2580,7 +2580,7 @@ class Opcode
      *
      * JP !FZ, nn
      */
-    public static function opcode194(Core $core)
+    public static function opcode194(Core $core): void
     {
         if (!$core->FZero) {
             $core->programCounter = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2595,7 +2595,7 @@ class Opcode
      *
      * JP nn
      */
-    public static function opcode195(Core $core)
+    public static function opcode195(Core $core): void
     {
         $core->programCounter = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
     }
@@ -2605,7 +2605,7 @@ class Opcode
      *
      * CALL !FZ, nn
      */
-    public static function opcode196(Core $core)
+    public static function opcode196(Core $core): void
     {
         if (!$core->FZero) {
             $temp_pc = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2626,7 +2626,7 @@ class Opcode
      *
      * PUSH BC
      */
-    public static function opcode197(Core $core)
+    public static function opcode197(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->registerB);
@@ -2639,7 +2639,7 @@ class Opcode
      *
      * ADD, n
      */
-    public static function opcode198(Core $core)
+    public static function opcode198(Core $core): void
     {
         $dirtySum = $core->registerA + $core->memoryRead($core->programCounter);
         $core->FHalfCarry = ($dirtySum & 0xF) < ($core->registerA & 0xF);
@@ -2655,7 +2655,7 @@ class Opcode
      *
      * RST 0
      */
-    public static function opcode199(Core $core)
+    public static function opcode199(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -2669,7 +2669,7 @@ class Opcode
      *
      * RET FZ
      */
-    public static function opcode200(Core $core)
+    public static function opcode200(Core $core): void
     {
         if ($core->FZero) {
             $core->programCounter = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
@@ -2683,7 +2683,7 @@ class Opcode
      *
      * RET
      */
-    public static function opcode201(Core $core)
+    public static function opcode201(Core $core): void
     {
         $core->programCounter = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
         $core->stackPointer = ($core->stackPointer + 2) & 0xFFFF;
@@ -2694,7 +2694,7 @@ class Opcode
      *
      * JP FZ, nn
      */
-    public static function opcode202(Core $core)
+    public static function opcode202(Core $core): void
     {
         if ($core->FZero) {
             $core->programCounter = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2709,7 +2709,7 @@ class Opcode
      *
      * Secondary OP Code Set:
      */
-    public static function opcode203(Core $core)
+    public static function opcode203(Core $core): void
     {
         $opcode = $core->memoryRead($core->programCounter);
         //Increment the program counter to the next instruction:
@@ -2725,7 +2725,7 @@ class Opcode
      *
      * CALL FZ, nn
      */
-    public static function opcode204(Core $core)
+    public static function opcode204(Core $core): void
     {
         if ($core->FZero) {
             $temp_pc = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2746,7 +2746,7 @@ class Opcode
      *
      * CALL nn
      */
-    public static function opcode205(Core $core)
+    public static function opcode205(Core $core): void
     {
         $temp_pc = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 2) & 0xFFFF;
@@ -2762,7 +2762,7 @@ class Opcode
      *
      * ADC A, n
      */
-    public static function opcode206(Core $core)
+    public static function opcode206(Core $core): void
     {
         $tempValue = $core->memoryRead($core->programCounter);
         $dirtySum = $core->registerA + $tempValue + (($core->FCarry) ? 1 : 0);
@@ -2779,7 +2779,7 @@ class Opcode
      *
      * RST 0x8
      */
-    public static function opcode207(Core $core)
+    public static function opcode207(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -2793,7 +2793,7 @@ class Opcode
      *
      * RET !FC
      */
-    public static function opcode208(Core $core)
+    public static function opcode208(Core $core): void
     {
         if (!$core->FCarry) {
             $core->programCounter = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
@@ -2807,7 +2807,7 @@ class Opcode
      *
      * POP DE
      */
-    public static function opcode209(Core $core)
+    public static function opcode209(Core $core): void
     {
         $core->registerE = $core->memoryRead($core->stackPointer);
         $core->registerD = $core->memoryRead(($core->stackPointer + 1) & 0xFFFF);
@@ -2819,7 +2819,7 @@ class Opcode
      *
      * JP !FC, nn
      */
-    public static function opcode210(Core $core)
+    public static function opcode210(Core $core): void
     {
         if (!$core->FCarry) {
             $core->programCounter = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2834,7 +2834,7 @@ class Opcode
      *
      * 0xD3 - Illegal
      */
-    public static function opcode211(Core $core)
+    public static function opcode211(Core $core): void
     {
         // @TODO
         // cout("Illegal op code 0xD3 called, pausing emulation.", 2);
@@ -2846,7 +2846,7 @@ class Opcode
      *
      * CALL !FC, nn
      */
-    public static function opcode212(Core $core)
+    public static function opcode212(Core $core): void
     {
         if (!$core->FCarry) {
             $temp_pc = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2867,7 +2867,7 @@ class Opcode
      *
      * PUSH DE
      */
-    public static function opcode213(Core $core)
+    public static function opcode213(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->registerD);
@@ -2880,7 +2880,7 @@ class Opcode
      *
      * SUB A, n
      */
-    public static function opcode214(Core $core)
+    public static function opcode214(Core $core): void
     {
         $temp_var = $core->memoryRead($core->programCounter);
         $dirtySum = $core->registerA - $temp_var;
@@ -2897,7 +2897,7 @@ class Opcode
      *
      * RST 0x10
      */
-    public static function opcode215(Core $core)
+    public static function opcode215(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -2911,7 +2911,7 @@ class Opcode
      *
      * RET FC
      */
-    public static function opcode216(Core $core)
+    public static function opcode216(Core $core): void
     {
         if ($core->FCarry) {
             $core->programCounter = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
@@ -2925,7 +2925,7 @@ class Opcode
      *
      * RETI
      */
-    public static function opcode217(Core $core)
+    public static function opcode217(Core $core): void
     {
         $core->programCounter = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
         $core->stackPointer = ($core->stackPointer + 2) & 0xFFFF;
@@ -2938,7 +2938,7 @@ class Opcode
      *
      * JP FC, nn
      */
-    public static function opcode218(Core $core)
+    public static function opcode218(Core $core): void
     {
         if ($core->FCarry) {
             $core->programCounter = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2964,7 +2964,7 @@ class Opcode
      *
      * CALL FC, nn
      */
-    public static function opcode220(Core $core)
+    public static function opcode220(Core $core): void
     {
         if ($core->FCarry) {
             $temp_pc = ($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter);
@@ -2996,7 +2996,7 @@ class Opcode
      *
      * SBC A, n
      */
-    public static function opcode222(Core $core)
+    public static function opcode222(Core $core): void
     {
         $temp_var = $core->memoryRead($core->programCounter);
         $dirtySum = $core->registerA - $temp_var - (($core->FCarry) ? 1 : 0);
@@ -3013,7 +3013,7 @@ class Opcode
      *
      * RST 0x18
      */
-    public static function opcode223(Core $core)
+    public static function opcode223(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -3027,7 +3027,7 @@ class Opcode
      *
      * LDH (n), A
      */
-    public static function opcode224(Core $core)
+    public static function opcode224(Core $core): void
     {
         $core->memoryWrite(0xFF00 + $core->memoryRead($core->programCounter), $core->registerA);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -3038,7 +3038,7 @@ class Opcode
      *
      * POP HL
      */
-    public static function opcode225(Core $core)
+    public static function opcode225(Core $core): void
     {
         $core->registersHL = ($core->memoryRead(($core->stackPointer + 1) & 0xFFFF) << 8) + $core->memoryRead($core->stackPointer);
         $core->stackPointer = ($core->stackPointer + 2) & 0xFFFF;
@@ -3049,7 +3049,7 @@ class Opcode
      *
      * LD (C), A
      */
-    public static function opcode226(Core $core)
+    public static function opcode226(Core $core): void
     {
         $core->memoryWrite(0xFF00 + $core->registerC, $core->registerA);
     }
@@ -3081,7 +3081,7 @@ class Opcode
      *
      * PUSH HL
      */
-    public static function opcode229(Core $core)
+    public static function opcode229(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->registersHL >> 8);
@@ -3094,7 +3094,7 @@ class Opcode
      *
      * AND n
      */
-    public static function opcode230(Core $core)
+    public static function opcode230(Core $core): void
     {
         $core->registerA &= $core->memoryRead($core->programCounter);
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -3109,7 +3109,7 @@ class Opcode
      *
      * RST 0x20
      */
-    public static function opcode231(Core $core)
+    public static function opcode231(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -3123,7 +3123,7 @@ class Opcode
      *
      * ADD SP, n
      */
-    public static function opcode232(Core $core)
+    public static function opcode232(Core $core): void
     {
         $signedByte = $core->usbtsb($core->memoryRead($core->programCounter));
         $temp_value = $core->nswtuw($core->stackPointer + $signedByte);
@@ -3140,7 +3140,7 @@ class Opcode
      *
      * JP, (HL)
      */
-    public static function opcode233(Core $core)
+    public static function opcode233(Core $core): void
     {
         $core->programCounter = $core->registersHL;
     }
@@ -3150,7 +3150,7 @@ class Opcode
      *
      * LD n, A
      */
-    public static function opcode234(Core $core)
+    public static function opcode234(Core $core): void
     {
         $core->memoryWrite(($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter), $core->registerA);
         $core->programCounter = ($core->programCounter + 2) & 0xFFFF;
@@ -3194,7 +3194,7 @@ class Opcode
      *
      * XOR n
      */
-    public static function opcode238(Core $core)
+    public static function opcode238(Core $core): void
     {
         $core->registerA ^= $core->memoryRead($core->programCounter);
         $core->FZero = ($core->registerA == 0);
@@ -3209,7 +3209,7 @@ class Opcode
      *
      * RST 0x28
      */
-    public static function opcode239(Core $core)
+    public static function opcode239(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -3223,7 +3223,7 @@ class Opcode
      *
      * LDH A, (n)
      */
-    public static function opcode240(Core $core)
+    public static function opcode240(Core $core): void
     {
         $core->registerA = $core->memoryRead(0xFF00 + $core->memoryRead($core->programCounter));
         $core->programCounter = ($core->programCounter + 1) & 0xFFFF;
@@ -3234,7 +3234,7 @@ class Opcode
      *
      * POP AF
      */
-    public static function opcode241(Core $core)
+    public static function opcode241(Core $core): void
     {
         $temp_var = $core->memoryRead($core->stackPointer);
         $core->FZero = (($temp_var & 0x80) == 0x80);
@@ -3250,7 +3250,7 @@ class Opcode
      *
      * LD A, (C)
      */
-    public static function opcode242(Core $core)
+    public static function opcode242(Core $core): void
     {
         $core->registerA = $core->memoryRead(0xFF00 + $core->registerC);
     }
@@ -3260,7 +3260,7 @@ class Opcode
      *
      * DI
      */
-    public static function opcode243(Core $core)
+    public static function opcode243(Core $core): void
     {
         $core->IME = false;
         $core->untilEnable = 0;
@@ -3271,7 +3271,7 @@ class Opcode
      *
      * 0xF4 - Illegal
      */
-    public static function opcode244(Core $core)
+    public static function opcode244(Core $core): void
     {
         // @TODO
         // cout("Illegal op code 0xF4 called, pausing emulation.", 2);
@@ -3283,7 +3283,7 @@ class Opcode
      *
      * PUSH AF
      */
-    public static function opcode245(Core $core)
+    public static function opcode245(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->registerA);
@@ -3296,7 +3296,7 @@ class Opcode
      *
      * OR n
      */
-    public static function opcode246(Core $core)
+    public static function opcode246(Core $core): void
     {
         $core->registerA |= $core->memoryRead($core->programCounter);
         $core->FZero = ($core->registerA == 0);
@@ -3311,7 +3311,7 @@ class Opcode
      *
      * RST 0x30
      */
-    public static function opcode247(Core $core)
+    public static function opcode247(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
@@ -3325,7 +3325,7 @@ class Opcode
      *
      * LDHL SP, n
      */
-    public static function opcode248(Core $core)
+    public static function opcode248(Core $core): void
     {
         $signedByte = $core->usbtsb($core->memoryRead($core->programCounter));
         $core->registersHL = $core->nswtuw($core->stackPointer + $signedByte);
@@ -3341,7 +3341,7 @@ class Opcode
      *
      * LD SP, HL
      */
-    public static function opcode249(Core $core)
+    public static function opcode249(Core $core): void
     {
         $core->stackPointer = $core->registersHL;
     }
@@ -3351,7 +3351,7 @@ class Opcode
      *
      * LD A, (nn)
      */
-    public static function opcode250(Core $core)
+    public static function opcode250(Core $core): void
     {
         $core->registerA = $core->memoryRead(($core->memoryRead(($core->programCounter + 1) & 0xFFFF) << 8) + $core->memoryRead($core->programCounter));
         $core->programCounter = ($core->programCounter + 2) & 0xFFFF;
@@ -3362,7 +3362,7 @@ class Opcode
      *
      * EI
      */
-    public static function opcode251(Core $core)
+    public static function opcode251(Core $core): void
     {
         $core->untilEnable = 2;
     }
@@ -3394,7 +3394,7 @@ class Opcode
      *
      * CP n
      */
-    public static function opcode254(Core $core)
+    public static function opcode254(Core $core): void
     {
         $dirtySum = $core->registerA - $core->memoryRead($core->programCounter);
         $core->FHalfCarry = ($core->unsbtub($dirtySum) & 0xF) > ($core->registerA & 0xF);
@@ -3409,7 +3409,7 @@ class Opcode
      *
      * RST 0x38
      */
-    public static function opcode255(Core $core)
+    public static function opcode255(Core $core): void
     {
         $core->stackPointer = $core->unswtuw($core->stackPointer - 1);
         $core->memoryWrite($core->stackPointer, $core->programCounter >> 8);
