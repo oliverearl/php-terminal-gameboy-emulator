@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Emulator;
 
 use App\Emulator\Canvas\DrawContextInterface;
-
 use SplFixedArray;
 use RuntimeException;
 
@@ -603,7 +602,7 @@ class Core
     public function initSkipBootstrap()
     {
         //Start as an unset device:
-        echo 'Starting without the GBC boot ROM'.PHP_EOL;
+        echo 'Starting without the GBC boot ROM' . PHP_EOL;
 
         $this->programCounter = 0x100;
         $this->stackPointer = 0xFFFE;
@@ -650,7 +649,7 @@ class Core
     public function initBootstrap()
     {
         //Start as an unset device:
-        echo 'Starting the GBC boot ROM.'.PHP_EOL;
+        echo 'Starting the GBC boot ROM.' . PHP_EOL;
 
         $this->programCounter = 0;
         $this->stackPointer = 0;
@@ -692,13 +691,13 @@ class Core
             }
         }
 
-        echo 'Game Title: '.$this->name.'['.$this->gameCode.']['.$this->ROMImage[0x143].']'.PHP_EOL;
+        echo 'Game Title: ' . $this->name . '[' . $this->gameCode . '][' . $this->ROMImage[0x143] . ']' . PHP_EOL;
 
-        echo 'Game Code: '.$this->gameCode.PHP_EOL;
+        echo 'Game Code: ' . $this->gameCode . PHP_EOL;
 
         // Cartridge type
         $this->cartridgeType = $this->ROM[0x147];
-        echo 'Cartridge type #'.$this->cartridgeType.PHP_EOL;
+        echo 'Cartridge type #' . $this->cartridgeType . PHP_EOL;
 
         //Map out ROM cartridge sub-types.
         $MBCType = '';
@@ -710,7 +709,7 @@ class Core
                     $MBCType = 'ROM';
                     break;
                 }
-            // no break
+                // no break
             case 0x01:
                 $this->cMBC1 = true;
                 $MBCType = 'MBC1';
@@ -838,47 +837,47 @@ class Core
                 throw new RuntimeException('Cartridge type is unknown.');
         }
 
-        echo 'Cartridge Type: '.$MBCType.PHP_EOL;
+        echo 'Cartridge Type: ' . $MBCType . PHP_EOL;
 
         // ROM and RAM banks
         $this->numROMBanks = $this->ROMBanks[$this->ROM[0x148]];
 
-        echo $this->numROMBanks.' ROM banks.'.PHP_EOL;
+        echo $this->numROMBanks . ' ROM banks.' . PHP_EOL;
 
         switch ($this->RAMBanks[$this->ROM[0x149]]) {
             case 0:
-                echo 'No RAM banking requested for allocation or MBC is of type 2.'.PHP_EOL;
+                echo 'No RAM banking requested for allocation or MBC is of type 2.' . PHP_EOL;
                 break;
             case 2:
-                echo '1 RAM bank requested for allocation.'.PHP_EOL;
+                echo '1 RAM bank requested for allocation.' . PHP_EOL;
                 break;
             case 3:
-                echo '4 RAM banks requested for allocation.'.PHP_EOL;
+                echo '4 RAM banks requested for allocation.' . PHP_EOL;
                 break;
             case 4:
-                echo '16 RAM banks requested for allocation.'.PHP_EOL;
+                echo '16 RAM banks requested for allocation.' . PHP_EOL;
                 break;
             default:
-                echo 'RAM bank amount requested is unknown, will use maximum allowed by specified MBC type.'.PHP_EOL;
+                echo 'RAM bank amount requested is unknown, will use maximum allowed by specified MBC type.' . PHP_EOL;
         }
 
         //Check the GB/GBC mode byte:
         switch ($this->ROM[0x143]) {
             case 0x00: //Only GB mode
                 $this->cGBC = false;
-                echo 'Only GB mode detected.'.PHP_EOL;
+                echo 'Only GB mode detected.' . PHP_EOL;
                 break;
             case 0x80: //Both GB + GBC modes
                 $this->cGBC = !Settings::$priorizeGameBoyMode;
-                echo 'GB and GBC mode detected.'.PHP_EOL;
+                echo 'GB and GBC mode detected.' . PHP_EOL;
                 break;
             case 0xC0: //Only GBC mode
                 $this->cGBC = true;
-                echo 'Only GBC mode detected.'.PHP_EOL;
+                echo 'Only GBC mode detected.' . PHP_EOL;
                 break;
             default:
                 $this->cGBC = false;
-                echo 'Unknown GameBoy game type code #'.$this->ROM[0x143].", defaulting to GB mode (Old games don't have a type code).".PHP_EOL;
+                echo 'Unknown GameBoy game type code #' . $this->ROM[0x143] . ", defaulting to GB mode (Old games don't have a type code)." . PHP_EOL;
         }
 
         $this->inBootstrap = false;
@@ -891,10 +890,10 @@ class Core
         $cNewLicense = ($this->ROM[0x144] & 0xFF00) | ($this->ROM[0x145] & 0xFF);
         if ($cOldLicense != 0x33) {
             //Old Style License Header
-            echo 'Old style license code: '.$cOldLicense.PHP_EOL;
+            echo 'Old style license code: ' . $cOldLicense . PHP_EOL;
         } else {
             //New Style License Header
-            echo 'New style license code: '.$cNewLicense.PHP_EOL;
+            echo 'New style license code: ' . $cNewLicense . PHP_EOL;
         }
     }
 
@@ -911,7 +910,7 @@ class Core
 
         if (!$this->cGBC) {
             //Clean up the post-boot (GB mode only) state:
-            echo 'Stepping down from GBC mode.'.PHP_EOL;
+            echo 'Stepping down from GBC mode.' . PHP_EOL;
             $this->tileCount /= 2;
             $this->tileCountInvalidator = $this->tileCount * 4;
             if (!Settings::$colorize) {
@@ -948,7 +947,7 @@ class Core
             //Switched RAM Used
             $this->MBCRam = $this->getTypedArray($this->numRAMBanks * 0x2000, 0, 'uint8');
         }
-        echo 'Actual bytes of MBC RAM allocated: '.($this->numRAMBanks * 0x2000).PHP_EOL;
+        echo 'Actual bytes of MBC RAM allocated: ' . ($this->numRAMBanks * 0x2000) . PHP_EOL;
         //Setup the RAM for GBC mode.
         if ($this->cGBC) {
             $this->VRAM = $this->getTypedArray(0x2000, 0, 'uint8');
@@ -1041,13 +1040,13 @@ class Core
                     }
                     //We can only get here if there was an internal error, but the loop was restarted.
                 } else {
-                    echo 'Iterator restarted a faulted core.'.PHP_EOL;
+                    echo 'Iterator restarted a faulted core.' . PHP_EOL;
                     pause();
                 }
             }
         } catch (\Exception $error) {
             if ($error->getMessage() != 'HALT_OVERRUN') {
-                echo 'GameBoy runtime error'.PHP_EOL;
+                echo 'GameBoy runtime error' . PHP_EOL;
             }
         }
     }
@@ -1073,10 +1072,9 @@ class Core
             switch ($this->untilEnable) {
                 case 1:
                     $this->IME = true;
-                // no break
+                    // no break
                 case 2:
                     $this->untilEnable--;
-                // no break
             }
             //Execute Interrupt:
             if ($this->IME) {
@@ -1970,21 +1968,21 @@ class Core
                                 if ($data < 60) {
                                     $this->RTCSeconds = $data;
                                 } else {
-                                    echo '(Bank #'.$this->currMBCRAMBank.') RTC write out of range: '.$data.PHP_EOL;
+                                    echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
                                 }
                                 break;
                             case 0x09:
                                 if ($data < 60) {
                                     $this->RTCMinutes = $data;
                                 } else {
-                                    echo '(Bank #'.$this->currMBCRAMBank.') RTC write out of range: '.$data.PHP_EOL;
+                                    echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
                                 }
                                 break;
                             case 0x0A:
                                 if ($data < 24) {
                                     $this->RTCHours = $data;
                                 } else {
-                                    echo '(Bank #'.$this->currMBCRAMBank.') RTC write out of range: '.$data.PHP_EOL;
+                                    echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
                                 }
                                 break;
                             case 0x0B:
@@ -1996,7 +1994,7 @@ class Core
                                 $this->RTCDays = (($data & 0x1) << 8) | ($this->RTCDays & 0xFF);
                                 break;
                             default:
-                                echo 'Invalid MBC3 bank address selected: '.$this->currMBCRAMBank.PHP_EOL;
+                                echo 'Invalid MBC3 bank address selected: ' . $this->currMBCRAMBank . PHP_EOL;
                         }
                     }
                 }
@@ -2167,7 +2165,7 @@ class Core
             }
         } elseif ($address == 0xFF50) {
             if ($this->inBootstrap) {
-                echo 'Boot ROM reads blocked: Bootstrap process has ended.'.PHP_EOL;
+                echo 'Boot ROM reads blocked: Bootstrap process has ended.' . PHP_EOL;
                 $this->inBootstrap = false;
                 $this->disableBootROM(); //Fill in the boot ROM ranges with ROM  bank 0 ROM ranges
                 $this->memory[0xFF50] = $data; //Bits are sustained in memory?
@@ -2276,7 +2274,7 @@ class Core
             if ($this->inBootstrap) {
                 if ($this->inBootstrap) {
                     $this->cGBC = ($data == 0x80);
-                    echo 'Booted to GBC Mode: '.$this->cGBC.PHP_EOL;
+                    echo 'Booted to GBC Mode: ' . $this->cGBC . PHP_EOL;
                 }
                 $this->memory[0xFF6C] = $data;
             }
@@ -2346,7 +2344,7 @@ class Core
 
             return $typedArrayTemp;
         } catch (\Exception $error) {
-            echo 'Could not convert an array to a typed array'.PHP_EOL;
+            echo 'Could not convert an array to a typed array' . PHP_EOL;
 
             return $baseArray;
         }
