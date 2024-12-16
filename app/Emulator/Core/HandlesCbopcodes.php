@@ -105,11 +105,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode0(): void
     {
-        $this->FCarry = (($this->registerB & 0x80) == 0x80);
+        $this->FCarry = (($this->registerB & 0x80) === 0x80);
         $this->registerB = (($this->registerB << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -117,11 +117,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode1(): void
     {
-        $this->FCarry = (($this->registerC & 0x80) == 0x80);
+        $this->FCarry = (($this->registerC & 0x80) === 0x80);
         $this->registerC = (($this->registerC << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -129,11 +129,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode2(): void
     {
-        $this->FCarry = (($this->registerD & 0x80) == 0x80);
+        $this->FCarry = (($this->registerD & 0x80) === 0x80);
         $this->registerD = (($this->registerD << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -141,11 +141,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode3(): void
     {
-        $this->FCarry = (($this->registerE & 0x80) == 0x80);
+        $this->FCarry = (($this->registerE & 0x80) === 0x80);
         $this->registerE = (($this->registerE << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -153,7 +153,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode4(): void
     {
-        $this->FCarry = (($this->registersHL & 0x8000) == 0x8000);
+        $this->FCarry = (($this->registersHL & 0x8000) === 0x8000);
         $this->registersHL = (($this->registersHL << 1) & 0xFE00) + (($this->FCarry) ? 0x100 : 0) + ($this->registersHL & 0xFF);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -165,11 +165,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode5(): void
     {
-        $this->FCarry = (($this->registersHL & 0x80) == 0x80);
+        $this->FCarry = (($this->registersHL & 0x80) === 0x80);
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->registersHL << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -178,12 +178,12 @@ trait HandlesCbopcodes
     private function cbopcode6(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $this->FCarry = (($temp_var & 0x80) == 0x80);
+        $this->FCarry = (($temp_var & 0x80) === 0x80);
         $temp_var = (($temp_var << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->memoryWrite($this->registersHL, $temp_var);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -191,11 +191,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode7(): void
     {
-        $this->FCarry = (($this->registerA & 0x80) == 0x80);
+        $this->FCarry = (($this->registerA & 0x80) === 0x80);
         $this->registerA = (($this->registerA << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -203,11 +203,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode8(): void
     {
-        $this->FCarry = (($this->registerB & 0x01) == 0x01);
+        $this->FCarry = (($this->registerB & 0x01) === 0x01);
         $this->registerB = (($this->FCarry) ? 0x80 : 0) + ($this->registerB >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -215,11 +215,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode9(): void
     {
-        $this->FCarry = (($this->registerC & 0x01) == 0x01);
+        $this->FCarry = (($this->registerC & 0x01) === 0x01);
         $this->registerC = (($this->FCarry) ? 0x80 : 0) + ($this->registerC >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -227,11 +227,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode10(): void
     {
-        $this->FCarry = (($this->registerD & 0x01) == 0x01);
+        $this->FCarry = (($this->registerD & 0x01) === 0x01);
         $this->registerD = (($this->FCarry) ? 0x80 : 0) + ($this->registerD >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -239,11 +239,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode11(): void
     {
-        $this->FCarry = (($this->registerE & 0x01) == 0x01);
+        $this->FCarry = (($this->registerE & 0x01) === 0x01);
         $this->registerE = (($this->FCarry) ? 0x80 : 0) + ($this->registerE >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -251,7 +251,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode12(): void
     {
-        $this->FCarry = (($this->registersHL & 0x0100) == 0x0100);
+        $this->FCarry = (($this->registersHL & 0x0100) === 0x0100);
         $this->registersHL = (($this->FCarry) ? 0x8000 : 0) + (($this->registersHL >> 1) & 0xFF00) + ($this->registersHL & 0xFF);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -263,11 +263,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode13(): void
     {
-        $this->FCarry = (($this->registersHL & 0x01) == 0x01);
+        $this->FCarry = (($this->registersHL & 0x01) === 0x01);
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->FCarry) ? 0x80 : 0) + (($this->registersHL & 0xFF) >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -276,12 +276,12 @@ trait HandlesCbopcodes
     private function cbopcode14(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $this->FCarry = (($temp_var & 0x01) == 0x01);
+        $this->FCarry = (($temp_var & 0x01) === 0x01);
         $temp_var = (($this->FCarry) ? 0x80 : 0) + ($temp_var >> 1);
         $this->memoryWrite($this->registersHL, $temp_var);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -289,11 +289,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode15(): void
     {
-        $this->FCarry = (($this->registerA & 0x01) == 0x01);
+        $this->FCarry = (($this->registerA & 0x01) === 0x01);
         $this->registerA = (($this->FCarry) ? 0x80 : 0) + ($this->registerA >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -301,12 +301,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode16(): void
     {
-        $newFCarry = (($this->registerB & 0x80) == 0x80);
+        $newFCarry = (($this->registerB & 0x80) === 0x80);
         $this->registerB = (($this->registerB << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -314,12 +314,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode17(): void
     {
-        $newFCarry = (($this->registerC & 0x80) == 0x80);
+        $newFCarry = (($this->registerC & 0x80) === 0x80);
         $this->registerC = (($this->registerC << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -327,12 +327,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode18(): void
     {
-        $newFCarry = (($this->registerD & 0x80) == 0x80);
+        $newFCarry = (($this->registerD & 0x80) === 0x80);
         $this->registerD = (($this->registerD << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -340,12 +340,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode19(): void
     {
-        $newFCarry = (($this->registerE & 0x80) == 0x80);
+        $newFCarry = (($this->registerE & 0x80) === 0x80);
         $this->registerE = (($this->registerE << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -353,7 +353,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode20(): void
     {
-        $newFCarry = (($this->registersHL & 0x8000) == 0x8000);
+        $newFCarry = (($this->registersHL & 0x8000) === 0x8000);
         $this->registersHL = (($this->registersHL << 1) & 0xFE00) + (($this->FCarry) ? 0x100 : 0) + ($this->registersHL & 0xFF);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
@@ -366,12 +366,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode21(): void
     {
-        $newFCarry = (($this->registersHL & 0x80) == 0x80);
+        $newFCarry = (($this->registersHL & 0x80) === 0x80);
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->registersHL << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -380,13 +380,13 @@ trait HandlesCbopcodes
     private function cbopcode22(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $newFCarry = (($temp_var & 0x80) == 0x80);
+        $newFCarry = (($temp_var & 0x80) === 0x80);
         $temp_var = (($temp_var << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->memoryWrite($this->registersHL, $temp_var);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -394,12 +394,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode23(): void
     {
-        $newFCarry = (($this->registerA & 0x80) == 0x80);
+        $newFCarry = (($this->registerA & 0x80) === 0x80);
         $this->registerA = (($this->registerA << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -407,12 +407,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode24(): void
     {
-        $newFCarry = (($this->registerB & 0x01) == 0x01);
+        $newFCarry = (($this->registerB & 0x01) === 0x01);
         $this->registerB = (($this->FCarry) ? 0x80 : 0) + ($this->registerB >> 1);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -420,12 +420,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode25(): void
     {
-        $newFCarry = (($this->registerC & 0x01) == 0x01);
+        $newFCarry = (($this->registerC & 0x01) === 0x01);
         $this->registerC = (($this->FCarry) ? 0x80 : 0) + ($this->registerC >> 1);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -433,12 +433,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode26(): void
     {
-        $newFCarry = (($this->registerD & 0x01) == 0x01);
+        $newFCarry = (($this->registerD & 0x01) === 0x01);
         $this->registerD = (($this->FCarry) ? 0x80 : 0) + ($this->registerD >> 1);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -446,12 +446,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode27(): void
     {
-        $newFCarry = (($this->registerE & 0x01) == 0x01);
+        $newFCarry = (($this->registerE & 0x01) === 0x01);
         $this->registerE = (($this->FCarry) ? 0x80 : 0) + ($this->registerE >> 1);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -459,7 +459,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode28(): void
     {
-        $newFCarry = (($this->registersHL & 0x0100) == 0x0100);
+        $newFCarry = (($this->registersHL & 0x0100) === 0x0100);
         $this->registersHL = (($this->FCarry) ? 0x8000 : 0) + (($this->registersHL >> 1) & 0xFF00) + ($this->registersHL & 0xFF);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
@@ -472,12 +472,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode29(): void
     {
-        $newFCarry = (($this->registersHL & 0x01) == 0x01);
+        $newFCarry = (($this->registersHL & 0x01) === 0x01);
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->FCarry) ? 0x80 : 0) + (($this->registersHL & 0xFF) >> 1);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -486,13 +486,13 @@ trait HandlesCbopcodes
     private function cbopcode30(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $newFCarry = (($temp_var & 0x01) == 0x01);
+        $newFCarry = (($temp_var & 0x01) === 0x01);
         $temp_var = (($this->FCarry) ? 0x80 : 0) + ($temp_var >> 1);
         $this->FCarry = $newFCarry;
         $this->memoryWrite($this->registersHL, $temp_var);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -500,12 +500,12 @@ trait HandlesCbopcodes
      */
     private function cbopcode31(): void
     {
-        $newFCarry = (($this->registerA & 0x01) == 0x01);
+        $newFCarry = (($this->registerA & 0x01) === 0x01);
         $this->registerA = (($this->FCarry) ? 0x80 : 0) + ($this->registerA >> 1);
         $this->FCarry = $newFCarry;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -513,11 +513,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode32(): void
     {
-        $this->FCarry = (($this->registerB & 0x80) == 0x80);
+        $this->FCarry = (($this->registerB & 0x80) === 0x80);
         $this->registerB = ($this->registerB << 1) & 0xFF;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -525,11 +525,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode33(): void
     {
-        $this->FCarry = (($this->registerC & 0x80) == 0x80);
+        $this->FCarry = (($this->registerC & 0x80) === 0x80);
         $this->registerC = ($this->registerC << 1) & 0xFF;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -537,11 +537,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode34(): void
     {
-        $this->FCarry = (($this->registerD & 0x80) == 0x80);
+        $this->FCarry = (($this->registerD & 0x80) === 0x80);
         $this->registerD = ($this->registerD << 1) & 0xFF;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -549,11 +549,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode35(): void
     {
-        $this->FCarry = (($this->registerE & 0x80) == 0x80);
+        $this->FCarry = (($this->registerE & 0x80) === 0x80);
         $this->registerE = ($this->registerE << 1) & 0xFF;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -561,7 +561,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode36(): void
     {
-        $this->FCarry = (($this->registersHL & 0x8000) == 0x8000);
+        $this->FCarry = (($this->registersHL & 0x8000) === 0x8000);
         $this->registersHL = (($this->registersHL << 1) & 0xFE00) + ($this->registersHL & 0xFF);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -573,11 +573,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode37(): void
     {
-        $this->FCarry = (($this->registersHL & 0x0080) == 0x0080);
+        $this->FCarry = (($this->registersHL & 0x0080) === 0x0080);
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->registersHL << 1) & 0xFF);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -586,12 +586,12 @@ trait HandlesCbopcodes
     private function cbopcode38(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $this->FCarry = (($temp_var & 0x80) == 0x80);
+        $this->FCarry = (($temp_var & 0x80) === 0x80);
         $temp_var = ($temp_var << 1) & 0xFF;
         $this->memoryWrite($this->registersHL, $temp_var);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -599,11 +599,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode39(): void
     {
-        $this->FCarry = (($this->registerA & 0x80) == 0x80);
+        $this->FCarry = (($this->registerA & 0x80) === 0x80);
         $this->registerA = ($this->registerA << 1) & 0xFF;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -611,11 +611,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode40(): void
     {
-        $this->FCarry = (($this->registerB & 0x01) == 0x01);
+        $this->FCarry = (($this->registerB & 0x01) === 0x01);
         $this->registerB = ($this->registerB & 0x80) + ($this->registerB >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -623,11 +623,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode41(): void
     {
-        $this->FCarry = (($this->registerC & 0x01) == 0x01);
+        $this->FCarry = (($this->registerC & 0x01) === 0x01);
         $this->registerC = ($this->registerC & 0x80) + ($this->registerC >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -635,11 +635,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode42(): void
     {
-        $this->FCarry = (($this->registerD & 0x01) == 0x01);
+        $this->FCarry = (($this->registerD & 0x01) === 0x01);
         $this->registerD = ($this->registerD & 0x80) + ($this->registerD >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -647,11 +647,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode43(): void
     {
-        $this->FCarry = (($this->registerE & 0x01) == 0x01);
+        $this->FCarry = (($this->registerE & 0x01) === 0x01);
         $this->registerE = ($this->registerE & 0x80) + ($this->registerE >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -660,7 +660,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode44(): void
     {
-        $this->FCarry = (($this->registersHL & 0x0100) == 0x0100);
+        $this->FCarry = (($this->registersHL & 0x0100) === 0x0100);
         $this->registersHL = (($this->registersHL >> 1) & 0xFF00) + ($this->registersHL & 0x80FF);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -672,11 +672,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode45(): void
     {
-        $this->FCarry = (($this->registersHL & 0x0001) == 0x0001);
+        $this->FCarry = (($this->registersHL & 0x0001) === 0x0001);
         $this->registersHL = ($this->registersHL & 0xFF80) + (($this->registersHL & 0xFF) >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -685,12 +685,12 @@ trait HandlesCbopcodes
     private function cbopcode46(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $this->FCarry = (($temp_var & 0x01) == 0x01);
+        $this->FCarry = (($temp_var & 0x01) === 0x01);
         $temp_var = ($temp_var & 0x80) + ($temp_var >> 1);
         $this->memoryWrite($this->registersHL, $temp_var);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -698,11 +698,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode47(): void
     {
-        $this->FCarry = (($this->registerA & 0x01) == 0x01);
+        $this->FCarry = (($this->registerA & 0x01) === 0x01);
         $this->registerA = ($this->registerA & 0x80) + ($this->registerA >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -711,7 +711,7 @@ trait HandlesCbopcodes
     private function cbopcode48(): void
     {
         $this->registerB = (($this->registerB & 0xF) << 4) + ($this->registerB >> 4);
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -723,7 +723,7 @@ trait HandlesCbopcodes
     private function cbopcode49(): void
     {
         $this->registerC = (($this->registerC & 0xF) << 4) + ($this->registerC >> 4);
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -735,7 +735,7 @@ trait HandlesCbopcodes
     private function cbopcode50(): void
     {
         $this->registerD = (($this->registerD & 0xF) << 4) + ($this->registerD >> 4);
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -747,7 +747,7 @@ trait HandlesCbopcodes
     private function cbopcode51(): void
     {
         $this->registerE = (($this->registerE & 0xF) << 4) + ($this->registerE >> 4);
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -771,7 +771,7 @@ trait HandlesCbopcodes
     private function cbopcode53(): void
     {
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->registersHL & 0xF) << 4) + (($this->registersHL & 0xF0) >> 4);
-        $this->FZero = (($this->registersHL & 0xFF) == 0);
+        $this->FZero = (($this->registersHL & 0xFF) === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -786,7 +786,7 @@ trait HandlesCbopcodes
         $temp_var = (($temp_var & 0xF) << 4) + ($temp_var >> 4);
 
         $this->memoryWrite($this->registersHL, $temp_var);
-        $this->FZero = ($temp_var == 0);
+        $this->FZero = ($temp_var === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -798,7 +798,7 @@ trait HandlesCbopcodes
     private function cbopcode55(): void
     {
         $this->registerA = (($this->registerA & 0xF) << 4) + ($this->registerA >> 4);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FCarry = false;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -809,11 +809,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode56(): void
     {
-        $this->FCarry = (($this->registerB & 0x01) == 0x01);
+        $this->FCarry = (($this->registerB & 0x01) === 0x01);
         $this->registerB >>= 1;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerB == 0);
+        $this->FZero = ($this->registerB === 0);
     }
 
     /**
@@ -821,11 +821,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode57(): void
     {
-        $this->FCarry = (($this->registerC & 0x01) == 0x01);
+        $this->FCarry = (($this->registerC & 0x01) === 0x01);
         $this->registerC >>= 1;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerC == 0);
+        $this->FZero = ($this->registerC === 0);
     }
 
     /**
@@ -833,11 +833,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode58(): void
     {
-        $this->FCarry = (($this->registerD & 0x01) == 0x01);
+        $this->FCarry = (($this->registerD & 0x01) === 0x01);
         $this->registerD >>= 1;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerD == 0);
+        $this->FZero = ($this->registerD === 0);
     }
 
     /**
@@ -845,11 +845,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode59(): void
     {
-        $this->FCarry = (($this->registerE & 0x01) == 0x01);
+        $this->FCarry = (($this->registerE & 0x01) === 0x01);
         $this->registerE >>= 1;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerE == 0);
+        $this->FZero = ($this->registerE === 0);
     }
 
     /**
@@ -857,7 +857,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode60(): void
     {
-        $this->FCarry = (($this->registersHL & 0x0100) == 0x0100);
+        $this->FCarry = (($this->registersHL & 0x0100) === 0x0100);
         $this->registersHL = (($this->registersHL >> 1) & 0xFF00) + ($this->registersHL & 0xFF);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
@@ -869,11 +869,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode61(): void
     {
-        $this->FCarry = (($this->registersHL & 0x0001) == 0x0001);
+        $this->FCarry = (($this->registersHL & 0x0001) === 0x0001);
         $this->registersHL = ($this->registersHL & 0xFF00) + (($this->registersHL & 0xFF) >> 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0xFF) == 0x00);
+        $this->FZero = (($this->registersHL & 0xFF) === 0x00);
     }
 
     /**
@@ -882,11 +882,11 @@ trait HandlesCbopcodes
     private function cbopcode62(): void
     {
         $temp_var = $this->memoryRead($this->registersHL);
-        $this->FCarry = (($temp_var & 0x01) == 0x01);
+        $this->FCarry = (($temp_var & 0x01) === 0x01);
         $this->memoryWrite($this->registersHL, $temp_var >>= 1);
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($temp_var == 0x00);
+        $this->FZero = ($temp_var === 0x00);
     }
 
     /**
@@ -894,11 +894,11 @@ trait HandlesCbopcodes
      */
     private function cbopcode63(): void
     {
-        $this->FCarry = (($this->registerA & 0x01) == 0x01);
+        $this->FCarry = (($this->registerA & 0x01) === 0x01);
         $this->registerA >>= 1;
         $this->FHalfCarry = false;
         $this->FSubtract = false;
-        $this->FZero = ($this->registerA == 0x00);
+        $this->FZero = ($this->registerA === 0x00);
     }
 
     /**
@@ -908,7 +908,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x01) == 0);
+        $this->FZero = (($this->registerB & 0x01) === 0);
     }
 
     /**
@@ -918,7 +918,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x01) == 0);
+        $this->FZero = (($this->registerC & 0x01) === 0);
     }
 
     /**
@@ -928,7 +928,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x01) == 0);
+        $this->FZero = (($this->registerD & 0x01) === 0);
     }
 
     /**
@@ -938,7 +938,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x01) == 0);
+        $this->FZero = (($this->registerE & 0x01) === 0);
     }
 
     /**
@@ -948,7 +948,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0100) == 0);
+        $this->FZero = (($this->registersHL & 0x0100) === 0);
     }
 
     /**
@@ -958,7 +958,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0001) == 0);
+        $this->FZero = (($this->registersHL & 0x0001) === 0);
     }
 
     /**
@@ -968,7 +968,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x01) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x01) === 0);
     }
 
     /**
@@ -978,7 +978,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x01) == 0);
+        $this->FZero = (($this->registerA & 0x01) === 0);
     }
 
     /**
@@ -988,7 +988,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x02) == 0);
+        $this->FZero = (($this->registerB & 0x02) === 0);
     }
 
     /**
@@ -998,7 +998,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x02) == 0);
+        $this->FZero = (($this->registerC & 0x02) === 0);
     }
 
     /**
@@ -1008,7 +1008,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x02) == 0);
+        $this->FZero = (($this->registerD & 0x02) === 0);
     }
 
     /**
@@ -1018,7 +1018,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x02) == 0);
+        $this->FZero = (($this->registerE & 0x02) === 0);
     }
 
     /**
@@ -1028,7 +1028,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0200) == 0);
+        $this->FZero = (($this->registersHL & 0x0200) === 0);
     }
 
     /**
@@ -1038,7 +1038,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0002) == 0);
+        $this->FZero = (($this->registersHL & 0x0002) === 0);
     }
 
     /**
@@ -1048,7 +1048,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x02) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x02) === 0);
     }
 
     /**
@@ -1058,7 +1058,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x02) == 0);
+        $this->FZero = (($this->registerA & 0x02) === 0);
     }
 
     /**
@@ -1068,7 +1068,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x04) == 0);
+        $this->FZero = (($this->registerB & 0x04) === 0);
     }
 
     /**
@@ -1078,7 +1078,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x04) == 0);
+        $this->FZero = (($this->registerC & 0x04) === 0);
     }
 
     /**
@@ -1088,7 +1088,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x04) == 0);
+        $this->FZero = (($this->registerD & 0x04) === 0);
     }
 
     /**
@@ -1098,7 +1098,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x04) == 0);
+        $this->FZero = (($this->registerE & 0x04) === 0);
     }
 
     /**
@@ -1108,7 +1108,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0400) == 0);
+        $this->FZero = (($this->registersHL & 0x0400) === 0);
     }
 
     /**
@@ -1118,7 +1118,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0004) == 0);
+        $this->FZero = (($this->registersHL & 0x0004) === 0);
     }
 
     /**
@@ -1128,7 +1128,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x04) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x04) === 0);
     }
 
     /**
@@ -1138,7 +1138,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x04) == 0);
+        $this->FZero = (($this->registerA & 0x04) === 0);
     }
 
     /**
@@ -1148,7 +1148,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x08) == 0);
+        $this->FZero = (($this->registerB & 0x08) === 0);
     }
 
     /**
@@ -1158,7 +1158,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x08) == 0);
+        $this->FZero = (($this->registerC & 0x08) === 0);
     }
 
     /**
@@ -1168,7 +1168,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x08) == 0);
+        $this->FZero = (($this->registerD & 0x08) === 0);
     }
 
     /**
@@ -1178,7 +1178,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x08) == 0);
+        $this->FZero = (($this->registerE & 0x08) === 0);
     }
 
     /**
@@ -1188,7 +1188,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0800) == 0);
+        $this->FZero = (($this->registersHL & 0x0800) === 0);
     }
 
     /**
@@ -1198,7 +1198,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0008) == 0);
+        $this->FZero = (($this->registersHL & 0x0008) === 0);
     }
 
     /**
@@ -1208,7 +1208,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x08) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x08) === 0);
     }
 
     /**
@@ -1218,7 +1218,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x08) == 0);
+        $this->FZero = (($this->registerA & 0x08) === 0);
     }
 
     /**
@@ -1228,7 +1228,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x10) == 0);
+        $this->FZero = (($this->registerB & 0x10) === 0);
     }
 
     /**
@@ -1238,7 +1238,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x10) == 0);
+        $this->FZero = (($this->registerC & 0x10) === 0);
     }
 
     /**
@@ -1248,7 +1248,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x10) == 0);
+        $this->FZero = (($this->registerD & 0x10) === 0);
     }
 
     /**
@@ -1258,7 +1258,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x10) == 0);
+        $this->FZero = (($this->registerE & 0x10) === 0);
     }
 
     /**
@@ -1268,7 +1268,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x1000) == 0);
+        $this->FZero = (($this->registersHL & 0x1000) === 0);
     }
 
     /**
@@ -1278,7 +1278,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0010) == 0);
+        $this->FZero = (($this->registersHL & 0x0010) === 0);
     }
 
     /**
@@ -1288,7 +1288,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x10) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x10) === 0);
     }
 
     /**
@@ -1298,7 +1298,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x10) == 0);
+        $this->FZero = (($this->registerA & 0x10) === 0);
     }
 
     /**
@@ -1308,7 +1308,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x20) == 0);
+        $this->FZero = (($this->registerB & 0x20) === 0);
     }
 
     /**
@@ -1318,7 +1318,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x20) == 0);
+        $this->FZero = (($this->registerC & 0x20) === 0);
     }
 
     /**
@@ -1328,7 +1328,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x20) == 0);
+        $this->FZero = (($this->registerD & 0x20) === 0);
     }
 
     /**
@@ -1338,7 +1338,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x20) == 0);
+        $this->FZero = (($this->registerE & 0x20) === 0);
     }
 
     /**
@@ -1348,7 +1348,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x2000) == 0);
+        $this->FZero = (($this->registersHL & 0x2000) === 0);
     }
 
     /**
@@ -1358,7 +1358,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0020) == 0);
+        $this->FZero = (($this->registersHL & 0x0020) === 0);
     }
 
     /**
@@ -1368,7 +1368,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x20) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x20) === 0);
     }
 
     /**
@@ -1378,7 +1378,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x20) == 0);
+        $this->FZero = (($this->registerA & 0x20) === 0);
     }
 
     /**
@@ -1388,7 +1388,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x40) == 0);
+        $this->FZero = (($this->registerB & 0x40) === 0);
     }
 
     /**
@@ -1398,7 +1398,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x40) == 0);
+        $this->FZero = (($this->registerC & 0x40) === 0);
     }
 
     /**
@@ -1408,7 +1408,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x40) == 0);
+        $this->FZero = (($this->registerD & 0x40) === 0);
     }
 
     /**
@@ -1418,7 +1418,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x40) == 0);
+        $this->FZero = (($this->registerE & 0x40) === 0);
     }
 
     /**
@@ -1428,7 +1428,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x4000) == 0);
+        $this->FZero = (($this->registersHL & 0x4000) === 0);
     }
 
     /**
@@ -1438,7 +1438,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0040) == 0);
+        $this->FZero = (($this->registersHL & 0x0040) === 0);
     }
 
     /**
@@ -1448,7 +1448,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x40) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x40) === 0);
     }
 
     /**
@@ -1458,7 +1458,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x40) == 0);
+        $this->FZero = (($this->registerA & 0x40) === 0);
     }
 
     /**
@@ -1468,7 +1468,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerB & 0x80) == 0);
+        $this->FZero = (($this->registerB & 0x80) === 0);
     }
 
     /**
@@ -1478,7 +1478,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerC & 0x80) == 0);
+        $this->FZero = (($this->registerC & 0x80) === 0);
     }
 
     /**
@@ -1488,7 +1488,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerD & 0x80) == 0);
+        $this->FZero = (($this->registerD & 0x80) === 0);
     }
 
     /**
@@ -1498,7 +1498,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerE & 0x80) == 0);
+        $this->FZero = (($this->registerE & 0x80) === 0);
     }
 
     /**
@@ -1508,7 +1508,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x8000) == 0);
+        $this->FZero = (($this->registersHL & 0x8000) === 0);
     }
 
     /**
@@ -1518,7 +1518,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registersHL & 0x0080) == 0);
+        $this->FZero = (($this->registersHL & 0x0080) === 0);
     }
 
     /**
@@ -1528,7 +1528,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x80) == 0);
+        $this->FZero = (($this->memoryRead($this->registersHL) & 0x80) === 0);
     }
 
     /**
@@ -1538,7 +1538,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->registerA & 0x80) == 0);
+        $this->FZero = (($this->registerA & 0x80) === 0);
     }
 
     /**
