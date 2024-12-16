@@ -1835,7 +1835,7 @@ class Core
     }
 
     //Memory Writing:
-    public function memoryWrite($address, ?string $data): void
+    public function memoryWrite(int $address, ?int $data): void
     {
         if ($address < 0x8000) {
             if ($this->cMBC1) {
