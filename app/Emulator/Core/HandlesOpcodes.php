@@ -156,8 +156,8 @@ trait HandlesOpcodes
     private function opcode4(): void
     {
         $this->registerB = (($this->registerB + 1) & 0xFF);
-        $this->FZero = ($this->registerB == 0);
-        $this->FHalfCarry = (($this->registerB & 0xF) == 0);
+        $this->FZero = ($this->registerB === 0);
+        $this->FHalfCarry = (($this->registerB & 0xF) === 0);
         $this->FSubtract = false;
     }
 
@@ -169,8 +169,8 @@ trait HandlesOpcodes
     private function opcode5(): void
     {
         $this->registerB = $this->unsbtub($this->registerB - 1);
-        $this->FZero = ($this->registerB == 0);
-        $this->FHalfCarry = (($this->registerB & 0xF) == 0xF);
+        $this->FZero = ($this->registerB === 0);
+        $this->FHalfCarry = (($this->registerB & 0xF) === 0xF);
         $this->FSubtract = true;
     }
 
@@ -192,7 +192,7 @@ trait HandlesOpcodes
      */
     private function opcode7(): void
     {
-        $this->FCarry = (($this->registerA & 0x80) == 0x80);
+        $this->FCarry = (($this->registerA & 0x80) === 0x80);
         $this->registerA = (($this->registerA << 1) & 0xFF) | ($this->registerA >> 7);
         $this->FZero = false;
         $this->FSubtract = false;
@@ -258,8 +258,8 @@ trait HandlesOpcodes
     private function opcode12(): void
     {
         $this->registerC = (($this->registerC + 1) & 0xFF);
-        $this->FZero = ($this->registerC == 0);
-        $this->FHalfCarry = (($this->registerC & 0xF) == 0);
+        $this->FZero = ($this->registerC === 0);
+        $this->FHalfCarry = (($this->registerC & 0xF) === 0);
         $this->FSubtract = false;
     }
 
@@ -271,8 +271,8 @@ trait HandlesOpcodes
     private function opcode13(): void
     {
         $this->registerC = $this->unsbtub($this->registerC - 1);
-        $this->FZero = ($this->registerC == 0);
-        $this->FHalfCarry = (($this->registerC & 0xF) == 0xF);
+        $this->FZero = ($this->registerC === 0);
+        $this->FHalfCarry = (($this->registerC & 0xF) === 0xF);
         $this->FSubtract = true;
     }
 
@@ -294,7 +294,7 @@ trait HandlesOpcodes
      */
     private function opcode15(): void
     {
-        $this->FCarry = (($this->registerA & 1) == 1);
+        $this->FCarry = (($this->registerA & 1) === 1);
         $this->registerA = ($this->registerA >> 1) + (($this->registerA & 1) << 7);
         $this->FZero = false;
         $this->FSubtract = false;
@@ -375,8 +375,8 @@ trait HandlesOpcodes
     private function opcode20(): void
     {
         $this->registerD = (($this->registerD + 1) & 0xFF);
-        $this->FZero = ($this->registerD == 0);
-        $this->FHalfCarry = (($this->registerD & 0xF) == 0);
+        $this->FZero = ($this->registerD === 0);
+        $this->FHalfCarry = (($this->registerD & 0xF) === 0);
         $this->FSubtract = false;
     }
 
@@ -388,8 +388,8 @@ trait HandlesOpcodes
     private function opcode21(): void
     {
         $this->registerD = $this->unsbtub($this->registerD - 1);
-        $this->FZero = ($this->registerD == 0);
-        $this->FHalfCarry = (($this->registerD & 0xF) == 0xF);
+        $this->FZero = ($this->registerD === 0);
+        $this->FHalfCarry = (($this->registerD & 0xF) === 0xF);
         $this->FSubtract = true;
     }
 
@@ -412,7 +412,7 @@ trait HandlesOpcodes
     private function opcode23(): void
     {
         $carry_flag = ($this->FCarry) ? 1 : 0;
-        $this->FCarry = (($this->registerA & 0x80) == 0x80);
+        $this->FCarry = (($this->registerA & 0x80) === 0x80);
         $this->registerA = (($this->registerA << 1) & 0xFF) | $carry_flag;
         $this->FZero = false;
         $this->FSubtract = false;
@@ -474,8 +474,8 @@ trait HandlesOpcodes
     private function opcode28(): void
     {
         $this->registerE = (($this->registerE + 1) & 0xFF);
-        $this->FZero = ($this->registerE == 0);
-        $this->FHalfCarry = (($this->registerE & 0xF) == 0);
+        $this->FZero = ($this->registerE === 0);
+        $this->FHalfCarry = (($this->registerE & 0xF) === 0);
         $this->FSubtract = false;
     }
 
@@ -487,8 +487,8 @@ trait HandlesOpcodes
     private function opcode29(): void
     {
         $this->registerE = $this->unsbtub($this->registerE - 1);
-        $this->FZero = ($this->registerE == 0);
-        $this->FHalfCarry = (($this->registerE & 0xF) == 0xF);
+        $this->FZero = ($this->registerE === 0);
+        $this->FHalfCarry = (($this->registerE & 0xF) === 0xF);
         $this->FSubtract = true;
     }
 
@@ -511,7 +511,7 @@ trait HandlesOpcodes
     private function opcode31(): void
     {
         $carry_flag = ($this->FCarry) ? 0x80 : 0;
-        $this->FCarry = (($this->registerA & 1) == 1);
+        $this->FCarry = (($this->registerA & 1) === 1);
         $this->registerA = ($this->registerA >> 1) + $carry_flag;
         $this->FZero = false;
         $this->FSubtract = false;
@@ -573,8 +573,8 @@ trait HandlesOpcodes
     private function opcode36(): void
     {
         $H = ((($this->registersHL >> 8) + 1) & 0xFF);
-        $this->FZero = ($H == 0);
-        $this->FHalfCarry = (($H & 0xF) == 0);
+        $this->FZero = ($H === 0);
+        $this->FHalfCarry = (($H & 0xF) === 0);
         $this->FSubtract = false;
         $this->registersHL = ($H << 8) + ($this->registersHL & 0xFF);
     }
@@ -587,8 +587,8 @@ trait HandlesOpcodes
     private function opcode37(): void
     {
         $H = $this->unsbtub(($this->registersHL >> 8) - 1);
-        $this->FZero = ($H == 0);
-        $this->FHalfCarry = (($H & 0xF) == 0xF);
+        $this->FZero = ($H === 0);
+        $this->FHalfCarry = (($H & 0xF) === 0xF);
         $this->FSubtract = true;
         $this->registersHL = ($H << 8) + ($this->registersHL & 0xFF);
     }
@@ -625,10 +625,10 @@ trait HandlesOpcodes
         }
 
         $this->registerA = ($temp_var = $this->DAATable[$temp_var]) >> 8;
-        $this->FZero = (($temp_var & 0x80) == 0x80);
-        $this->FSubtract = (($temp_var & 0x40) == 0x40);
-        $this->FHalfCarry = (($temp_var & 0x20) == 0x20);
-        $this->FCarry = (($temp_var & 0x10) == 0x10);
+        $this->FZero = (($temp_var & 0x80) === 0x80);
+        $this->FSubtract = (($temp_var & 0x40) === 0x40);
+        $this->FHalfCarry = (($temp_var & 0x20) === 0x20);
+        $this->FCarry = (($temp_var & 0x10) === 0x10);
     }
 
     /**
@@ -689,8 +689,8 @@ trait HandlesOpcodes
     private function opcode44(): void
     {
         $L = (($this->registersHL + 1) & 0xFF);
-        $this->FZero = ($L == 0);
-        $this->FHalfCarry = (($L & 0xF) == 0);
+        $this->FZero = ($L === 0);
+        $this->FHalfCarry = (($L & 0xF) === 0);
         $this->FSubtract = false;
         $this->registersHL = ($this->registersHL & 0xFF00) + $L;
     }
@@ -703,8 +703,8 @@ trait HandlesOpcodes
     private function opcode45(): void
     {
         $L = $this->unsbtub(($this->registersHL & 0xFF) - 1);
-        $this->FZero = ($L == 0);
-        $this->FHalfCarry = (($L & 0xF) == 0xF);
+        $this->FZero = ($L === 0);
+        $this->FHalfCarry = (($L & 0xF) === 0xF);
         $this->FSubtract = true;
         $this->registersHL = ($this->registersHL & 0xFF00) + $L;
     }
@@ -787,8 +787,8 @@ trait HandlesOpcodes
     private function opcode52(): void
     {
         $temp_var = (($this->memoryRead($this->registersHL) + 1) & 0xFF);
-        $this->FZero = ($temp_var == 0);
-        $this->FHalfCarry = (($temp_var & 0xF) == 0);
+        $this->FZero = ($temp_var === 0);
+        $this->FHalfCarry = (($temp_var & 0xF) === 0);
         $this->FSubtract = false;
         $this->memoryWrite($this->registersHL, $temp_var);
     }
@@ -801,8 +801,8 @@ trait HandlesOpcodes
     private function opcode53(): void
     {
         $temp_var = $this->unsbtub($this->memoryRead($this->registersHL) - 1);
-        $this->FZero = ($temp_var == 0);
-        $this->FHalfCarry = (($temp_var & 0xF) == 0xF);
+        $this->FZero = ($temp_var === 0);
+        $this->FHalfCarry = (($temp_var & 0xF) === 0xF);
         $this->FSubtract = true;
         $this->memoryWrite($this->registersHL, $temp_var);
     }
@@ -888,8 +888,8 @@ trait HandlesOpcodes
     private function opcode60(): void
     {
         $this->registerA = (($this->registerA + 1) & 0xFF);
-        $this->FZero = ($this->registerA == 0);
-        $this->FHalfCarry = (($this->registerA & 0xF) == 0);
+        $this->FZero = ($this->registerA === 0);
+        $this->FHalfCarry = (($this->registerA & 0xF) === 0);
         $this->FSubtract = false;
     }
 
@@ -901,8 +901,8 @@ trait HandlesOpcodes
     private function opcode61(): void
     {
         $this->registerA = $this->unsbtub($this->registerA - 1);
-        $this->FZero = ($this->registerA == 0);
-        $this->FHalfCarry = (($this->registerA & 0xF) == 0xF);
+        $this->FZero = ($this->registerA === 0);
+        $this->FHalfCarry = (($this->registerA & 0xF) === 0xF);
         $this->FSubtract = true;
     }
 
@@ -1483,7 +1483,7 @@ trait HandlesOpcodes
      */
     private function opcode118(): void
     {
-        if ($this->untilEnable == 1) {
+        if ($this->untilEnable === 1) {
             /*VBA-M says this fixes Torpedo Range (Seems to work):
             Involves an edge case where an EI is placed right before a HALT.
             EI in this case actually is immediate, so we adjust (Hacky?).*/
@@ -1621,7 +1621,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1636,7 +1636,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1651,7 +1651,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1666,7 +1666,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1681,7 +1681,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1696,7 +1696,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1711,7 +1711,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1726,7 +1726,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1741,7 +1741,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($this->registerB & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1756,7 +1756,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($this->registerC & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1771,7 +1771,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($this->registerD & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1786,7 +1786,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($this->registerE & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1802,7 +1802,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($tempValue & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1818,7 +1818,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($tempValue & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1834,7 +1834,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($tempValue & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1849,7 +1849,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($this->registerA & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
     }
 
@@ -1864,7 +1864,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($this->registerB & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1879,7 +1879,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($this->registerC & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1894,7 +1894,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($this->registerD & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1909,7 +1909,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($this->registerE & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1925,7 +1925,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($temp_var & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1940,7 +1940,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($this->registersHL & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1956,7 +1956,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($this->registerA & 0xF) < ($temp_var & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -1967,7 +1967,7 @@ trait HandlesOpcodes
      */
     private function opcode151(): void
     {
-        //number - same number == 0
+        //number - same number === 0
         $this->registerA = 0;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -1986,7 +1986,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($this->registerB & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2001,7 +2001,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($this->registerC & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2016,7 +2016,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($this->registerD & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2031,7 +2031,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($this->registerE & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2047,7 +2047,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($temp_var & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2062,7 +2062,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($this->registersHL & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2078,7 +2078,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) - ($temp_var & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -2113,7 +2113,7 @@ trait HandlesOpcodes
     private function opcode160(): void
     {
         $this->registerA &= $this->registerB;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2127,7 +2127,7 @@ trait HandlesOpcodes
     private function opcode161(): void
     {
         $this->registerA &= $this->registerC;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2141,7 +2141,7 @@ trait HandlesOpcodes
     private function opcode162(): void
     {
         $this->registerA &= $this->registerD;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2155,7 +2155,7 @@ trait HandlesOpcodes
     private function opcode163(): void
     {
         $this->registerA &= $this->registerE;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2169,7 +2169,7 @@ trait HandlesOpcodes
     private function opcode164(): void
     {
         $this->registerA &= ($this->registersHL >> 8);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2183,7 +2183,7 @@ trait HandlesOpcodes
     private function opcode165(): void
     {
         $this->registerA &= ($this->registersHL & 0xFF);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2197,7 +2197,7 @@ trait HandlesOpcodes
     private function opcode166(): void
     {
         $this->registerA &= $this->memoryRead($this->registersHL);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2211,7 +2211,7 @@ trait HandlesOpcodes
     private function opcode167(): void
     {
         //number & same number = same number
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2225,7 +2225,7 @@ trait HandlesOpcodes
     private function opcode168(): void
     {
         $this->registerA ^= $this->registerB;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2239,7 +2239,7 @@ trait HandlesOpcodes
     private function opcode169(): void
     {
         $this->registerA ^= $this->registerC;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2253,7 +2253,7 @@ trait HandlesOpcodes
     private function opcode170(): void
     {
         $this->registerA ^= $this->registerD;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2267,7 +2267,7 @@ trait HandlesOpcodes
     private function opcode171(): void
     {
         $this->registerA ^= $this->registerE;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2281,7 +2281,7 @@ trait HandlesOpcodes
     private function opcode172(): void
     {
         $this->registerA ^= ($this->registersHL >> 8);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2295,7 +2295,7 @@ trait HandlesOpcodes
     private function opcode173(): void
     {
         $this->registerA ^= ($this->registersHL & 0xFF);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2309,7 +2309,7 @@ trait HandlesOpcodes
     private function opcode174(): void
     {
         $this->registerA ^= $this->memoryRead($this->registersHL);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
         $this->FCarry = false;
@@ -2322,7 +2322,7 @@ trait HandlesOpcodes
      */
     private function opcode175(): void
     {
-        //number ^ same number == 0
+        //number ^ same number === 0
         $this->registerA = 0;
         $this->FZero = true;
         $this->FSubtract = false;
@@ -2338,7 +2338,7 @@ trait HandlesOpcodes
     private function opcode176(): void
     {
         $this->registerA |= $this->registerB;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2352,7 +2352,7 @@ trait HandlesOpcodes
     private function opcode177(): void
     {
         $this->registerA |= $this->registerC;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2366,7 +2366,7 @@ trait HandlesOpcodes
     private function opcode178(): void
     {
         $this->registerA |= $this->registerD;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2380,7 +2380,7 @@ trait HandlesOpcodes
     private function opcode179(): void
     {
         $this->registerA |= $this->registerE;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2394,7 +2394,7 @@ trait HandlesOpcodes
     private function opcode180(): void
     {
         $this->registerA |= ($this->registersHL >> 8);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2408,7 +2408,7 @@ trait HandlesOpcodes
     private function opcode181(): void
     {
         $this->registerA |= ($this->registersHL & 0xFF);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2422,7 +2422,7 @@ trait HandlesOpcodes
     private function opcode182(): void
     {
         $this->registerA |= $this->memoryRead($this->registersHL);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2435,8 +2435,8 @@ trait HandlesOpcodes
      */
     private function opcode183(): void
     {
-        //number | same number == same number
-        $this->FZero = ($this->registerA == 0);
+        //number | same number === same number
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
         $this->FHalfCarry = false;
@@ -2452,7 +2452,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - $this->registerB;
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2466,7 +2466,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - $this->registerC;
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2480,7 +2480,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - $this->registerD;
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2494,7 +2494,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - $this->registerE;
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2508,7 +2508,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - ($this->registersHL >> 8);
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2522,7 +2522,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - ($this->registersHL & 0xFF);
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2536,7 +2536,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - $this->memoryRead($this->registersHL);
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->FSubtract = true;
     }
 
@@ -2649,7 +2649,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
@@ -2773,7 +2773,7 @@ trait HandlesOpcodes
         $this->FHalfCarry = (($this->registerA & 0xF) + ($tempValue & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
@@ -2892,7 +2892,7 @@ trait HandlesOpcodes
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -3008,7 +3008,7 @@ trait HandlesOpcodes
         $this->FCarry = ($dirtySum < 0);
         $this->registerA = $this->unsbtub($dirtySum);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FSubtract = true;
     }
 
@@ -3102,7 +3102,7 @@ trait HandlesOpcodes
     {
         $this->registerA &= $this->memoryRead($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -3131,8 +3131,8 @@ trait HandlesOpcodes
     {
         $signedByte = $this->usbtsb($this->memoryRead($this->programCounter));
         $temp_value = $this->nswtuw($this->stackPointer + $signedByte);
-        $this->FCarry = ((($this->stackPointer ^ $signedByte ^ $temp_value) & 0x100) == 0x100);
-        $this->FHalfCarry = ((($this->stackPointer ^ $signedByte ^ $temp_value) & 0x10) == 0x10);
+        $this->FCarry = ((($this->stackPointer ^ $signedByte ^ $temp_value) & 0x100) === 0x100);
+        $this->FHalfCarry = ((($this->stackPointer ^ $signedByte ^ $temp_value) & 0x10) === 0x10);
         $this->stackPointer = $temp_value;
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FZero = false;
@@ -3201,7 +3201,7 @@ trait HandlesOpcodes
     private function opcode238(): void
     {
         $this->registerA ^= $this->memoryRead($this->programCounter);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FSubtract = false;
         $this->FHalfCarry = false;
@@ -3241,10 +3241,10 @@ trait HandlesOpcodes
     private function opcode241(): void
     {
         $temp_var = $this->memoryRead($this->stackPointer);
-        $this->FZero = (($temp_var & 0x80) == 0x80);
-        $this->FSubtract = (($temp_var & 0x40) == 0x40);
-        $this->FHalfCarry = (($temp_var & 0x20) == 0x20);
-        $this->FCarry = (($temp_var & 0x10) == 0x10);
+        $this->FZero = (($temp_var & 0x80) === 0x80);
+        $this->FSubtract = (($temp_var & 0x40) === 0x40);
+        $this->FHalfCarry = (($temp_var & 0x20) === 0x20);
+        $this->FCarry = (($temp_var & 0x10) === 0x10);
         $this->registerA = $this->memoryRead(($this->stackPointer + 1) & 0xFFFF);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
     }
@@ -3303,7 +3303,7 @@ trait HandlesOpcodes
     private function opcode246(): void
     {
         $this->registerA |= $this->memoryRead($this->programCounter);
-        $this->FZero = ($this->registerA == 0);
+        $this->FZero = ($this->registerA === 0);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -3333,8 +3333,8 @@ trait HandlesOpcodes
     {
         $signedByte = $this->usbtsb($this->memoryRead($this->programCounter));
         $this->registersHL = $this->nswtuw($this->stackPointer + $signedByte);
-        $this->FCarry = ((($this->stackPointer ^ $signedByte ^ $this->registersHL) & 0x100) == 0x100);
-        $this->FHalfCarry = ((($this->stackPointer ^ $signedByte ^ $this->registersHL) & 0x10) == 0x10);
+        $this->FCarry = ((($this->stackPointer ^ $signedByte ^ $this->registersHL) & 0x100) === 0x100);
+        $this->FHalfCarry = ((($this->stackPointer ^ $signedByte ^ $this->registersHL) & 0x10) === 0x10);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FZero = false;
         $this->FSubtract = false;
@@ -3403,7 +3403,7 @@ trait HandlesOpcodes
         $dirtySum = $this->registerA - $this->memoryRead($this->programCounter);
         $this->FHalfCarry = ($this->unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
-        $this->FZero = ($dirtySum == 0);
+        $this->FZero = ($dirtySum === 0);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FSubtract = true;
     }
