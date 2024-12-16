@@ -2,37 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Emulator;
+namespace App\Emulator\Input;
 
+use App\Emulator\Core;
 use Illuminate\Support\Facades\Config;
 
 use function Laravel\Prompts\warning;
 
-class Keyboard
+class Keyboard implements InputInterface
 {
     /**
      * Default controls to fall back on in case there's a problem with the configuration.
-     * The order is:
-     *  - Right (d)
-     *  - Left (a)
-     *  - Up (w)
-     *  - Down (s)
-     *  - A (,)
-     *  - B (.)
-     *  - Select (n)
-     *  - Start (m)
      *
-     * @var array<string, int>
+     * @var array<string, \App\Emulator\Input\JoypadInput>
      */
     private const array DEFAULT_MAP = [
-        'd' => 0,
-        'a' => 1,
-        'w' => 2,
-        's' => 3,
-        ',' => 4,
-        '.' => 5,
-        'n' => 6,
-        'm' => 7,
+        'd' => JoypadInput::DPAD_RIGHT,
+        'a' => JoypadInput::DPAD_LEFT,
+        'w' => JoypadInput::DPAD_UP,
+        's' => JoypadInput::DPAD_DOWN,
+        ',' => JoypadInput::BTN_A,
+        '.' => JoypadInput::BTN_B,
+        'n' => JoypadInput::BTN_SELECT,
+        'm' => JoypadInput::BTN_START,
     ];
 
     /**
@@ -136,6 +128,13 @@ class Keyboard
         $this->keyPressing = $key;
     }
 
+    public function fireInput(int|JoypadInput $keyCode, bool $down): void
+    {
+        $keyCode = $keyCode instanceof JoypadInput ? $keyCode->value : $keyCode;
+
+        $this->core->joyPadEvent($keyCode, $down);
+    }
+
     /**
      * Handles a key-down event by notifying the emulator core.
      *
@@ -145,8 +144,8 @@ class Keyboard
     {
         $keyCode = $this->matchKey($key);
 
-        if ($keyCode > -1) {
-            $this->core->joyPadEvent($keyCode, true);
+        if ($keyCode !== JoypadInput::INVALID_INPUT) {
+            $this->fireInput($keyCode, true);
         }
     }
 
@@ -159,8 +158,8 @@ class Keyboard
     {
         $keyCode = $this->matchKey($key);
 
-        if ($keyCode > -1) {
-            $this->core->joyPadEvent($keyCode, false);
+        if ($keyCode !== JoypadInput::INVALID_INPUT) {
+            $this->fireInput($keyCode, false);
         }
     }
 
@@ -168,12 +167,10 @@ class Keyboard
      * Matches a pressed key character to its corresponding emulator button index.
      *
      * @param string $key The character read from the terminal.
-     *
-     * @return int The button index, or -1 if it does not match a known key.
      */
-    private function matchKey(string $key): int
+    private function matchKey(string $key): JoypadInput
     {
-        return $this->keyMap[$key] ?? -1;
+        return $this->keyMap[$key] ?? JoypadInput::INVALID_INPUT;
     }
 
     /**
@@ -192,16 +189,15 @@ class Keyboard
             return;
         }
 
-        // The required order: Right, Left, Up, Down, A, B, Select, Start
         $this->keyMap = [
-            $controls['right'] => 0,
-            $controls['left'] => 1,
-            $controls['up'] => 2,
-            $controls['down'] => 3,
-            $controls['a'] => 4,
-            $controls['b'] => 5,
-            $controls['select'] => 6,
-            $controls['start'] => 7,
+            $controls['right'] => JoypadInput::DPAD_RIGHT,
+            $controls['left'] => JoypadInput::DPAD_LEFT,
+            $controls['up'] => JoypadInput::DPAD_UP,
+            $controls['down'] => JoypadInput::DPAD_DOWN,
+            $controls['a'] => JoypadInput::BTN_A,
+            $controls['b'] => JoypadInput::BTN_B,
+            $controls['select'] => JoypadInput::BTN_SELECT,
+            $controls['start'] => JoypadInput::BTN_START,
         ];
     }
 

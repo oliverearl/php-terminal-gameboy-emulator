@@ -8,7 +8,7 @@ use App\Emulator\Canvas\DrawContextInterface;
 use App\Emulator\Canvas\LaravelCanvas;
 use App\Emulator\Canvas\LegacyCanvas;
 use App\Emulator\Core;
-use App\Emulator\Keyboard;
+use App\Emulator\Input\Keyboard;
 use App\Exceptions\Rom\RomMissingOrBadException;
 use Illuminate\Support\Facades\Config;
 use LaravelZero\Framework\Commands\Command;
