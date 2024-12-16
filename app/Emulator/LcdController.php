@@ -10,7 +10,7 @@ class LcdController
     //Is the emulated LCD controller on?
     public $LCDisOn = false;
 
-    //Should we trigger an interrupt if LY==LYC?
+    //Should we trigger an interrupt if LY===LYC?
     public $LYCMatchTriggerSTAT = false;
 
     //The scan line mode (for lines 1-144 it's 2-3-0, for 145-154 it's 1)
@@ -33,20 +33,20 @@ class LcdController
     public function matchLYC(): void
     {
         // LY - LYC Compare
-        // If LY==LCY
-        if ($this->core->memory[0xFF44] == $this->core->memory[0xFF45]) {
+        // If LY===LCY
+        if ($this->core->memory[0xFF44] === $this->core->memory[0xFF45]) {
             $this->core->memory[0xFF41] |= 0x04; // set STAT bit 2: LY-LYC coincidence flag
             if ($this->LYCMatchTriggerSTAT) {
                 $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
         } else {
-            $this->core->memory[0xFF41] &= 0xFB; // reset STAT bit 2 (LY!=LYC)
+            $this->core->memory[0xFF41] &= 0xFB; // reset STAT bit 2 (LY!==LYC)
         }
     }
 
     public function notifyScanline(): void
     {
-        if ($this->actualScanLine == 0) {
+        if ($this->actualScanLine === 0) {
             $this->core->windowSourceLine = 0;
         }
 
@@ -90,7 +90,7 @@ class LcdController
                     $this->core->LCDTicks -= 114;
                     $this->actualScanLine = ++$this->core->memory[0xFF44];
                     $this->matchLYC();
-                    if ($this->STATTracker != 2) {
+                    if ($this->STATTracker !== 2) {
                         if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
                             $this->core->performHdma(); //H-Blank DMA
                         }
@@ -108,7 +108,7 @@ class LcdController
                         $this->scanLine($this->actualScanLine); //Scan Line and STAT Mode Control
                     }
                 }
-            } elseif ($line == 143) {
+            } elseif ($line === 143) {
                 //We're on the last visible scan line of the LCD screen:
                 if ($this->core->LCDTicks < 20) {
                     $this->scanLineMode2(); // mode2: 80 cycles
@@ -126,7 +126,7 @@ class LcdController
                         $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
                     }
 
-                    if ($this->STATTracker != 2) {
+                    if ($this->STATTracker !== 2) {
                         if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
                             $this->core->performHdma(); //H-Blank DMA
                         }
@@ -163,9 +163,9 @@ class LcdController
                 }
             } else {
                 //VBlank Ending (We're on the last actual scan line)
-                if ($this->core->memory[0xFF44] == 153) {
+                if ($this->core->memory[0xFF44] === 153) {
                     $this->core->memory[0xFF44] = 0; //LY register resets to 0 early.
-                    $this->matchLYC(); //LY==LYC Test is early here (Fixes specific one-line glitches (example: Kirby2 intro)).
+                    $this->matchLYC(); //LY===LYC Test is early here (Fixes specific one-line glitches (example: Kirby2 intro)).
                 }
 
                 if ($this->core->LCDTicks >= 114) {
@@ -185,12 +185,12 @@ class LcdController
     public function scanLineMode0(): void
     {
         // H-Blank
-        if ($this->modeSTAT != 0) {
+        if ($this->modeSTAT !== 0) {
             if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
                 $this->core->performHdma(); //H-Blank DMA
             }
 
-            if ($this->mode0TriggerSTAT || ($this->mode2TriggerSTAT && $this->STATTracker == 0)) {
+            if ($this->mode0TriggerSTAT || ($this->mode2TriggerSTAT && $this->STATTracker === 0)) {
                 $this->core->memory[0xFF0F] |= 0x2; // if STAT bit 3 -> set IF bit1
             }
 
@@ -203,7 +203,7 @@ class LcdController
     public function scanLineMode2(): void
     {
         // OAM in use
-        if ($this->modeSTAT != 2) {
+        if ($this->modeSTAT !== 2) {
             if ($this->mode2TriggerSTAT) {
                 $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
@@ -216,8 +216,8 @@ class LcdController
     public function scanLineMode3(): void
     {
         // OAM in use
-        if ($this->modeSTAT != 3) {
-            if ($this->mode2TriggerSTAT && $this->STATTracker == 0) {
+        if ($this->modeSTAT !== 3) {
+            if ($this->mode2TriggerSTAT && $this->STATTracker === 0) {
                 $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
 
