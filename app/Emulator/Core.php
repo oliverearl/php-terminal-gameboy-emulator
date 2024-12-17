@@ -389,11 +389,11 @@ class Core
             $this->hdmaRunning,
             $this->CPUTicks,
             $this->multiplier,
-            $this->fromTypedArray($this->memory),
-            $this->fromTypedArray($this->MBCRam),
-            $this->fromTypedArray($this->VRAM),
+            $this->memory,
+            $this->MBCRam,
+            $this->VRAM,
             $this->currVRAMBank,
-            $this->fromTypedArray($this->GBCMemory),
+            $this->GBCMemory,
             $this->MBC1Mode,
             $this->MBCRAMBanksEnabled,
             $this->currMBCRAMBank,
@@ -438,7 +438,7 @@ class Core
             $this->cHuC1,
             $this->drewBlank,
             $this->tileData,
-            $this->fromTypedArray($this->frameBuffer),
+            $this->frameBuffer,
             $this->tileCount,
             $this->colorCount,
             $this->gbPalette,
@@ -447,7 +447,7 @@ class Core
             $this->transparentCutoff,
             $this->bgEnabled,
             $this->spritePriorityEnabled,
-            $this->fromTypedArray($this->tileReadState),
+            $this->tileReadState,
             $this->windowSourceLine,
             $this->lcdController->actualScanLine,
             $this->RTCisLatched,
@@ -494,11 +494,11 @@ class Core
         $this->hdmaRunning = $state[$address++];
         $this->CPUTicks = $state[$address++];
         $this->multiplier = $state[$address++];
-        $this->memory = $this->toTypedArray($state[$address++], false, false);
-        $this->MBCRam = $this->toTypedArray($state[$address++], false, false);
-        $this->VRAM = $this->toTypedArray($state[$address++], false, false);
+        $this->memory = $state[$address++];
+        $this->MBCRam = $state[$address++];
+        $this->VRAM = $state[$address++];
         $this->currVRAMBank = $state[$address++];
-        $this->GBCMemory = $this->toTypedArray($state[$address++], false, false);
+        $this->GBCMemory = $state[$address++];
         $this->MBC1Mode = $state[$address++];
         $this->MBCRAMBanksEnabled = $state[$address++];
         $this->currMBCRAMBank = $state[$address++];
@@ -543,7 +543,7 @@ class Core
         $this->cHuC1 = $state[$address++];
         $this->drewBlank = $state[$address++];
         $this->tileData = $state[$address++];
-        $this->frameBuffer = $this->toTypedArray($state[$address++], true, false);
+        $this->frameBuffer = $state[$address++];
         $this->tileCount = $state[$address++];
         $this->colorCount = $state[$address++];
         $this->gbPalette = $state[$address++];
@@ -552,7 +552,7 @@ class Core
         $this->transparentCutoff = $state[$address++];
         $this->bgEnabled = $state[$address++];
         $this->spritePriorityEnabled = $state[$address++];
-        $this->tileReadState = $this->toTypedArray($state[$address++], false, false);
+        $this->tileReadState = $state[$address++];
         $this->windowSourceLine = $state[$address++];
         $this->lcdController->actualScanLine = $state[$address++];
         $this->RTCisLatched = $state[$address++];
@@ -625,11 +625,11 @@ class Core
     public function initMemory(): void
     {
         //Initialize the RAM:
-        $this->memory = $this->getTypedArray(0x10000, 0, 'uint8');
-        $this->frameBuffer = $this->getTypedArray(23040, 0x00FFFFFF, 'int32');
-        $this->gbPalette = $this->arrayPad(12, 0); //32-bit signed
-        $this->gbColorizedPalette = $this->arrayPad(12, 0); //32-bit signed
-        $this->gbcRawPalette = $this->arrayPad(0x80, -1000); //32-bit signed
+        $this->memory = $this->getPreinitializedArray(0x10000, 0);
+        $this->frameBuffer = $this->getPreinitializedArray(23040, 0x00FFFFFF);
+        $this->gbPalette = $this->getPreinitializedArray(12, 0); //32-bit signed
+        $this->gbColorizedPalette = $this->getPreinitializedArray(12, 0); //32-bit signed
+        $this->gbcRawPalette = $this->getPreinitializedArray(0x80, -1000); //32-bit signed
         $this->gbcPalette = [0x40]; //32-bit signed
         //Initialize the GBC Palette:
         $address = 0x3F;
@@ -995,22 +995,22 @@ class Core
             }
 
             //Switched RAM Used
-            $this->MBCRam = $this->getTypedArray($this->numRAMBanks * 0x2000, 0, 'uint8');
+            $this->MBCRam = $this->getPreinitializedArray($this->numRAMBanks * 0x2000, 0);
         }
 
         echo 'Actual bytes of MBC RAM allocated: ' . ($this->numRAMBanks * 0x2000) . PHP_EOL;
         //Setup the RAM for GBC mode.
         if ($this->cGBC) {
-            $this->VRAM = $this->getTypedArray(0x2000, 0, 'uint8');
-            $this->GBCMemory = $this->getTypedArray(0x7000, 0, 'uint8');
+            $this->VRAM = $this->getPreinitializedArray(0x2000, 0);
+            $this->GBCMemory = $this->getPreinitializedArray(0x7000, 0);
             $this->tileCount *= 2;
             $this->tileCountInvalidator = $this->tileCount * 4;
             $this->colorCount = 64;
             $this->transparentCutoff = 32;
         }
 
-        $this->tileData = $this->arrayPad($this->tileCount * $this->colorCount, null);
-        $this->tileReadState = $this->getTypedArray($this->tileCount, 0, 'uint8');
+        $this->tileData = $this->getPreinitializedArray($this->tileCount * $this->colorCount, null);
+        $this->tileReadState = $this->getPreinitializedArray($this->tileCount, 0);
     }
 
     public function MBCRAMUtilized(): bool
@@ -1023,7 +1023,7 @@ class Core
         $this->transparentCutoff = ($this->config->getBoolean('enable_gb_colorize') || $this->cGBC) ? 32 : 4;
         if (count($this->weaveLookup) === 0) {
             //Setup the image decoding lookup table:
-            $this->weaveLookup = $this->getTypedArray(256, 0, 'uint16');
+            $this->weaveLookup = $this->getPreinitializedArray(256, 0);
             for ($i_ = 0x1; $i_ <= 0xFF; ++$i_) {
                 for ($d_ = 0; $d_ < 0x8; ++$d_) {
                     $this->weaveLookup[$i_] += (($i_ >> $d_) & 1) << ($d_ * 2);
@@ -1156,9 +1156,9 @@ class Core
                 $this->IME = false; //Reset the interrupt enabling.
                 $this->memory[0xFF0F] -= $testbit; //Reset the interrupt request.
                 //Set the stack pointer to the current program counter value:
-                $this->stackPointer = $this->unswtuw($this->stackPointer - 1);
+                $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
                 $this->memoryWrite($this->stackPointer, $this->programCounter >> 8);
-                $this->stackPointer = $this->unswtuw($this->stackPointer - 1);
+                $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
                 $this->memoryWrite($this->stackPointer, $this->programCounter & 0xFF);
                 //Set the program counter to the interrupt's address:
                 $this->programCounter = 0x0040 + ($bitShift * 0x08);
@@ -1525,7 +1525,7 @@ class Core
         $pixix = 0;
         $pixixdx = 1;
         $pixixdy = 0;
-        $tempPix = $this->getTypedArray(64, 0, 'int32');
+        $tempPix = $this->getPreinitializedArray(64, 0);
         if (($attribs & 2) !== 0) {
             $pixixdy = -16;
             $pixix = 56;
@@ -2291,8 +2291,8 @@ class Core
             if ($this->cGBC) {
                 $this->setGBCPalette($this->memory[0xFF68] & 0x3F, $data);
                 // high bit = autoincrement
-                if ($this->usbtsb($this->memory[0xFF68]) < 0) {
-                    $next = (($this->usbtsb($this->memory[0xFF68]) + 1) & 0x3F);
+                if (Helpers::usbtsb($this->memory[0xFF68]) < 0) {
+                    $next = ((Helpers::usbtsb($this->memory[0xFF68]) + 1) & 0x3F);
                     $this->memory[0xFF68] = ($next | 0x80);
                     $this->memory[0xFF69] = 0xFF & $this->gbcRawPalette[$next];
                 } else {
@@ -2312,7 +2312,7 @@ class Core
             if ($this->cGBC) {
                 $this->setGBCPalette(($this->memory[0xFF6A] & 0x3F) + 0x40, $data);
                 // high bit = autoincrement
-                if ($this->usbtsb($this->memory[0xFF6A]) < 0) {
+                if (Helpers::usbtsb($this->memory[0xFF6A]) < 0) {
                     $next = (($this->memory[0xFF6A] + 1) & 0x3F);
                     $this->memory[0xFF6A] = ($next | 0x80);
                     $this->memory[0xFF6B] = 0xFF & $this->gbcRawPalette[$next | 0x40];
@@ -2351,88 +2351,12 @@ class Core
         }
     }
 
-    //Helper Functions
-    public function usbtsb($ubyte)
-    {
-        //Unsigned byte to signed byte:
-        return ($ubyte > 0x7F) ? (($ubyte & 0x7F) - 0x80) : $ubyte;
-    }
-
-    public function unsbtub($ubyte)
-    {
-        //Keep an unsigned byte unsigned:
-        if ($ubyte < 0) {
-            $ubyte += 0x100;
-        }
-
-        return $ubyte; //If this function is called, no wrapping requested.
-    }
-
-    public function nswtuw($uword): int
-    {
-        //Keep an unsigned word unsigned:
-        if ($uword < 0) {
-            $uword += 0x10000;
-        }
-
-        return $uword & 0xFFFF; //Wrap also...
-    }
-
-    public function unswtuw($uword)
-    {
-        //Keep an unsigned word unsigned:
-        if ($uword < 0) {
-            $uword += 0x10000;
-        }
-
-        return $uword; //If this function is called, no wrapping requested.
-    }
-
-    public function toTypedArray($baseArray, $bit32, $unsigned)
-    {
-        try {
-            $typedArrayTemp = ($bit32) ? (($unsigned) ? new Uint32Array(count($baseArray)) : new Int32Array(count($baseArray))) : new Uint8Array(count($baseArray));
-            $counter = count($baseArray);
-            for ($address = 0; $address < $counter; ++$address) {
-                $typedArrayTemp[$address] = $baseArray[$address];
-            }
-
-            return $typedArrayTemp;
-        } catch (Exception) {
-            echo 'Could not convert an array to a typed array' . PHP_EOL;
-
-            return $baseArray;
-        }
-    }
-
-    public function fromTypedArray($baseArray)
-    {
-        try {
-            $arrayTemp = array_fill(0, count($baseArray), 0);
-            $counter = count($baseArray);
-            for ($address = 0; $address < $counter; ++$address) {
-                $arrayTemp[$address] = $baseArray[$address];
-            }
-
-            return $arrayTemp;
-        } catch (Exception) {
-            return $baseArray;
-        }
-    }
-
     /**
-     * @return mixed[]
+     * Builds an array of a given length.
+     *
+     * @return array<int, mixed>
      */
-    public function getTypedArray($length, $defaultValue, $numberType): array
-    {
-        // @PHP - We dont have typed arrays and unsigned int in PHP
-        // This function just creates an array and initialize with a value
-        $arrayHandle = array_fill(0, $length, $defaultValue);
-
-        return $arrayHandle;
-    }
-
-    public function arrayPad($length, $defaultValue): array
+    public function getPreinitializedArray(int $length, mixed $defaultValue): array
     {
         return array_fill(0, $length, $defaultValue);
     }
