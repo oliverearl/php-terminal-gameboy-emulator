@@ -120,8 +120,7 @@ class LegacyCanvas implements DrawContextInterface
                 $content = sprintf('[%sA[%sD', $this->height, $this->width);
             }
 
-//            $amount = $this->config->getInteger('advanced.performance.frame_skip_amount');
-            $amount = 0;
+            $amount = $this->config->getInteger('advanced.performance.frame_skip_amount');
             $content .= sprintf('FPS: %3d - Frame Skip: %3d' . PHP_EOL, $this->fps, $amount) . $frame;
             echo $content;
 
