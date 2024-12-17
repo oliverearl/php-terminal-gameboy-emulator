@@ -7,6 +7,7 @@ namespace App\Emulator;
 use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Cpu\HandlesCbopcodes;
 use App\Emulator\Cpu\HandlesOpcodes;
+use App\Exceptions\Cpu\HaltOverrunException;
 use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
@@ -1097,6 +1098,8 @@ class Core
                     pause();
                 }
             }
+        } catch (HaltOverrunException) {
+            // Intentionally do nothing
         } catch (Exception $exception) {
             if ($exception->getMessage() !== 'HALT_OVERRUN') {
                 echo 'GameBoy runtime error' . PHP_EOL;
