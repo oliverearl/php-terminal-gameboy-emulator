@@ -4,7 +4,7 @@ return [
     /*
      * Enable experimental color support.
      */
-    'enable_color' => env('ENABLE_COLOR', true),
+    'enable_color' => env('ENABLE_COLOR', false),
 
     /*
      * If using a color display, attempt to add color to GB games?
