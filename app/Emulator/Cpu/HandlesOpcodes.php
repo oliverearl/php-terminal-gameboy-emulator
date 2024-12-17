@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Emulator\Core;
+namespace App\Emulator\Cpu;
 
+use App\Exceptions\Cpu\HaltOverrunException;
 use Exception;
 
-/** @mixin \App\Emulator\Core */
+/** @mixin \App\Emulator\Cpu\Cpu */
 trait HandlesOpcodes
 {
     /**
@@ -1516,7 +1517,7 @@ trait HandlesOpcodes
             }
 
             //Throw an error on purpose to exit out of the loop.
-            throw new Exception('HALT_OVERRUN');
+            throw new HaltOverrunException();
         }
     }
 

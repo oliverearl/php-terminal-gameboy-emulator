@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Emulator\Core;
+namespace App\Emulator\Cpu;
 
-/** @mixin \App\Emulator\Core */
+/** @mixin \App\Emulator\Cpu\Cpu */
 trait HandlesCbopcodes
 {
     /**
