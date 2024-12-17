@@ -134,7 +134,7 @@ class CartridgeLoader
                     $mbcType = 'ROM';
                     break;
                 }
-            // no break
+                // no break
             case 0x01:
                 $this->core->cMBC1 = true;
                 $mbcType = 'MBC1';
