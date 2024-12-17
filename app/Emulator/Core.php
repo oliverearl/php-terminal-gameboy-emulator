@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Emulator;
 
+use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Core\HandlesCbopcodes;
 use App\Emulator\Core\HandlesOpcodes;
 use Exception;
@@ -340,6 +341,8 @@ class Core
 
     public ?bool $cTIMER = null;
 
+    private readonly ConfigBladder $config;
+
     public function __construct(public string $ROMImage, public ?DrawContextInterface $drawContext)
     {
         $this->tileCountInvalidator = $this->tileCount * 4;
@@ -348,7 +351,7 @@ class Core
         $this->ROMBanks[0x53] = 80;
         $this->ROMBanks[0x54] = 96;
 
-        $this->frameCount = Settings::$frameskipBaseFactor;
+        $this->frameCount = 10;
         $this->pixelCount = $this->width * $this->height;
         $this->rgbCount = $this->pixelCount * 4;
 
@@ -577,7 +580,7 @@ class Core
 
     public function start(): void
     {
-        Settings::$frameskipAmout = 0; //Reset the frame skip setting.
+        $this->initConfig();
         $this->initMemory(); //Write the startup memory.
         $this->ROMLoad(); //Load the ROM into memory and get cartridge information from it.
         $this->initLCD(); //Initializae the graphics.
@@ -588,6 +591,15 @@ class Core
         // Finish initializing the emulator:
         $this->stopEmulator &= 1;
         $this->lastIteration = (int) (microtime(true) * 1000);
+    }
+
+    /**
+     * Retrieves the shared config registry from Laravel.
+     */
+    private function initConfig(): void
+    {
+        $this->config = resolve(ConfigBladder::class);
+        $this->config->set('advanced.performance.frame_skip_amount', 0);
     }
 
     /**
@@ -738,7 +750,7 @@ class Core
         switch ($this->cartridgeType) {
             case 0x00:
                 //ROM w/o bank switching
-                if (!Settings::$overrideMBC1) {
+                if (! $this->config->getBoolean('emulation.override_mbc_1')) {
                     $MBCType = 'ROM';
                     break;
                 }
@@ -901,7 +913,7 @@ class Core
                 echo 'Only GB mode detected.' . PHP_EOL;
                 break;
             case 0x80: //Both GB + GBC modes
-                $this->cGBC = !Settings::$priorizeGameBoyMode;
+                $this->cGBC = ! $this->config->getBoolean('emulation.prioritize_gb_mode');
                 echo 'GB and GBC mode detected.' . PHP_EOL;
                 break;
             case 0xC0: //Only GBC mode
@@ -947,7 +959,7 @@ class Core
             echo 'Stepping down from GBC mode.' . PHP_EOL;
             $this->tileCount /= 2;
             $this->tileCountInvalidator = $this->tileCount * 4;
-            if (!Settings::$colorize) {
+            if (! $this->config->getBoolean('enable_gb_colorize')) {
                 $this->transparentCutoff = 4;
             }
 
@@ -1007,7 +1019,7 @@ class Core
 
     public function initLCD(): void
     {
-        $this->transparentCutoff = (Settings::$colorize || $this->cGBC) ? 32 : 4;
+        $this->transparentCutoff = ($this->config->getBoolean('enable_gb_colorize') || $this->cGBC) ? 32 : 4;
         if (count($this->weaveLookup) === 0) {
             //Setup the image decoding lookup table:
             $this->weaveLookup = $this->getTypedArray(256, 0, 'uint16');
@@ -1175,10 +1187,10 @@ class Core
         $this->audioTicks += $timedTicks; //Not the same as the LCD timing (Cannot be altered by display on/off changes!!!).
 
         //Are we past the granularity setting?
-        if ($this->audioTicks >= Settings::$audioGranularity) {
+        if ($this->audioTicks >= $this->config->getInteger('advanced.performance.audio_granularity')) {
             //Emulator Timing (Timed against audio for optimization):
             $this->emulatorTicks += $this->audioTicks;
-            if ($this->emulatorTicks >= Settings::$machineCyclesPerLoop) {
+            if ($this->emulatorTicks >= $this->config->getInteger('advanced.performance.machine_cycles_per_loop')) {
                 //Make sure we don't overdo the audio.
                 //LCD off takes at least 2 frames.
                 if (($this->stopEmulator & 1) === 0 && $this->drewBlank === 0) {
@@ -1284,8 +1296,10 @@ class Core
 
     public function clockUpdate(): void
     {
+        $autoFrameSkip = $this->config->getBoolean('advanced.performance.auto_frame_skip');
+
         //We're tying in the same timer for RTC and frame skipping, since we can and this reduces load.
-        if (Settings::$autoFrameskip || $this->cTIMER) {
+        if ($autoFrameSkip || $this->cTIMER) {
             $timeElapsed = ((int) (microtime(true) * 1000)) - $this->lastIteration; //Get the numnber of milliseconds since this last executed.
             if ($this->cTIMER && !$this->RTCHALT) {
                 //Update the MBC3 RTC:
@@ -1309,27 +1323,30 @@ class Core
                 }
             }
 
-            if (Settings::$autoFrameskip) {
+            if ($autoFrameSkip) {
                 //Auto Frame Skip:
-                if ($timeElapsed > Settings::$loopInterval) {
+                $frameSkipAmount = $this->config->getInteger('advanced.performance.frame_skip_amount');
+                if ($timeElapsed > $this->config->getBoolean('advanced.performance.loop_interval')) {
                     //Did not finish in time...
-                    if (Settings::$frameskipAmout < Settings::$frameskipMax) {
-                        ++Settings::$frameskipAmout;
+                    if ($frameSkipAmount < $this->config->getInteger('advanced.performance.frame_skip_maximum')) {
+                        $this->config->set('advanced.performance.loop_interval', ++$frameSkipAmount);
                     }
-                } elseif (Settings::$frameskipAmout > 0) {
+                } elseif ($frameSkipAmount > 0) {
                     //We finished on time, decrease frame skipping (throttle to somewhere just below full speed)...
-                    --Settings::$frameskipAmout;
+                    $this->config->set('advanced.performance.loop_interval', --$frameSkipAmount);
                 }
             }
 
             $this->lastIteration = (int) (microtime(true) * 1000);
+            $this->config->tick();
         }
     }
 
     public function drawToCanvas(): void
     {
+        $frameSkipAmount = $this->config->getInteger('advanced.performance.frame_skip_amount');
         //Draw the frame buffer to the canvas:
-        if (Settings::$frameskipAmout === 0 || $this->frameCount > 0) {
+        if ($frameSkipAmount === 0 || $this->frameCount > 0) {
             //Copy and convert the framebuffer data to the CanvasPixelArray format.
             $bufferIndex = $this->pixelCount;
             $canvasIndex = $this->rgbCount;
@@ -1359,13 +1376,13 @@ class Core
             //Draw out the CanvasPixelArray data:
             $this->drawContext->draw($this->canvasBuffer);
 
-            if (Settings::$frameskipAmout > 0) {
+            if ($frameSkipAmount > 0) {
                 //Decrement the frameskip counter:
-                $this->frameCount -= Settings::$frameskipAmout;
+                $this->frameCount -= $frameSkipAmount;
             }
         } else {
             //Reset the frameskip counter:
-            $this->frameCount += Settings::$frameskipBaseFactor;
+            $this->frameCount += $frameSkipAmount;
         }
     }
 
@@ -1492,7 +1509,7 @@ class Core
     public function checkPaletteType(): void
     {
         //Reference the correct palette ahead of time...
-        $this->palette = ($this->cGBC) ? $this->gbcPalette : ((Settings::$colorize) ? $this->gbColorizedPalette : $this->gbPalette);
+        $this->palette = ($this->cGBC) ? $this->gbcPalette : (($this->config->getBoolean('enable_gb_colorize')) ? $this->gbColorizedPalette : $this->gbPalette);
     }
 
     public function updateImage($tileIndex, $attribs)
@@ -1669,10 +1686,12 @@ class Core
             return ($this->lcdController->modeSTAT > 2) ? 0xFF : $this->memory[$address];
         } elseif ($address >= 0xA000 && $address < 0xC000) {
             if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
+                $overrideMbc = $this->config->getBoolean('advanced.performance.emulation.override_mbc');
+
                 if (!$this->cMBC3) {
                     //memoryReadMBC
                     //Switchable RAM
-                    if ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
+                    if ($this->MBCRAMBanksEnabled || $overrideMbc) {
                         return $this->MBCRam[$address + $this->currMBCRAMBankPosition];
                     }
 
@@ -1682,7 +1701,7 @@ class Core
                     //MBC3 RTC + RAM:
                     //memoryReadMBC3
                     //Switchable RAM
-                    if ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
+                    if ($this->MBCRAMBanksEnabled || $overrideMbc) {
                         switch ($this->currMBCRAMBank) {
                             case 0x00:
                             case 0x01:
@@ -1981,12 +2000,14 @@ class Core
             }
         } elseif ($address < 0xC000) {
             if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
+                $overrideMbc = $this->config->getBoolean('advanced.performance.emulation.override_mbc');
+
                 if (!$this->cMBC3) {
                     //memoryWriteMBCRAM
-                    if ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
+                    if ($this->MBCRAMBanksEnabled || $overrideMbc) {
                         $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;
                     }
-                } elseif ($this->MBCRAMBanksEnabled || Settings::$overrideMBC) {
+                } elseif ($this->MBCRAMBanksEnabled || $overrideMbc) {
                     //MBC3 RTC + RAM:
                     //memoryWriteMBC3RAM
                     switch ($this->currMBCRAMBank) {

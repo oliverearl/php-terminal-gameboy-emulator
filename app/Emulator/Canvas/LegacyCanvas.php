@@ -2,7 +2,7 @@
 
 namespace App\Emulator\Canvas;
 
-use App\Emulator\Settings;
+use App\Emulator\Config\ConfigBladder;
 
 class LegacyCanvas implements DrawContextInterface
 {
@@ -44,8 +44,12 @@ class LegacyCanvas implements DrawContextInterface
 
     protected $width = 0;
 
+    private readonly ConfigBladder $config;
+
     public function __construct()
     {
+        $this->config = resolve(ConfigBladder::class);
+
         $this->brailleCharOffset = html_entity_decode('&#' . (0x2800) . ';', ENT_NOQUOTES, 'UTF-8');
         $this->pixelMap = [
             [html_entity_decode('&#' . (0x2801) . ';', ENT_NOQUOTES, 'UTF-8'), html_entity_decode('&#' . (0x2808) . ';', ENT_NOQUOTES, 'UTF-8')],
@@ -116,7 +120,9 @@ class LegacyCanvas implements DrawContextInterface
                 $content = sprintf('[%sA[%sD', $this->height, $this->width);
             }
 
-            $content .= sprintf('FPS: %3d - Frame Skip: %3d' . PHP_EOL, $this->fps, Settings::$frameskipAmout) . $frame;
+//            $amount = $this->config->getInteger('advanced.performance.frame_skip_amount');
+            $amount = 0;
+            $content .= sprintf('FPS: %3d - Frame Skip: %3d' . PHP_EOL, $this->fps, $amount) . $frame;
             echo $content;
 
             $this->height = 37;

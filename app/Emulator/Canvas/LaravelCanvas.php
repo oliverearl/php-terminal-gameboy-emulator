@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Emulator\Canvas;
 
-use App\Emulator\Settings;
-use Illuminate\Support\Facades\Config;
+use App\Emulator\Config\ConfigBladder;
 use SplFixedArray;
 
 class LaravelCanvas implements DrawContextInterface
@@ -91,11 +90,17 @@ class LaravelCanvas implements DrawContextInterface
     private ?array $lastFrameCanvasBuffer = null;
 
     /**
+     * Reference to the application config.
+     */
+    private readonly ConfigBladder $config;
+
+    /**
      * LaravelCanvas constructor.
      */
     public function __construct()
     {
-        $this->colorEnabled = Config::boolean('emulator.enable_color');
+        $this->config = resolve(ConfigBladder::class);
+        $this->colorEnabled = $this->config->getBoolean('emulator.enable_color');
     }
 
     /**
@@ -126,8 +131,8 @@ class LaravelCanvas implements DrawContextInterface
         // Clear screen and print FPS + frame.
         // \e[H moves cursor to top-left, \e[2J clears the screen.
         $content = "\e[H\e[2J";
-        $frameSkip = Settings::$frameskipAmout;
-        $content .= sprintf('FPS: %3d - Frame Skip: %3d' . PHP_EOL, $this->fps, $frameSkip) . $frame;
+        $amount = $this->config->getInteger('advanced.performance.frame_skip_amount');
+        $content .= sprintf('FPS: %3d - Frame Skip: %3d' . PHP_EOL, $this->fps, $amount) . $frame;
 
         echo $content;
     }
