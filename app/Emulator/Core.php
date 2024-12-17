@@ -8,6 +8,7 @@ use App\Emulator\Cartridge\CartridgeLoader;
 use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Cpu\HandlesCbopcodes;
 use App\Emulator\Cpu\HandlesOpcodes;
+use App\Emulator\Cpu\ProvidesDataTables;
 use App\Emulator\Cpu\ProvidesTickTables;
 use App\Exceptions\Cpu\HaltOverrunException;
 use Exception;
@@ -20,6 +21,7 @@ class Core
 {
     use HandlesCbopcodes;
     use HandlesOpcodes;
+    use ProvidesDataTables;
     use ProvidesTickTables;
 
     public bool $cBATT;
@@ -312,18 +314,6 @@ class Core
     //Pointer to the current palette we're using (Used for palette switches during boot or so it can be done anytime)
     public ?array $palette = null;
 
-    //
-    //Data
-    //
-
-    public array $DAATable;
-
-    public array $ffxxDump;
-
-    public array $TICKTable;
-
-    public array $SecondaryTICKTable;
-
     // Added
 
     public ?bool $cTIMER = null;
@@ -340,13 +330,6 @@ class Core
         $this->frameCount = 10;
         $this->pixelCount = $this->width * $this->height;
         $this->rgbCount = $this->pixelCount * 4;
-
-        // Copy Data
-        $this->DAATable = Data::$DAATable;
-        $this->ffxxDump = Data::$ffxxDump;
-
-        $this->TICKTable = self::PRIMARY_TABLE;
-        $this->SecondaryTICKTable = self::SECONDARY_TABLE;
 
         //Initialize the LCD Controller
         $this->lcdController = new LcdController($this);
@@ -660,7 +643,7 @@ class Core
 
         while ($address >= 0) {
             if ($address >= 0x30 && $address < 0x40) {
-                $this->memoryWrite(0xFF00 + $address, $this->ffxxDump[$address]);
+                $this->memoryWrite(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
             } else {
                 switch ($address) {
                     case 0x00:
@@ -670,10 +653,10 @@ class Core
                     case 0x0F:
                     case 0x40:
                     case 0xFF:
-                        $this->memoryWrite(0xFF00 + $address, $this->ffxxDump[$address]);
+                        $this->memoryWrite(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
                         break;
                     default:
-                        $this->memory[0xFF00 + $address] = $this->ffxxDump[$address];
+                        $this->memory[0xFF00 + $address] = self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address];
                 }
             }
 
@@ -883,7 +866,7 @@ class Core
 
             $this->skipPCIncrement = false;
             //Get how many CPU cycles the current op code counts for:
-            $this->CPUTicks = $this->TICKTable[$op];
+            $this->CPUTicks = self::PRIMARY_TABLE[$op];
             //Execute the OP code instruction:
             $this->runOpcode($op);
             //Interrupt Arming:

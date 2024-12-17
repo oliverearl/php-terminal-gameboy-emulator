@@ -626,7 +626,7 @@ trait HandlesOpcodes
             $temp_var |= 0x400;
         }
 
-        $this->registerA = ($temp_var = $this->DAATable[$temp_var]) >> 8;
+        $this->registerA = ($temp_var = self::DAA_TABLE[$temp_var]) >> 8;
         $this->FZero = (($temp_var & 0x80) === 0x80);
         $this->FSubtract = (($temp_var & 0x40) === 0x40);
         $this->FHalfCarry = (($temp_var & 0x20) === 0x20);
@@ -2721,7 +2721,7 @@ trait HandlesOpcodes
         //Increment the program counter to the next instruction:
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         //Get how many CPU cycles the current 0xCBXX op code counts for:
-        $this->CPUTicks = $this->SecondaryTICKTable[$opcode];
+        $this->CPUTicks = self::SECONDARY_TABLE[$opcode];
         //Execute secondary OP codes for the 0xCB OP code call.
         $this->runCbopcode($opcode);
     }
