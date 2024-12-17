@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Emulator;
 
+use App\Emulator\Cartridge\CartridgeLoader;
 use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Cpu\HandlesCbopcodes;
 use App\Emulator\Cpu\HandlesOpcodes;
@@ -13,7 +14,6 @@ use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
 use App\Exceptions\Core\CoreNotInitializedException;
-use RuntimeException;
 use SplFixedArray;
 
 class Core
@@ -23,8 +23,6 @@ class Core
     use ProvidesTickTables;
 
     public bool $cBATT;
-
-    public int $numROMBanks;
 
     //The full ROM file dumped to an array.
     public SplFixedArray $ROM;
@@ -141,15 +139,6 @@ class Core
     //The parsed current ROM bank selection.
     public int $currentROMBank = 0;
 
-    //Cartridge Type
-    public int $cartridgeType = 0;
-
-    //Name of the game
-    public string $name = '';
-
-    //Game code (Suffix for older games)
-    public string $gameCode = '';
-
     //A boolean to see if this was loaded in as a save state.
     public bool $fromSaveState = false;
 
@@ -260,11 +249,6 @@ class Core
 
     public bool $cHuC1 = false;
 
-    // 1 Bank = 16 KBytes = 256 Kbits
-    public array $ROMBanks = [
-        2, 4, 8, 16, 32, 64, 128, 256, 512,
-    ];
-
     //How many RAM banks were actually allocated?
     public int $numRAMBanks = 0;
 
@@ -344,15 +328,14 @@ class Core
 
     public ?bool $cTIMER = null;
 
-    private readonly ConfigBladder $config;
+    public readonly ConfigBladder $config;
 
-    public function __construct(public string $ROMImage, public ?DrawContextInterface $drawContext)
+    public readonly CartridgeLoader $cartridge;
+
+    public function __construct(string $romPath, public ?DrawContextInterface $drawContext)
     {
+        $this->cartridge = new CartridgeLoader($this, $romPath);
         $this->tileCountInvalidator = $this->tileCount * 4;
-
-        $this->ROMBanks[0x52] = 72;
-        $this->ROMBanks[0x53] = 80;
-        $this->ROMBanks[0x54] = 96;
 
         $this->frameCount = 10;
         $this->pixelCount = $this->width * $this->height;
@@ -585,7 +568,15 @@ class Core
     {
         $this->initConfig();
         $this->initMemory(); //Write the startup memory.
-        $this->ROMLoad(); //Load the ROM into memory and get cartridge information from it.
+        $this->cartridge->load(); //Load the ROM into memory and get cartridge information from it.
+
+        $this->inBootstrap = false;
+
+        $this->setupRAM();
+        $this->initSkipBootstrap();
+        $this->checkPaletteType();
+
+
         $this->initLCD(); //Initializae the graphics.
         $this->run(); //Start the emulation.
 
@@ -713,245 +704,13 @@ class Core
         $this->memory[0xFF00] = 0xF; //Set the joypad state.
     }
 
-    public function ROMLoad(): void
-    {
-        //Load the first two ROM banks (0x0000 - 0x7FFF) into regular gameboy memory:
-        $this->ROM = new SplFixedArray(strlen($this->ROMImage));
-
-        for ($romIndex = 0; $romIndex < strlen($this->ROMImage); ++$romIndex) {
-            $this->ROM[$romIndex] = (ord($this->ROMImage[$romIndex]) & 0xFF);
-            if ($romIndex < 0x8000) {
-                $this->memory[$romIndex] = $this->ROM[$romIndex]; //Load in the game ROM.
-            }
-        }
-
-        // ROM name
-        for ($address = 0x134; $address < 0x13F; ++$address) {
-            if (ord($this->ROMImage[$address]) > 0) {
-                $this->name .= $this->ROMImage[$address];
-            }
-        }
-
-        // ROM game code (for newer games)
-        for ($address = 0x13F; $address < 0x143; ++$address) {
-            if (ord($this->ROMImage[$address]) > 0) {
-                $this->gameCode .= $this->ROMImage[$address];
-            }
-        }
-
-        echo 'Game Title: ' . $this->name . '[' . $this->gameCode . '][' . $this->ROMImage[0x143] . ']' . PHP_EOL;
-
-        echo 'Game Code: ' . $this->gameCode . PHP_EOL;
-
-        // Cartridge type
-        $this->cartridgeType = $this->ROM[0x147];
-        echo 'Cartridge type #' . $this->cartridgeType . PHP_EOL;
-
-        //Map out ROM cartridge sub-types.
-        $MBCType = '';
-
-        switch ($this->cartridgeType) {
-            case 0x00:
-                //ROM w/o bank switching
-                if (! $this->config->getBoolean('emulation.override_mbc_1')) {
-                    $MBCType = 'ROM';
-                    break;
-                }
-                // no break
-            case 0x01:
-                $this->cMBC1 = true;
-                $MBCType = 'MBC1';
-                break;
-            case 0x02:
-                $this->cMBC1 = true;
-                $this->cSRAM = true;
-                $MBCType = 'MBC1 + SRAM';
-                break;
-            case 0x03:
-                $this->cMBC1 = true;
-                $this->cSRAM = true;
-                $this->cBATT = true;
-                $MBCType = 'MBC1 + SRAM + BATT';
-                break;
-            case 0x05:
-                $this->cMBC2 = true;
-                $MBCType = 'MBC2';
-                break;
-            case 0x06:
-                $this->cMBC2 = true;
-                $this->cBATT = true;
-                $MBCType = 'MBC2 + BATT';
-                break;
-            case 0x08:
-                $this->cSRAM = true;
-                $MBCType = 'ROM + SRAM';
-                break;
-            case 0x09:
-                $this->cSRAM = true;
-                $this->cBATT = true;
-                $MBCType = 'ROM + SRAM + BATT';
-                break;
-            case 0x0B:
-                $this->cMMMO1 = true;
-                $MBCType = 'MMMO1';
-                break;
-            case 0x0C:
-                $this->cMMMO1 = true;
-                $this->cSRAM = true;
-                $MBCType = 'MMMO1 + SRAM';
-                break;
-            case 0x0D:
-                $this->cMMMO1 = true;
-                $this->cSRAM = true;
-                $this->cBATT = true;
-                $MBCType = 'MMMO1 + SRAM + BATT';
-                break;
-            case 0x0F:
-                $this->cMBC3 = true;
-                $this->cTIMER = true;
-                $this->cBATT = true;
-                $MBCType = 'MBC3 + TIMER + BATT';
-                break;
-            case 0x10:
-                $this->cMBC3 = true;
-                $this->cTIMER = true;
-                $this->cBATT = true;
-                $this->cSRAM = true;
-                $MBCType = 'MBC3 + TIMER + BATT + SRAM';
-                break;
-            case 0x11:
-                $this->cMBC3 = true;
-                $MBCType = 'MBC3';
-                break;
-            case 0x12:
-                $this->cMBC3 = true;
-                $this->cSRAM = true;
-                $MBCType = 'MBC3 + SRAM';
-                break;
-            case 0x13:
-                $this->cMBC3 = true;
-                $this->cSRAM = true;
-                $this->cBATT = true;
-                $MBCType = 'MBC3 + SRAM + BATT';
-                break;
-            case 0x19:
-                $this->cMBC5 = true;
-                $MBCType = 'MBC5';
-                break;
-            case 0x1A:
-                $this->cMBC5 = true;
-                $this->cSRAM = true;
-                $MBCType = 'MBC5 + SRAM';
-                break;
-            case 0x1B:
-                $this->cMBC5 = true;
-                $this->cSRAM = true;
-                $this->cBATT = true;
-                $MBCType = 'MBC5 + SRAM + BATT';
-                break;
-            case 0x1C:
-                $this->cRUMBLE = true;
-                $MBCType = 'RUMBLE';
-                break;
-            case 0x1D:
-                $this->cRUMBLE = true;
-                $this->cSRAM = true;
-                $MBCType = 'RUMBLE + SRAM';
-                break;
-            case 0x1E:
-                $this->cRUMBLE = true;
-                $this->cSRAM = true;
-                $this->cBATT = true;
-                $MBCType = 'RUMBLE + SRAM + BATT';
-                break;
-            case 0x1F:
-                $this->cCamera = true;
-                $MBCType = 'GameBoy Camera';
-                break;
-            case 0xFD:
-                $this->cTAMA5 = true;
-                $MBCType = 'TAMA5';
-                break;
-            case 0xFE:
-                $this->cHuC3 = true;
-                $MBCType = 'HuC3';
-                break;
-            case 0xFF:
-                $this->cHuC1 = true;
-                $MBCType = 'HuC1';
-                break;
-            default:
-                $MBCType = 'Unknown';
-                throw new RuntimeException('Cartridge type is unknown.');
-        }
-
-        echo 'Cartridge Type: ' . $MBCType . PHP_EOL;
-
-        // ROM and RAM banks
-        $this->numROMBanks = $this->ROMBanks[$this->ROM[0x148]];
-
-        echo $this->numROMBanks . ' ROM banks.' . PHP_EOL;
-
-        switch ($this->RAMBanks[$this->ROM[0x149]]) {
-            case 0:
-                echo 'No RAM banking requested for allocation or MBC is of type 2.' . PHP_EOL;
-                break;
-            case 2:
-                echo '1 RAM bank requested for allocation.' . PHP_EOL;
-                break;
-            case 3:
-                echo '4 RAM banks requested for allocation.' . PHP_EOL;
-                break;
-            case 4:
-                echo '16 RAM banks requested for allocation.' . PHP_EOL;
-                break;
-            default:
-                echo 'RAM bank amount requested is unknown, will use maximum allowed by specified MBC type.' . PHP_EOL;
-        }
-
-        //Check the GB/GBC mode byte:
-        switch ($this->ROM[0x143]) {
-            case 0x00: //Only GB mode
-                $this->cGBC = false;
-                echo 'Only GB mode detected.' . PHP_EOL;
-                break;
-            case 0x80: //Both GB + GBC modes
-                $this->cGBC = ! $this->config->getBoolean('emulation.prioritize_gb_mode');
-                echo 'GB and GBC mode detected.' . PHP_EOL;
-                break;
-            case 0xC0: //Only GBC mode
-                $this->cGBC = true;
-                echo 'Only GBC mode detected.' . PHP_EOL;
-                break;
-            default:
-                $this->cGBC = false;
-                echo 'Unknown GameBoy game type code #' . $this->ROM[0x143] . ", defaulting to GB mode (Old games don't have a type code)." . PHP_EOL;
-        }
-
-        $this->inBootstrap = false;
-        $this->setupRAM(); //CPU/(V)RAM initialization.
-        $this->initSkipBootstrap();
-
-        $this->checkPaletteType();
-        //License Code Lookup:
-        $cOldLicense = $this->ROM[0x14B];
-        $cNewLicense = ($this->ROM[0x144] & 0xFF00) | ($this->ROM[0x145] & 0xFF);
-        if ($cOldLicense !== 0x33) {
-            //Old Style License Header
-            echo 'Old style license code: ' . $cOldLicense . PHP_EOL;
-        } else {
-            //New Style License Header
-            echo 'New style license code: ' . $cNewLicense . PHP_EOL;
-        }
-    }
-
     public function disableBootROM(): void
     {
         //Remove any traces of the boot ROM from ROM memory.
         for ($address = 0; $address < 0x900; ++$address) {
             //Skip the already loaded in ROM header.
             if ($address < 0x100 || $address >= 0x200) {
-                $this->memory[$address] = $this->ROM[$address]; //Replace the GameBoy Color boot ROM with the game ROM.
+                $this->memory[$address] = $this->cartridge->getRom()[$address]; //Replace the GameBoy Color boot ROM with the game ROM.
             }
         }
 
@@ -1680,7 +1439,7 @@ class Core
         if ($address < 0x4000) {
             return $this->memory[$address];
         } elseif ($address < 0x8000) {
-            return $this->ROM[$this->currentROMBank + $address];
+            return $this->cartridge->getRom()[$this->currentROMBank + $address];
         } elseif ($address >= 0x8000 && $address < 0xA000) {
             if ($this->cGBC) {
                 //CPU Side Reading The VRAM (Optimized for GameBoy Color)
@@ -1833,33 +1592,42 @@ class Core
 
     public function setCurrentMBC1ROMBank(): void
     {
-        //Read the cartridge ROM data from RAM memory:
+        $romSize = $this->cartridge->getRom()->count();
+
+        // Read the cartridge ROM data from RAM memory:
         $this->currentROMBank = match ($this->ROMBank1offs) {
             //Bank calls for 0x00, 0x20, 0x40, and 0x60 are really for 0x01, 0x21, 0x41, and 0x61.
             0x00, 0x20, 0x40, 0x60 => $this->ROMBank1offs * 0x4000,
             default => ($this->ROMBank1offs - 1) * 0x4000,
         };
-        while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
-            $this->currentROMBank -= $this->ROM->count();
+
+        while ($this->currentROMBank + 0x4000 >= $romSize) {
+            $this->currentROMBank -= $romSize;
         }
     }
 
     public function setCurrentMBC2AND3ROMBank(): void
     {
-        //Read the cartridge ROM data from RAM memory:
-        //Only map bank 0 to bank 1 here (MBC2 is like MBC1, but can only do 16 banks, so only the bank 0 quirk appears for MBC2):
+        $romSize = $this->cartridge->getRom()->count();
+
+        // Read the cartridge ROM data from RAM memory:
+        // Only map bank 0 to bank 1 here (MBC2 is like MBC1, but can only do 16 banks, so only the bank 0 quirk appears for MBC2):
         $this->currentROMBank = max($this->ROMBank1offs - 1, 0) * 0x4000;
-        while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
-            $this->currentROMBank -= $this->ROM->count();
+
+        while ($this->currentROMBank + 0x4000 >= $romSize) {
+            $this->currentROMBank -= $romSize;
         }
     }
 
     public function setCurrentMBC5ROMBank(): void
     {
-        //Read the cartridge ROM data from RAM memory:
+        $romSize = $this->cartridge->getRom()->count();
+
+        // Read the cartridge ROM data from RAM memory:
         $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
-        while ($this->currentROMBank + 0x4000 >= $this->ROM->count()) {
-            $this->currentROMBank -= $this->ROM->count();
+
+        while ($this->currentROMBank + 0x4000 >= $romSize) {
+            $this->currentROMBank -= $romSize;
         }
     }
 

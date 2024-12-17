@@ -9,7 +9,6 @@ use App\Emulator\Canvas\LaravelCanvas;
 use App\Emulator\Canvas\LegacyCanvas;
 use App\Emulator\Core;
 use App\Emulator\Input\Keyboard;
-use App\Exceptions\Rom\RomMissingOrBadException;
 use Illuminate\Support\Facades\Config;
 use LaravelZero\Framework\Commands\Command;
 
@@ -38,14 +37,8 @@ class RunEmulator extends Command
      */
     public function handle(): never
     {
-        $romPath = $this->argument('rom');
-
-        if (!  file_exists($romPath)) {
-            throw new RomMissingOrBadException();
-        }
-
         $core = new Core(
-            file_get_contents($romPath),
+            $this->argument('rom'),
             $this->loadCanvas(),
         );
 
