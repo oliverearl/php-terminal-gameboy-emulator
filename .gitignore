@@ -29,3 +29,6 @@ roms/
 .phpunit.result.cache
 .env
 /storage/logs
+
+# platform
+.DS_Store
