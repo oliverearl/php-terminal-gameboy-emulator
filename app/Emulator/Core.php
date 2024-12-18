@@ -11,6 +11,7 @@ use App\Emulator\Cpu\HandlesOpcodes;
 use App\Emulator\Cpu\ProvidesDataTables;
 use App\Emulator\Cpu\ProvidesTickTables;
 use App\Exceptions\Cpu\HaltOverrunException;
+use App\Exceptions\Memory\InvalidMemoryAccessException;
 use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
@@ -643,7 +644,7 @@ class Core
 
         while ($address >= 0) {
             if ($address >= 0x30 && $address < 0x40) {
-                $this->memoryWrite(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
+                $this->writeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
             } else {
                 switch ($address) {
                     case 0x00:
@@ -653,7 +654,7 @@ class Core
                     case 0x0F:
                     case 0x40:
                     case 0xFF:
-                        $this->memoryWrite(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
+                        $this->writeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
                         break;
                     default:
                         $this->memory[0xFF00 + $address] = self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address];
@@ -901,9 +902,9 @@ class Core
                 $this->memory[0xFF0F] -= $testbit; //Reset the interrupt request.
                 //Set the stack pointer to the current program counter value:
                 $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
-                $this->memoryWrite($this->stackPointer, $this->programCounter >> 8);
+                $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
                 $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
-                $this->memoryWrite($this->stackPointer, $this->programCounter & 0xFF);
+                $this->writeMemory($this->stackPointer, $this->programCounter & 0xFF);
                 //Set the program counter to the interrupt's address:
                 $this->programCounter = 0x0040 + ($bitShift * 0x08);
                 //Interrupts have a certain clock cycle length:
@@ -1417,7 +1418,7 @@ class Core
     }
 
     //Memory Reading:
-    public function memoryRead($address)
+    public function memoryRead(int $address): ?int
     {
         if ($address < 0x4000) {
             return $this->memory[$address];
@@ -1615,7 +1616,7 @@ class Core
     }
 
     //Memory Writing:
-    public function memoryWrite(int $address, ?int $data): void
+    public function writeMemory(int $address, ?int $data): void
     {
         if ($address < 0x8000) {
             if ($this->cMBC1) {
@@ -2009,7 +2010,7 @@ class Core
                         $dmaDst = 0x8000 + ($this->memory[0xFF53] << 8) + $this->memory[0xFF54];
                         $endAmount = ((($data & 0x7F) * 0x10) + 0x10);
                         for ($loopAmount = 0; $loopAmount < $endAmount; ++$loopAmount) {
-                            $this->memoryWrite($dmaDst++, $this->memoryRead($dmaSrc++));
+                            $this->writeMemory($dmaDst++, $this->memoryRead($dmaSrc++));
                         }
 
                         $this->memory[0xFF51] = (($dmaSrc & 0xFF00) >> 8);
