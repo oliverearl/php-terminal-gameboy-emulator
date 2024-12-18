@@ -10,6 +10,7 @@ use App\Emulator\Cpu\HandlesCbopcodes;
 use App\Emulator\Cpu\HandlesOpcodes;
 use App\Emulator\Cpu\ProvidesDataTables;
 use App\Emulator\Cpu\ProvidesTickTables;
+use App\Emulator\Debugger\Debugger;
 use App\Exceptions\Cpu\HaltOverrunException;
 use App\Exceptions\Memory\InvalidMemoryAccessException;
 use Exception;
@@ -144,9 +145,6 @@ class Core
 
     //A boolean to see if this was loaded in as a save state.
     public bool $fromSaveState = false;
-
-    //lcdControllerler object
-    public ?LcdController $lcdController = null;
 
     public bool $gfxWindowY = false;
 
@@ -320,61 +318,48 @@ class Core
     public ?bool $cTIMER = null;
 
     public readonly ConfigBladder $config;
-
     public readonly CartridgeLoader $cartridge;
+    public readonly LcdController $lcd;
 
-    public function __construct(string $romPath, public ?DrawContextInterface $drawContext)
+    public function __construct(string $romPath, private readonly ?DrawContextInterface $drawContext)
     {
-        $this->cartridge = new CartridgeLoader($this, $romPath);
+        // Some properties require initialization.
         $this->tileCountInvalidator = $this->tileCount * 4;
-
         $this->frameCount = 10;
         $this->pixelCount = $this->width * $this->height;
         $this->rgbCount = $this->pixelCount * 4;
 
-        //Initialize the LCD Controller
-        $this->lcdController = new LcdController($this);
+        $this->config = resolve(ConfigBladder::class);
+        $this->cartridge = resolve(CartridgeLoader::class, ['core' => $this, 'romPath' => $romPath]);
+        $this->lcd = resolve(LcdController::class, ['core' => $this]);
+
+        $this->config->set('advanced.performance.frame_skip_amount', 0);
     }
 
     public function start(): void
     {
-        $this->initConfig();
-        $this->initMemory(); //Write the startup memory.
-        $this->cartridge->load(); //Load the ROM into memory and get cartridge information from it.
-
-        $this->inBootstrap = false;
-
-        $this->setupRAM();
+        $this->initMemory();
+        $this->initCartridge();
+        $this->initRam();
         $this->initSkipBootstrap();
         $this->checkPaletteType();
-
-
-        $this->initLCD(); //Initializae the graphics.
-        $this->run(); //Start the emulation.
-
-        $this->performSanityChecks();
-
-        // Finish initializing the emulator:
-        $this->stopEmulator &= 1;
-        $this->lastIteration = (int) (microtime(true) * 1000);
+        $this->initLcd();
+        $this->run();
+        $this->finalizeBootstrap();
     }
 
-    /**
-     * Retrieves the shared config registry from Laravel.
-     */
-    private function initConfig(): void
+    private function initCartridge(): void
     {
-        $this->config = resolve(ConfigBladder::class);
-        $this->config->set('advanced.performance.frame_skip_amount', 0);
+        $this->cartridge->load();
     }
 
     /**
-     * Performs a number of checks that the emulator is working correctly.
+     * Finalizes bootstrap and conducts sanity checks.
      *
-     * @throws AlreadyRunningException
-     * @throws CoreNotInitializedException
+     * @throws \App\Exceptions\Core\AlreadyRunningException
+     * @throws \App\Exceptions\Core\CoreNotInitializedException
      */
-    private function performSanityChecks(): void
+    private function finalizeBootstrap(): void
     {
         $state = $this->stopEmulator & 2;
 
@@ -385,6 +370,10 @@ class Core
         if ($state !== 2) {
             throw new CoreNotInitializedException();
         }
+
+        $this->stopEmulator &= 1;
+        $this->lastIteration = (int) (microtime(true) * 1000);
+        $this->inBootstrap = false;
     }
 
     public function initMemory(): void
@@ -407,9 +396,6 @@ class Core
 
     public function initSkipBootstrap(): void
     {
-        //Start as an unset device:
-        echo 'Starting without the GBC boot ROM' . PHP_EOL;
-
         $this->programCounter = 0x100;
         $this->stackPointer = 0xFFFE;
         $this->IME = true;
@@ -453,29 +439,6 @@ class Core
         }
     }
 
-    public function initBootstrap(): void
-    {
-        //Start as an unset device:
-        echo 'Starting the GBC boot ROM.' . PHP_EOL;
-
-        $this->programCounter = 0;
-        $this->stackPointer = 0;
-        $this->IME = false;
-        $this->LCDTicks = 0;
-        $this->DIVTicks = 0;
-        $this->registerA = 0;
-        $this->registerB = 0;
-        $this->registerC = 0;
-        $this->registerD = 0;
-        $this->registerE = 0;
-        $this->FZero = false;
-        $this->FSubtract = false;
-        $this->FHalfCarry = false;
-        $this->FCarry = false;
-        $this->registersHL = 0;
-        $this->memory[0xFF00] = 0xF; //Set the joypad state.
-    }
-
     public function disableBootROM(): void
     {
         //Remove any traces of the boot ROM from ROM memory.
@@ -508,7 +471,7 @@ class Core
         }
     }
 
-    public function setupRAM(): void
+    public function initRam(): void
     {
         //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
         if ($this->cMBC2) {
@@ -551,7 +514,7 @@ class Core
         return $this->cMBC1 || $this->cMBC2 || $this->cMBC3 || $this->cMBC5 || $this->cRUMBLE;
     }
 
-    public function initLCD(): void
+    public function initLcd(): void
     {
         $this->transparentCutoff = ($this->config->getBoolean('enable_gb_colorize') || $this->cGBC) ? 32 : 4;
         if (count($this->weaveLookup) === 0) {
@@ -627,16 +590,15 @@ class Core
 
                     //We can only get here if there was an internal error, but the loop was restarted.
                 } else {
-                    echo 'Iterator restarted a faulted core.' . PHP_EOL;
-                    pause();
+                    Debugger::print('Iterator restarted a faulted core.');
+                    // pause here
                 }
             }
         } catch (HaltOverrunException) {
             // Intentionally do nothing
         } catch (Exception $exception) {
-            if ($exception->getMessage() !== 'HALT_OVERRUN') {
-                echo 'GameBoy runtime error' . PHP_EOL;
-            }
+            Debugger::print($exception->getMessage());
+            // pause
         }
     }
 
@@ -717,7 +679,7 @@ class Core
         $timedTicks = $this->CPUTicks / $this->multiplier;
         // LCD Timing
         $this->LCDTicks += $timedTicks; //LCD timing
-        $this->lcdController->scanLine($this->lcdController->actualScanLine); //Scan Line and STAT Mode Control
+        $this->lcd->scanLine($this->lcd->actualScanLine); //Scan Line and STAT Mode Control
 
         //Audio Timing
         $this->audioTicks += $timedTicks; //Not the same as the LCD timing (Cannot be altered by display on/off changes!!!).
@@ -1215,11 +1177,11 @@ class Core
         } elseif ($address >= 0x8000 && $address < 0xA000) {
             if ($this->cGBC) {
                 //CPU Side Reading The VRAM (Optimized for GameBoy Color)
-                return ($this->lcdController->modeSTAT > 2) ? 0xFF : (($this->currVRAMBank === 0) ? $this->memory[$address] : $this->VRAM[$address - 0x8000]);
+                return ($this->lcd->modeSTAT > 2) ? 0xFF : (($this->currVRAMBank === 0) ? $this->memory[$address] : $this->VRAM[$address - 0x8000]);
             }
 
             //CPU Side Reading The VRAM (Optimized for classic GameBoy)
-            return ($this->lcdController->modeSTAT > 2) ? 0xFF : $this->memory[$address];
+            return ($this->lcd->modeSTAT > 2) ? 0xFF : $this->memory[$address];
         } elseif ($address >= 0xA000 && $address < 0xC000) {
             if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
                 $overrideMbc = $this->config->getBoolean('advanced.performance.emulation.override_mbc');
@@ -1280,7 +1242,7 @@ class Core
             }
         } elseif ($address < 0xFEA0) {
             //memoryReadOAM
-            return ($this->lcdController->modeSTAT > 1) ? 0xFF : $this->memory[$address];
+            return ($this->lcd->modeSTAT > 1) ? 0xFF : $this->memory[$address];
         } elseif ($this->cGBC && $address >= 0xFEA0 && $address < 0xFF00) {
             //memoryReadNormal
             return $this->memory[$address];
@@ -1341,9 +1303,9 @@ class Core
                 case 0xFF3F:
                     return (($this->memory[0xFF26] & 0x4) === 0x4) ? 0xFF : $this->memory[$address];
                 case 0xFF41:
-                    return 0x80 | $this->memory[0xFF41] | $this->lcdController->modeSTAT;
+                    return 0x80 | $this->memory[0xFF41] | $this->lcd->modeSTAT;
                 case 0xFF44:
-                    return ($this->lcdController->LCDisOn) ? $this->memory[0xFF44] : 0;
+                    return ($this->lcd->LCDisOn) ? $this->memory[0xFF44] : 0;
                 case 0xFF4F:
                     return $this->currVRAMBank;
                 default:
@@ -1579,7 +1541,7 @@ class Core
         } elseif ($address < 0xA000) {
             // VRAMWrite
             //VRAM cannot be written to during mode 3
-            if ($this->lcdController->modeSTAT < 3) {
+            if ($this->lcd->modeSTAT < 3) {
                 // Bkg Tile data area
                 if ($address < 0x9800) {
                     $tileIndex = (($address - 0x8000) >> 4) + (384 * $this->currVRAMBank);
@@ -1677,7 +1639,7 @@ class Core
         } elseif ($address <= 0xFEA0) {
             //memoryWriteOAMRAM
             //OAM RAM cannot be written to in mode 2 & 3
-            if ($this->lcdController->modeSTAT < 2) {
+            if ($this->lcd->modeSTAT < 2) {
                 $this->memory[$address] = $data;
             }
         } elseif ($address < 0xFF00) {
@@ -1711,13 +1673,13 @@ class Core
         } elseif ($address === 0xFF40) {
             if ($this->cGBC) {
                 $temp_var = ($data & 0x80) === 0x80;
-                if ($temp_var !== $this->lcdController->LCDisOn) {
+                if ($temp_var !== $this->lcd->LCDisOn) {
                     //When the display mode changes...
-                    $this->lcdController->LCDisOn = $temp_var;
+                    $this->lcd->LCDisOn = $temp_var;
                     $this->memory[0xFF41] &= 0xF8;
-                    $this->lcdController->STATTracker = $this->lcdController->modeSTAT = $this->LCDTicks = $this->lcdController->actualScanLine = $this->memory[0xFF44] = 0;
-                    if ($this->lcdController->LCDisOn) {
-                        $this->lcdController->matchLYC(); //Get the compare of the first scan line.
+                    $this->lcd->STATTracker = $this->lcd->modeSTAT = $this->LCDTicks = $this->lcd->actualScanLine = $this->memory[0xFF44] = 0;
+                    if ($this->lcd->LCDisOn) {
+                        $this->lcd->matchLYC(); //Get the compare of the first scan line.
                     } else {
                         $this->displayShowOff();
                     }
@@ -1735,13 +1697,13 @@ class Core
                 $this->memory[0xFF40] = $data;
             } else {
                 $temp_var = ($data & 0x80) === 0x80;
-                if ($temp_var !== $this->lcdController->LCDisOn) {
+                if ($temp_var !== $this->lcd->LCDisOn) {
                     //When the display mode changes...
-                    $this->lcdController->LCDisOn = $temp_var;
+                    $this->lcd->LCDisOn = $temp_var;
                     $this->memory[0xFF41] &= 0xF8;
-                    $this->lcdController->STATTracker = $this->lcdController->modeSTAT = $this->LCDTicks = $this->lcdController->actualScanLine = $this->memory[0xFF44] = 0;
-                    if ($this->lcdController->LCDisOn) {
-                        $this->lcdController->matchLYC(); //Get the compare of the first scan line.
+                    $this->lcd->STATTracker = $this->lcd->modeSTAT = $this->LCDTicks = $this->lcd->actualScanLine = $this->memory[0xFF44] = 0;
+                    if ($this->lcd->LCDisOn) {
+                        $this->lcd->matchLYC(); //Get the compare of the first scan line.
                     } else {
                         $this->displayShowOff();
                     }
@@ -1767,25 +1729,25 @@ class Core
             }
         } elseif ($address === 0xFF41) {
             if ($this->cGBC) {
-                $this->lcdController->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
-                $this->lcdController->mode2TriggerSTAT = (($data & 0x20) === 0x20);
-                $this->lcdController->mode1TriggerSTAT = (($data & 0x10) === 0x10);
-                $this->lcdController->mode0TriggerSTAT = (($data & 0x08) === 0x08);
+                $this->lcd->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
+                $this->lcd->mode2TriggerSTAT = (($data & 0x20) === 0x20);
+                $this->lcd->mode1TriggerSTAT = (($data & 0x10) === 0x10);
+                $this->lcd->mode0TriggerSTAT = (($data & 0x08) === 0x08);
                 $this->memory[0xFF41] = ($data & 0xF8);
             } else {
-                $this->lcdController->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
-                $this->lcdController->mode2TriggerSTAT = (($data & 0x20) === 0x20);
-                $this->lcdController->mode1TriggerSTAT = (($data & 0x10) === 0x10);
-                $this->lcdController->mode0TriggerSTAT = (($data & 0x08) === 0x08);
+                $this->lcd->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
+                $this->lcd->mode2TriggerSTAT = (($data & 0x20) === 0x20);
+                $this->lcd->mode1TriggerSTAT = (($data & 0x10) === 0x10);
+                $this->lcd->mode0TriggerSTAT = (($data & 0x08) === 0x08);
                 $this->memory[0xFF41] = ($data & 0xF8);
-                if ($this->lcdController->LCDisOn && $this->lcdController->modeSTAT < 2) {
+                if ($this->lcd->LCDisOn && $this->lcd->modeSTAT < 2) {
                     $this->memory[0xFF0F] |= 0x2;
                 }
             }
         } elseif ($address === 0xFF45) {
             $this->memory[0xFF45] = $data;
-            if ($this->lcdController->LCDisOn) {
-                $this->lcdController->matchLYC(); //Get the compare of the first scan line.
+            if ($this->lcd->LCDisOn) {
+                $this->lcd->matchLYC(); //Get the compare of the first scan line.
             }
         } elseif ($address === 0xFF46) {
             $this->memory[0xFF46] = $data;

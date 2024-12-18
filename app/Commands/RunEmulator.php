@@ -37,10 +37,10 @@ class RunEmulator extends Command
      */
     public function handle(): never
     {
-        $core = new Core(
-            $this->argument('rom'),
-            $this->loadCanvas(),
-        );
+        $core = resolve(Core::class, [
+            'romPath' => $this->argument('rom'),
+            'drawContext' => $this->loadCanvas(),
+        ]);
 
         $keyboard = new Keyboard($core);
 

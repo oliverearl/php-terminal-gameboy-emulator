@@ -28,7 +28,7 @@ class LcdController
     //Tracker for STAT triggering.
     public $STATTracker = 0;
 
-    public function __construct(protected $core) {}
+    public function __construct(private readonly Core $core) {}
 
     public function matchLYC(): void
     {

@@ -39,14 +39,14 @@ class CartridgeLoader
     /**
      * CartridgeLoader constructor.
      *
-     * @param null|string $path The raw ROM data in memory.
+     * @param null|string $romPath File path to the ROM file.
      *
      * @throws \App\Exceptions\Cartridge\BadCartridgeTypeException
      * @throws \App\Exceptions\Cartridge\RomMissingOrBadException
      */
-    public function __construct(private readonly Core $core, ?string $path)
+    public function __construct(private readonly Core $core, ?string $romPath)
     {
-        if (empty($path) || ! file_exists($path)) {
+        if (empty($romPath) || ! file_exists($romPath)) {
             throw new RomMissingOrBadException();
         }
 
@@ -55,7 +55,7 @@ class CartridgeLoader
         self::$romBanks[0x53] = 80;
         self::$romBanks[0x54] = 96;
 
-        $this->raw = file_get_contents($path);
+        $this->raw = file_get_contents($romPath);
         $this->rawLength = strlen($this->raw);
         $this->rom = new SplFixedArray(size: $this->rawLength);
     }
