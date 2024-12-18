@@ -11,8 +11,8 @@ use App\Emulator\Cpu\HandlesOpcodes;
 use App\Emulator\Cpu\ProvidesDataTables;
 use App\Emulator\Cpu\ProvidesTickTables;
 use App\Emulator\Debugger\Debugger;
+use App\Emulator\Memory\Memory;
 use App\Exceptions\Cpu\HaltOverrunException;
-use App\Exceptions\Memory\InvalidMemoryAccessException;
 use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
@@ -24,8 +24,6 @@ class Core
     use HandlesOpcodes;
     use ProvidesDataTables;
     use ProvidesTickTables;
-
-    public bool $cBATT;
 
     //Whether we're in the GBC boot ROM.
     public bool $inBootstrap = true;
@@ -87,60 +85,8 @@ class Core
     //GBC Speed Multiplier
     public int $multiplier = 1;
 
-    //
-    //Main RAM, MBC RAM, GBC Main RAM, VRAM, etc.
-    //
-
-    //Main Core Memory
-    public array $memory = [];
-
-    //Switchable RAM (Used by games for more RAM) for the main memory range 0xA000 - 0xC000.
-    public array $MBCRam = [];
-
-    //Extra VRAM bank for GBC.
-    public array $VRAM = [];
-
-    //Current VRAM bank for GBC.
-    public int $currVRAMBank = 0;
-
-    //GBC main RAM Banks
-    public array $GBCMemory = [];
-
-    //MBC1 Type (4/32, 16/8)
-    public bool $MBC1Mode = false;
-
-    //MBC RAM Access Control.
-    public bool $MBCRAMBanksEnabled = false;
-
-    //MBC Currently Indexed RAM Bank
-    public int $currMBCRAMBank = 0;
-
-    //MBC Position Adder;
-    public int $currMBCRAMBankPosition = -0xA000;
-
     //GameBoy Color detection.
     public bool $cGBC = false;
-
-    //Currently Switched GameBoy Color ram bank
-    public int $gbcRamBank = 1;
-
-    //GBC RAM offset from address start.
-    public int $gbcRamBankPosition = -0xD000;
-
-    //GBC RAM (ECHO mirroring) offset from address start.
-    public int $gbcRamBankPositionECHO = -0xF000;
-
-    //Used to map the RAM banks to maximum size the MBC used can do.
-    public array $RAMBanks = [0, 1, 2, 4, 16];
-
-    //Offset of the ROM bank switching.
-    public int $ROMBank1offs = 0;
-
-    //The parsed current ROM bank selection.
-    public int $currentROMBank = 0;
-
-    //A boolean to see if this was loaded in as a save state.
-    public bool $fromSaveState = false;
 
     public bool $gfxWindowY = false;
 
@@ -316,6 +262,7 @@ class Core
     public readonly ConfigBladder $config;
     public readonly CartridgeLoader $cartridge;
     public readonly LcdController $lcd;
+    public readonly Memory $memory;
 
     public function __construct(string $romPath, private readonly ?DrawContextInterface $drawContext)
     {
@@ -326,6 +273,7 @@ class Core
         $this->rgbCount = $this->pixelCount * 4;
 
         $this->config = resolve(ConfigBladder::class);
+        $this->memory = resolve(Memory::class, ['core' => $this]);
         $this->cartridge = resolve(CartridgeLoader::class, ['core' => $this, 'romPath' => $romPath]);
         $this->lcd = resolve(LcdController::class, ['core' => $this]);
 
@@ -334,7 +282,7 @@ class Core
 
     public function start(): void
     {
-        $this->initMemory();
+        $this->initPalettes();
         $this->initCartridge();
         $this->initRam();
         $this->initSkipBootstrap();
@@ -372,10 +320,8 @@ class Core
         $this->inBootstrap = false;
     }
 
-    public function initMemory(): void
+    public function initPalettes(): void
     {
-        //Initialize the RAM:
-        $this->memory = Helpers::getPreinitializedArray(0x10000, 0);
         $this->frameBuffer = Helpers::getPreinitializedArray(23040, 0x00FFFFFF);
         $this->gbPalette = Helpers::getPreinitializedArray(12, 0); //32-bit signed
         $this->gbColorizedPalette = Helpers::getPreinitializedArray(12, 0); //32-bit signed
@@ -414,7 +360,7 @@ class Core
 
         while ($address >= 0) {
             if ($address >= 0x30 && $address < 0x40) {
-                $this->writeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
+                $this->memory->writeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
             } else {
                 switch ($address) {
                     case 0x00:
@@ -424,10 +370,10 @@ class Core
                     case 0x0F:
                     case 0x40:
                     case 0xFF:
-                        $this->writeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
+                        $this->memory->writeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
                         break;
                     default:
-                        $this->memory[0xFF00 + $address] = self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address];
+                        $this->memory->pokeMemory(0xFF00 + $address, self::POST_BOOT_IO_REGISTER_STATE_TABLE[$address]);
                 }
             }
 
@@ -441,7 +387,8 @@ class Core
         for ($address = 0; $address < 0x900; ++$address) {
             //Skip the already loaded in ROM header.
             if ($address < 0x100 || $address >= 0x200) {
-                $this->memory[$address] = $this->cartridge->getRom()[$address]; //Replace the GameBoy Color boot ROM with the game ROM.
+                // Replace the Game Boy Color boot ROM with the game ROM.
+                $this->memory->pokeMemory($address, $this->cartridge->getRom()[$address]);
             }
         }
 
@@ -461,53 +408,20 @@ class Core
             // @TODO
             // $this->tileData.length = $this->tileCount * $this->colorCount;
 
-            unset($this->VRAM);
-            unset($this->GBCMemory);
+            unset($this->memory->VRAM);
+            unset($this->memory->GBCMemory);
             //Possible Extra: shorten some gfx arrays to the length that we need (Remove the unused indices)
         }
     }
 
     public function initRam(): void
     {
-        //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
-        if ($this->cMBC2) {
-            $this->numRAMBanks = 1 / 16;
-        } elseif ($this->cMBC1 || $this->cRUMBLE || $this->cMBC3 || $this->cHuC3) {
-            $this->numRAMBanks = 4;
-        } elseif ($this->cMBC5) {
-            $this->numRAMBanks = 16;
-        } elseif ($this->cSRAM) {
-            $this->numRAMBanks = 1;
-        }
-
-        if ($this->numRAMBanks > 0) {
-            if (!$this->MBCRAMUtilized()) {
-                //For ROM and unknown MBC cartridges using the external RAM:
-                $this->MBCRAMBanksEnabled = true;
-            }
-
-            //Switched RAM Used
-            $this->MBCRam = $this->getPreinitializedArray($this->numRAMBanks * 0x2000, 0);
-        }
-
-        echo 'Actual bytes of MBC RAM allocated: ' . ($this->numRAMBanks * 0x2000) . PHP_EOL;
-        //Setup the RAM for GBC mode.
-        if ($this->cGBC) {
-            $this->VRAM = $this->getPreinitializedArray(0x2000, 0);
-            $this->GBCMemory = $this->getPreinitializedArray(0x7000, 0);
-            $this->tileCount *= 2;
-            $this->tileCountInvalidator = $this->tileCount * 4;
-            $this->colorCount = 64;
-            $this->transparentCutoff = 32;
-        }
-
-        $this->tileData = $this->getPreinitializedArray($this->tileCount * $this->colorCount, null);
-        $this->tileReadState = $this->getPreinitializedArray($this->tileCount, 0);
+        $this->memory->init();
     }
 
     public function MBCRAMUtilized(): bool
     {
-        return $this->cMBC1 || $this->cMBC2 || $this->cMBC3 || $this->cMBC5 || $this->cRUMBLE;
+        return $this->memory->cMBC1 || $this->memory->cMBC2 || $this->memory->cMBC3 || $this->memory->cMBC5 || $this->memory->cRUMBLE;
     }
 
     public function initLcd(): void
@@ -515,7 +429,7 @@ class Core
         $this->transparentCutoff = ($this->config->getBoolean('enable_gb_colorize') || $this->cGBC) ? 32 : 4;
         if (count($this->weaveLookup) === 0) {
             //Setup the image decoding lookup table:
-            $this->weaveLookup = $this->getPreinitializedArray(256, 0);
+            $this->weaveLookup = Helpers::getPreinitializedArray(256, 0);
             for ($i_ = 0x1; $i_ <= 0xFF; ++$i_) {
                 for ($d_ = 0; $d_ < 0x8; ++$d_) {
                     $this->weaveLookup[$i_] += (($i_ >> $d_) & 1) << ($d_ * 2);
@@ -558,7 +472,7 @@ class Core
             $this->JoyPad |= (1 << $key);
         }
 
-        $this->memory[0xFF00] = ($this->memory[0xFF00] & 0x30) + (((($this->memory[0xFF00] & 0x20) === 0) ? ($this->JoyPad >> 4) : 0xF) & ((($this->memory[0xFF00] & 0x10) === 0) ? ($this->JoyPad & 0xF) : 0xF));
+        $this->memory->memory[0xFF00] = ($this->memory->memory[0xFF00] & 0x30) + (((($this->memory->memory[0xFF00] & 0x20) === 0) ? ($this->JoyPad >> 4) : 0xF) & ((($this->memory->memory[0xFF00] & 0x10) === 0) ? ($this->JoyPad & 0xF) : 0xF));
     }
 
     public function run(): void
@@ -605,7 +519,7 @@ class Core
 
         while ($this->stopEmulator === 0) {
             //Fetch the current opcode.
-            $op = $this->readMemory($this->programCounter);
+            $op = $this->memory->readMemory($this->programCounter);
             if (!$this->skipPCIncrement) {
                 //Increment the program counter to the next instruction:
                 $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
@@ -639,18 +553,20 @@ class Core
     {
         $bitShift = 0;
         $testbit = 1;
-        $interrupts = $this->memory[0xFFFF] & $this->memory[0xFF0F];
+        $interrupts = $this->memory->peekMemory(0xFFFF) & $this->memory->peekMemory(0xFF0F);
 
         while ($bitShift < 5) {
             //Check to see if an interrupt is enabled AND requested.
             if (($testbit & $interrupts) === $testbit) {
                 $this->IME = false; //Reset the interrupt enabling.
-                $this->memory[0xFF0F] -= $testbit; //Reset the interrupt request.
+                //Reset the interrupt request.
+//                $this->memory->memory[0xFF0F] -= $testbit;
+                $this->memory->pokeMemory(0xFF0F, $this->memory->peekMemory(0xFF0F) & ~$testbit);
                 //Set the stack pointer to the current program counter value:
                 $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
-                $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
+                $this->memory->writeMemory($this->stackPointer, $this->programCounter >> 8);
                 $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
-                $this->writeMemory($this->stackPointer, $this->programCounter & 0xFF);
+                $this->memory->writeMemory($this->stackPointer, $this->programCounter & 0xFF);
                 //Set the program counter to the interrupt's address:
                 $this->programCounter = 0x0040 + ($bitShift * 0x08);
                 //Interrupts have a certain clock cycle length:
@@ -668,7 +584,7 @@ class Core
         $this->DIVTicks += $this->CPUTicks;
         if ($this->DIVTicks >= 0x40) {
             $this->DIVTicks -= 0x40;
-            $this->memory[0xFF04] = ($this->memory[0xFF04] + 1) & 0xFF; // inc DIV
+            $this->memory->memory[0xFF04] = ($this->memory->memory[0xFF04] + 1) & 0xFF; // inc DIV
         }
 
         //LCD Controller Ticks
@@ -704,11 +620,11 @@ class Core
             $this->timerTicks += $this->CPUTicks;
             while ($this->timerTicks >= $this->TACClocker) {
                 $this->timerTicks -= $this->TACClocker;
-                if ($this->memory[0xFF05] === 0xFF) {
-                    $this->memory[0xFF05] = $this->memory[0xFF06];
-                    $this->memory[0xFF0F] |= 0x4; // set IF bit 2
+                if ($this->memory->memory[0xFF05] === 0xFF) {
+                    $this->memory->memory[0xFF05] = $this->memory->memory[0xFF06];
+                    $this->memory->memory[0xFF0F] |= 0x4; // set IF bit 2
                 } else {
-                    ++$this->memory[0xFF05];
+                    ++$this->memory->memory[0xFF05];
                 }
             }
         }
@@ -732,12 +648,12 @@ class Core
     {
         $this->CPUTicks += 1 + (8 * $this->multiplier);
 
-        $dmaSrc = ($this->memory[0xFF51] << 8) + $this->memory[0xFF52];
-        $dmaDstRelative = ($this->memory[0xFF53] << 8) + $this->memory[0xFF54];
+        $dmaSrc = ($this->memory->memory[0xFF51] << 8) + $this->memory->memory[0xFF52];
+        $dmaDstRelative = ($this->memory->memory[0xFF53] << 8) + $this->memory->memory[0xFF54];
         $dmaDstFinal = $dmaDstRelative + 0x10;
         $tileRelative = count($this->tileData) - $this->tileCount;
 
-        if ($this->currVRAMBank === 1) {
+        if ($this->memory->currVRAMBank === 1) {
             while ($dmaDstRelative < $dmaDstFinal) {
                 // Bkg Tile data area
                 if ($dmaDstRelative < 0x1800) {
@@ -753,7 +669,7 @@ class Core
                     }
                 }
 
-                $this->VRAM[$dmaDstRelative++] = $this->readMemory($dmaSrc++);
+                $this->memory->VRAM[$dmaDstRelative++] = $this->memory->readMemory($dmaSrc++);
             }
         } else {
             while ($dmaDstRelative < $dmaDstFinal) {
@@ -772,19 +688,19 @@ class Core
                     }
                 }
 
-                $this->memory[0x8000 + $dmaDstRelative++] = $this->readMemory($dmaSrc++);
+                $this->memory->memory[0x8000 + $dmaDstRelative++] = $this->memory->readMemory($dmaSrc++);
             }
         }
 
-        $this->memory[0xFF51] = (($dmaSrc & 0xFF00) >> 8);
-        $this->memory[0xFF52] = ($dmaSrc & 0x00F0);
-        $this->memory[0xFF53] = (($dmaDstFinal & 0x1F00) >> 8);
-        $this->memory[0xFF54] = ($dmaDstFinal & 0x00F0);
-        if ($this->memory[0xFF55] === 0) {
+        $this->memory->memory[0xFF51] = (($dmaSrc & 0xFF00) >> 8);
+        $this->memory->memory[0xFF52] = ($dmaSrc & 0x00F0);
+        $this->memory->memory[0xFF53] = (($dmaDstFinal & 0x1F00) >> 8);
+        $this->memory->memory[0xFF54] = ($dmaDstFinal & 0x00F0);
+        if ($this->memory->memory[0xFF55] === 0) {
             $this->hdmaRunning = false;
-            $this->memory[0xFF55] = 0xFF; //Transfer completed ("Hidden last step," since some ROMs don't imply this, but most do).
+            $this->memory->memory[0xFF55] = 0xFF; //Transfer completed ("Hidden last step," since some ROMs don't imply this, but most do).
         } else {
-            --$this->memory[0xFF55];
+            --$this->memory->memory[0xFF55];
         }
     }
 
@@ -932,18 +848,18 @@ class Core
         $tileNum = 0;
         $tileXCoord = 0;
         $tileAttrib = 0;
-        $sourceY = $line + $this->memory[0xFF42];
+        $sourceY = $line + $this->memory->memory[0xFF42];
         $sourceImageLine = $sourceY & 0x7;
-        $tileX = $this->memory[0xFF43] >> 3;
+        $tileX = $this->memory->memory[0xFF43] >> 3;
         $memStart = (($this->gfxBackgroundY) ? 0x1C00 : 0x1800) + (($sourceY & 0xF8) << 2);
-        $screenX = -($this->memory[0xFF43] & 7);
+        $screenX = -($this->memory->memory[0xFF43] & 7);
 
         for (; $screenX < $windowLeft; $tileX++, $screenX += 8) {
             $tileXCoord = ($tileX & 0x1F);
-            $baseaddr = $this->memory[0x8000 + $memStart + $tileXCoord];
+            $baseaddr = $this->memory->memory[0x8000 + $memStart + $tileXCoord];
             $tileNum = ($this->gfxBackgroundX) ? $baseaddr : (($baseaddr > 0x7F) ? (($baseaddr & 0x7F) + 0x80) : ($baseaddr + 0x100));
             if ($this->cGBC) {
-                $mapAttrib = $this->VRAM[$memStart + $tileXCoord];
+                $mapAttrib = $this->memory->VRAM[$memStart + $tileXCoord];
                 if (($mapAttrib & 0x80) !== $priority) {
                     $skippedTile = true;
                     continue;
@@ -963,10 +879,10 @@ class Core
             $tileAddress = $windowStartAddress + ($windowSourceTileY * 0x20);
             $windowSourceTileLine = $this->windowSourceLine & 0x7;
             for ($screenX = $windowLeft; $screenX < 160; $tileAddress++, $screenX += 8) {
-                $baseaddr = $this->memory[0x8000 + $tileAddress];
+                $baseaddr = $this->memory->memory[0x8000 + $tileAddress];
                 $tileNum = ($this->gfxBackgroundX) ? $baseaddr : (($baseaddr > 0x7F) ? (($baseaddr & 0x7F) + 0x80) : ($baseaddr + 0x100));
                 if ($this->cGBC) {
-                    $mapAttrib = $this->VRAM[$tileAddress];
+                    $mapAttrib = $this->memory->VRAM[$tileAddress];
                     if (($mapAttrib & 0x80) !== $priority) {
                         $skippedTile = true;
                         continue;
@@ -1016,7 +932,7 @@ class Core
         $pixix = 0;
         $pixixdx = 1;
         $pixixdy = 0;
-        $tempPix = $this->getPreinitializedArray(64, 0);
+        $tempPix = Helpers::getPreinitializedArray(64, 0);
         if (($attribs & 2) !== 0) {
             $pixixdy = -16;
             $pixix = 56;
@@ -1029,7 +945,7 @@ class Core
         }
 
         for ($y = 8; --$y >= 0;) {
-            $num = $this->weaveLookup[$this->VRAMReadGFX($offset++, $otherBank)] + ($this->weaveLookup[$this->VRAMReadGFX($offset++, $otherBank)] << 1);
+            $num = $this->weaveLookup[$this->memory->VRAMReadGFX($offset++, $otherBank)] + ($this->weaveLookup[$this->memory->VRAMReadGFX($offset++, $otherBank)] << 1);
             if ($num !== 0) {
                 $transparent = false;
             }
@@ -1063,11 +979,11 @@ class Core
         for (; $priorityFlag >= 0; $priorityFlag -= 0x80) {
             $oamIx = 159;
             while ($oamIx >= 0) {
-                $attributes = 0xFF & $this->memory[0xFE00 + $oamIx--];
+                $attributes = 0xFF & $this->memory->memory[0xFE00 + $oamIx--];
                 if (($attributes & 0x80) === $priorityFlag || !$this->spritePriorityEnabled) {
-                    $tileNum = (0xFF & $this->memory[0xFE00 + $oamIx--]);
-                    $spriteX = (0xFF & $this->memory[0xFE00 + $oamIx--]) - 8;
-                    $spriteY = (0xFF & $this->memory[0xFE00 + $oamIx--]) - 16;
+                    $tileNum = (0xFF & $this->memory->memory[0xFE00 + $oamIx--]);
+                    $spriteX = (0xFF & $this->memory->memory[0xFE00 + $oamIx--]) - 8;
+                    $spriteY = (0xFF & $this->memory->memory[0xFE00 + $oamIx--]) - 16;
                     $offset = $line - $spriteY;
                     if ($spriteX >= 160 || $spriteY < $minSpriteY || $offset < 0) {
                         continue;
@@ -1164,193 +1080,20 @@ class Core
     }
 
     //Memory Reading:
-    public function readMemory(int $address): ?int
-    {
-        if ($address < 0x4000) {
-            return $this->peekMemory($address);
-        } elseif ($address < 0x8000) {
-            return $this->cartridge->getRom()[$this->currentROMBank + $address];
-        } elseif ($address >= 0x8000 && $address < 0xA000) {
-            if ($this->cGBC) {
-                //CPU Side Reading The VRAM (Optimized for GameBoy Color)
-                return ($this->lcd->modeSTAT > 2) ? 0xFF : (($this->currVRAMBank === 0) ? $this->memory[$address] : $this->VRAM[$address - 0x8000]);
-            }
-
-            //CPU Side Reading The VRAM (Optimized for classic GameBoy)
-            return ($this->lcd->modeSTAT > 2) ? 0xFF : $this->memory[$address];
-        } elseif ($address >= 0xA000 && $address < 0xC000) {
-            if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
-                $overrideMbc = $this->config->getBoolean('advanced.performance.emulation.override_mbc');
-
-                if (!$this->cMBC3) {
-                    //memoryReadMBC
-                    //Switchable RAM
-                    if ($this->MBCRAMBanksEnabled || $overrideMbc) {
-                        return $this->MBCRam[$address + $this->currMBCRAMBankPosition];
-                    }
-
-                    //cout("Reading from disabled RAM.", 1);
-                    return 0xFF;
-                } else {
-                    //MBC3 RTC + RAM:
-                    //memoryReadMBC3
-                    //Switchable RAM
-                    if ($this->MBCRAMBanksEnabled || $overrideMbc) {
-                        switch ($this->currMBCRAMBank) {
-                            case 0x00:
-                            case 0x01:
-                            case 0x02:
-                            case 0x03:
-                                return $this->MBCRam[$address + $this->currMBCRAMBankPosition];
-                            case 0x08:
-                                return $this->latchedSeconds;
-                            case 0x09:
-                                return $this->latchedMinutes;
-                            case 0x0A:
-                                return $this->latchedHours;
-                            case 0x0B:
-                                return $this->latchedLDays;
-                            case 0x0C:
-                                return ((($this->RTCDayOverFlow) ? 0x80 : 0) + (($this->RTCHALT) ? 0x40 : 0)) + $this->latchedHDays;
-                        }
-                    }
-
-                    //cout("Reading from invalid or disabled RAM.", 1);
-                    return 0xFF;
-                }
-            } else {
-                return 0xFF;
-            }
-        } elseif ($address >= 0xC000 && $address < 0xE000) {
-            if (!$this->cGBC || $address < 0xD000) {
-                return $this->memory[$address];
-            } else {
-                //memoryReadGBCMemory
-                return $this->GBCMemory[$address + $this->gbcRamBankPosition];
-            }
-        } elseif ($address >= 0xE000 && $address < 0xFE00) {
-            if (!$this->cGBC || $address < 0xF000) {
-                //memoryReadECHONormal
-                return $this->memory[$address - 0x2000];
-            } else {
-                //memoryReadECHOGBCMemory
-                return $this->GBCMemory[$address + $this->gbcRamBankPositionECHO];
-            }
-        } elseif ($address < 0xFEA0) {
-            //memoryReadOAM
-            return ($this->lcd->modeSTAT > 1) ? 0xFF : $this->memory[$address];
-        } elseif ($this->cGBC && $address >= 0xFEA0 && $address < 0xFF00) {
-            //memoryReadNormal
-            return $this->memory[$address];
-        } elseif ($address >= 0xFF00) {
-            switch ($address) {
-                case 0xFF00:
-                    return 0xC0 | $this->memory[0xFF00];
-                case 0xFF01:
-                    return (($this->memory[0xFF02] & 0x1) === 0x1) ? 0xFF : $this->memory[0xFF01];
-                case 0xFF02:
-                    if ($this->cGBC) {
-                        return 0x7C | $this->memory[0xFF02];
-                    }
-
-                    return 0x7E | $this->memory[0xFF02];
-                case 0xFF07:
-                    return 0xF8 | $this->memory[0xFF07];
-                case 0xFF0F:
-                    return 0xE0 | $this->memory[0xFF0F];
-                case 0xFF10:
-                    return 0x80 | $this->memory[0xFF10];
-                case 0xFF11:
-                    return 0x3F | $this->memory[0xFF11];
-                case 0xFF14:
-                    return 0xBF | $this->memory[0xFF14];
-                case 0xFF16:
-                    return 0x3F | $this->memory[0xFF16];
-                case 0xFF19:
-                    return 0xBF | $this->memory[0xFF19];
-                case 0xFF1A:
-                    return 0x7F | $this->memory[0xFF1A];
-                case 0xFF1B:
-                case 0xFF20:
-                    return 0xFF;
-                case 0xFF1C:
-                    return 0x9F | $this->memory[0xFF1C];
-                case 0xFF1E:
-                    return 0xBF | $this->memory[0xFF1E];
-                case 0xFF23:
-                    return 0xBF | $this->memory[0xFF23];
-                case 0xFF26:
-                    return 0x70 | $this->memory[0xFF26];
-                case 0xFF30:
-                case 0xFF31:
-                case 0xFF32:
-                case 0xFF33:
-                case 0xFF34:
-                case 0xFF35:
-                case 0xFF36:
-                case 0xFF37:
-                case 0xFF38:
-                case 0xFF39:
-                case 0xFF3A:
-                case 0xFF3B:
-                case 0xFF3C:
-                case 0xFF3D:
-                case 0xFF3E:
-                case 0xFF3F:
-                    return (($this->memory[0xFF26] & 0x4) === 0x4) ? 0xFF : $this->memory[$address];
-                case 0xFF41:
-                    return 0x80 | $this->memory[0xFF41] | $this->lcd->modeSTAT;
-                case 0xFF44:
-                    return ($this->lcd->LCDisOn) ? $this->memory[0xFF44] : 0;
-                case 0xFF4F:
-                    return $this->currVRAMBank;
-                default:
-                    //memoryReadNormal
-                    return $this->memory[$address];
-            }
-        } else {
-            //memoryReadBAD
-            return 0xFF;
-        }
-    }
-
-    /**
-     * Read a value from a specific memory address.
-     *
-     * @param int $address The memory address to read from.
-     *
-     * @throws \App\Exceptions\Memory\InvalidMemoryAccessException
-     *
-     * @return null|int The value stored at the memory address.
-     */
-    public function peekMemory(int $address): ?int
-    {
-        if (! array_key_exists($address, $this->memory)) {
-            throw new InvalidMemoryAccessException($address, 'read');
-        }
-
-        return $this->memory[$address];
-    }
-
-    public function VRAMReadGFX($address, $gbcBank)
-    {
-        //Graphics Side Reading The VRAM
-        return ($gbcBank) ? $this->VRAM[$address] : $this->memory[0x8000 + $address];
-    }
 
     public function setCurrentMBC1ROMBank(): void
     {
         $romSize = $this->cartridge->getRom()->count();
 
         // Read the cartridge ROM data from RAM memory:
-        $this->currentROMBank = match ($this->ROMBank1offs) {
+        $this->memory->currentROMBank = match ($this->memory->ROMBank1offs) {
             //Bank calls for 0x00, 0x20, 0x40, and 0x60 are really for 0x01, 0x21, 0x41, and 0x61.
-            0x00, 0x20, 0x40, 0x60 => $this->ROMBank1offs * 0x4000,
-            default => ($this->ROMBank1offs - 1) * 0x4000,
+            0x00, 0x20, 0x40, 0x60 => $this->memory->ROMBank1offs * 0x4000,
+            default => ($this->memory->ROMBank1offs - 1) * 0x4000,
         };
 
-        while ($this->currentROMBank + 0x4000 >= $romSize) {
-            $this->currentROMBank -= $romSize;
+        while ($this->memory->currentROMBank + 0x4000 >= $romSize) {
+            $this->memory->currentROMBank -= $romSize;
         }
     }
 
@@ -1360,10 +1103,10 @@ class Core
 
         // Read the cartridge ROM data from RAM memory:
         // Only map bank 0 to bank 1 here (MBC2 is like MBC1, but can only do 16 banks, so only the bank 0 quirk appears for MBC2):
-        $this->currentROMBank = max($this->ROMBank1offs - 1, 0) * 0x4000;
+        $this->memory->currentROMBank = max($this->memory->ROMBank1offs - 1, 0) * 0x4000;
 
-        while ($this->currentROMBank + 0x4000 >= $romSize) {
-            $this->currentROMBank -= $romSize;
+        while ($this->memory->currentROMBank + 0x4000 >= $romSize) {
+            $this->memory->currentROMBank -= $romSize;
         }
     }
 
@@ -1372,566 +1115,14 @@ class Core
         $romSize = $this->cartridge->getRom()->count();
 
         // Read the cartridge ROM data from RAM memory:
-        $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
+        $this->memory->currentROMBank = ($this->memory->ROMBank1offs - 1) * 0x4000;
 
-        while ($this->currentROMBank + 0x4000 >= $romSize) {
-            $this->currentROMBank -= $romSize;
+        while ($this->memory->currentROMBank + 0x4000 >= $romSize) {
+            $this->memory->currentROMBank -= $romSize;
         }
     }
 
     //Memory Writing:
 
-    /**
-     * Handles memory writes in the emulator, implementing bank-switching logic,
-     * special address-specific behaviours, and memory protection mechanisms.
-     *
-     * This method differs from directly writing to memory by incorporating
-     * memory banking logic, hardware behaviour emulation, and access control.
-     * It interprets the provided address and data to perform actions specific
-     * to the memory region and any active memory banking controller (MBC).
-     *
-     * Depending on the address range, this method:
-     * - Enables or disables RAM banks.
-     * - Switches ROM or RAM banks for various MBC types (MBC1, MBC2, MBC3, MBC5, etc.).
-     * - Handles real-time clock (RTC) updates for MBC3.
-     * - Updates special-purpose memory areas such as VRAM, OAM, and I/O registers.
-     * - Emulates restricted memory access during specific modes (e.g., VRAM access during LCD mode 3).
-     * - Handles hardware-specific quirks, like boot ROM handling and GBC palette operations.
-     *
-     * The method relies on various emulator properties to track the current
-     * state of memory controllers, display modes, and hardware features.
-     *
-     * @param int      $address The memory address to write to.
-     *                          Addresses are mapped to specific memory regions, including:
-     *                          - ROM banks (0x0000-0x7FFF)
-     *                          - VRAM (0x8000-0x9FFF)
-     *                          - External RAM (0xA000-0xBFFF)
-     *                          - Working RAM (0xC000-0xDFFF)
-     *                          - Echo RAM (0xE000-0xFDFF)
-     *                          - OAM (0xFE00-0xFE9F)
-     *                          - I/O registers (0xFF00-0xFF7F)
-     *                          - High RAM (0xFF80-0xFFFE)
-     *                          - Interrupt Enable register (0xFFFF)
-     *
-     * @param int|null $data    The value to write to the given address.
-     *
-     * @note This method is central to the emulator's operation, managing interactions between
-     *       the CPU, memory, and hardware components. Future refactoring could benefit from
-     *       modularising memory region-specific behaviours into dedicated classes or methods.
-     */
-    public function writeMemory(int $address, ?int $data): void
-    {
-        if ($address < 0x8000) {
-            if ($this->cMBC1) {
-                if ($address < 0x2000) {
-                    //MBC RAM Bank Enable/Disable:
-                    $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
-                } elseif ($address < 0x4000) {
-                    // MBC1WriteROMBank
-                    //MBC1 ROM bank switching:
-                    $this->ROMBank1offs = ($this->ROMBank1offs & 0x60) | ($data & 0x1F);
-                    $this->setCurrentMBC1ROMBank();
-                } elseif ($address < 0x6000) {
-                    //MBC1WriteRAMBank
-                    //MBC1 RAM bank switching
-                    if ($this->MBC1Mode) {
-                        //4/32 Mode
-                        $this->currMBCRAMBank = $data & 0x3;
-                        $this->currMBCRAMBankPosition = ($this->currMBCRAMBank << 13) - 0xA000;
-                    } else {
-                        //16/8 Mode
-                        $this->ROMBank1offs = (($data & 0x03) << 5) | ($this->ROMBank1offs & 0x1F);
-                        $this->setCurrentMBC1ROMBank();
-                    }
-                } else {
-                    //MBC1WriteType
-                    //MBC1 mode setting:
-                    $this->MBC1Mode = (($data & 0x1) === 0x1);
-                }
-            } elseif ($this->cMBC2) {
-                if ($address < 0x1000) {
-                    //MBC RAM Bank Enable/Disable:
-                    $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
-                } elseif ($address >= 0x2100 && $address < 0x2200) {
-                    //MBC2WriteROMBank
-                    //MBC2 ROM bank switching:
-                    $this->ROMBank1offs = $data & 0x0F;
-                    $this->setCurrentMBC2AND3ROMBank();
-                } else {
-                    //We might have encountered illegal RAM writing or such, so just do nothing...
-                }
-            } elseif ($this->cMBC3) {
-                if ($address < 0x2000) {
-                    //MBC RAM Bank Enable/Disable:
-                    $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
-                } elseif ($address < 0x4000) {
-                    //MBC3 ROM bank switching:
-                    $this->ROMBank1offs = $data & 0x7F;
-                    $this->setCurrentMBC2AND3ROMBank();
-                } elseif ($address < 0x6000) {
-                    //MBC3WriteRAMBank
-                    $this->currMBCRAMBank = $data;
-                    if ($data < 4) {
-                        //MBC3 RAM bank switching
-                        $this->currMBCRAMBankPosition = ($this->currMBCRAMBank << 13) -   0xA000;
-                    }
-                } elseif ($data === 0) {
-                    //MBC3WriteRTCLatch
-                    $this->RTCisLatched = false;
-                } elseif (!$this->RTCisLatched) {
-                    //Copy over the current RTC time for reading.
-                    $this->RTCisLatched = true;
-                    $this->latchedSeconds = (int) floor($this->RTCSeconds);
-                    $this->latchedMinutes = $this->RTCMinutes;
-                    $this->latchedHours = $this->RTCHours;
-                    $this->latchedLDays = ($this->RTCDays & 0xFF);
-                    $this->latchedHDays = $this->RTCDays >> 8;
-                }
-            } elseif ($this->cMBC5 || $this->cRUMBLE) {
-                if ($address < 0x2000) {
-                    //MBC RAM Bank Enable/Disable:
-                    $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
-                } elseif ($address < 0x3000) {
-                    //MBC5WriteROMBankLow
-                    //MBC5 ROM bank switching:
-                    $this->ROMBank1offs = ($this->ROMBank1offs & 0x100) | $data;
-                    $this->setCurrentMBC5ROMBank();
-                } elseif ($address < 0x4000) {
-                    //MBC5WriteROMBankHigh
-                    //MBC5 ROM bank switching (by least significant bit):
-                    $this->ROMBank1offs = (($data & 0x01) << 8) | ($this->ROMBank1offs & 0xFF);
-                    $this->setCurrentMBC5ROMBank();
-                } elseif ($address < 0x6000) {
-                    if ($this->cRUMBLE) {
-                        //MBC5 RAM bank switching
-                        //Like MBC5, but bit 3 of the lower nibble is used for rumbling and bit 2 is ignored.
-                        $this->currMBCRAMBank = $data & 0x3;
-                        $this->currMBCRAMBankPosition = ($this->currMBCRAMBank << 13) - 0xA000;
-                    } else {
-                        //MBC5 RAM bank switching
-                        $this->currMBCRAMBank = $data & 0xF;
-                        $this->currMBCRAMBankPosition = ($this->currMBCRAMBank << 13) - 0xA000;
-                    }
-                } else {
-                    //We might have encountered illegal RAM writing or such, so just do nothing...
-                }
-            } elseif ($this->cHuC3) {
-                if ($address < 0x2000) {
-                    //MBC RAM Bank Enable/Disable:
-                    $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
-                } elseif ($address < 0x4000) {
-                    //MBC3 ROM bank switching:
-                    $this->ROMBank1offs = $data & 0x7F;
-                    $this->setCurrentMBC2AND3ROMBank();
-                } elseif ($address < 0x6000) {
-                    //HuC3WriteRAMBank
-                    //HuC3 RAM bank switching
-                    $this->currMBCRAMBank = $data & 0x03;
-                    $this->currMBCRAMBankPosition = ($this->currMBCRAMBank << 13) - 0xA000;
-                } else {
-                    //We might have encountered illegal RAM writing or such, so just do nothing...
-                }
-            } else {
-                //We might have encountered illegal RAM writing or such, so just do nothing...
-            }
-        } elseif ($address < 0xA000) {
-            // VRAMWrite
-            //VRAM cannot be written to during mode 3
-            if ($this->lcd->modeSTAT < 3) {
-                // Bkg Tile data area
-                if ($address < 0x9800) {
-                    $tileIndex = (($address - 0x8000) >> 4) + (384 * $this->currVRAMBank);
-                    if ($this->tileReadState[$tileIndex] === 1) {
-                        $r = count($this->tileData) - $this->tileCount + $tileIndex;
-                        do {
-                            $this->tileData[$r] = null;
-                            $r -= $this->tileCount;
-                        } while ($r >= 0);
 
-                        $this->tileReadState[$tileIndex] = 0;
-                    }
-                }
-
-                if ($this->currVRAMBank === 0) {
-                    $this->memory[$address] = $data;
-                } else {
-                    $this->VRAM[$address - 0x8000] = $data;
-                }
-            }
-        } elseif ($address < 0xC000) {
-            if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
-                $overrideMbc = $this->config->getBoolean('advanced.performance.emulation.override_mbc');
-
-                if (!$this->cMBC3) {
-                    //memoryWriteMBCRAM
-                    if ($this->MBCRAMBanksEnabled || $overrideMbc) {
-                        $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;
-                    }
-                } elseif ($this->MBCRAMBanksEnabled || $overrideMbc) {
-                    //MBC3 RTC + RAM:
-                    //memoryWriteMBC3RAM
-                    switch ($this->currMBCRAMBank) {
-                        case 0x00:
-                        case 0x01:
-                        case 0x02:
-                        case 0x03:
-                            $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;
-                            break;
-                        case 0x08:
-                            if ($data < 60) {
-                                $this->RTCSeconds = $data;
-                            } else {
-                                echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
-                            }
-
-                            break;
-                        case 0x09:
-                            if ($data < 60) {
-                                $this->RTCMinutes = $data;
-                            } else {
-                                echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
-                            }
-
-                            break;
-                        case 0x0A:
-                            if ($data < 24) {
-                                $this->RTCHours = $data;
-                            } else {
-                                echo '(Bank #' . $this->currMBCRAMBank . ') RTC write out of range: ' . $data . PHP_EOL;
-                            }
-
-                            break;
-                        case 0x0B:
-                            $this->RTCDays = ($data & 0xFF) | ($this->RTCDays & 0x100);
-                            break;
-                        case 0x0C:
-                            $this->RTCDayOverFlow = ($data & 0x80) === 0x80;
-                            $this->RTCHALT = ($data & 0x40) == 0x40;
-                            $this->RTCDays = (($data & 0x1) << 8) | ($this->RTCDays & 0xFF);
-                            break;
-                        default:
-                            echo 'Invalid MBC3 bank address selected: ' . $this->currMBCRAMBank . PHP_EOL;
-                    }
-                }
-            } else {
-                //We might have encountered illegal RAM writing or such, so just do nothing...
-            }
-        } elseif ($address < 0xE000) {
-            if ($this->cGBC && $address >= 0xD000) {
-                //memoryWriteGBCRAM
-                $this->GBCMemory[$address + $this->gbcRamBankPosition] = $data;
-            } else {
-                //memoryWriteNormal
-                $this->memory[$address] = $data;
-            }
-        } elseif ($address < 0xFE00) {
-            if ($this->cGBC && $address >= 0xF000) {
-                //memoryWriteECHOGBCRAM
-                $this->GBCMemory[$address + $this->gbcRamBankPositionECHO] = $data;
-            } else {
-                //memoryWriteECHONormal
-                $this->memory[$address - 0x2000] = $data;
-            }
-        } elseif ($address <= 0xFEA0) {
-            //memoryWriteOAMRAM
-            //OAM RAM cannot be written to in mode 2 & 3
-            if ($this->lcd->modeSTAT < 2) {
-                $this->memory[$address] = $data;
-            }
-        } elseif ($address < 0xFF00) {
-            //Only GBC has access to this RAM.
-            if ($this->cGBC) {
-                //memoryWriteNormal
-                $this->memory[$address] = $data;
-            } else {
-                //We might have encountered illegal RAM writing or such, so just do nothing...
-            }
-
-            //I/O Registers (GB + GBC):
-        } elseif ($address === 0xFF00) {
-            $this->memory[0xFF00] = ($data & 0x30) | (((($data & 0x20) === 0) ? ($this->JoyPad >> 4) : 0xF) & ((($data & 0x10) === 0) ? ($this->JoyPad & 0xF) : 0xF));
-        } elseif ($address === 0xFF02) {
-            if ((($data & 0x1) === 0x1)) {
-                //Internal clock:
-                $this->memory[0xFF02] = ($data & 0x7F);
-                $this->memory[0xFF0F] |= 0x8; //Get this time delayed...
-            } else {
-                //External clock:
-                $this->memory[0xFF02] = $data;
-                //No connected serial device, so don't trigger interrupt...
-            }
-        } elseif ($address === 0xFF04) {
-            $this->memory[0xFF04] = 0;
-        } elseif ($address === 0xFF07) {
-            $this->memory[0xFF07] = $data & 0x07;
-            $this->TIMAEnabled = ($data & 0x04) === 0x04;
-            $this->TACClocker = 4 ** (($data & 0x3) !== 0) ? ($data & 0x3) : 4; //TODO: Find a way to not make a conditional in here...
-        } elseif ($address === 0xFF40) {
-            if ($this->cGBC) {
-                $temp_var = ($data & 0x80) === 0x80;
-                if ($temp_var !== $this->lcd->LCDisOn) {
-                    //When the display mode changes...
-                    $this->lcd->LCDisOn = $temp_var;
-                    $this->memory[0xFF41] &= 0xF8;
-                    $this->lcd->STATTracker = $this->lcd->modeSTAT = $this->LCDTicks = $this->lcd->actualScanLine = $this->memory[0xFF44] = 0;
-                    if ($this->lcd->LCDisOn) {
-                        $this->lcd->matchLYC(); //Get the compare of the first scan line.
-                    } else {
-                        $this->displayShowOff();
-                    }
-
-                    $this->memory[0xFF0F] &= 0xFD;
-                }
-
-                $this->gfxWindowY = ($data & 0x40) === 0x40;
-                $this->gfxWindowDisplay = ($data & 0x20) === 0x20;
-                $this->gfxBackgroundX = ($data & 0x10) === 0x10;
-                $this->gfxBackgroundY = ($data & 0x08) === 0x08;
-                $this->gfxSpriteDouble = ($data & 0x04) === 0x04;
-                $this->gfxSpriteShow = ($data & 0x02) === 0x02;
-                $this->spritePriorityEnabled = ($data & 0x01) === 0x01;
-                $this->memory[0xFF40] = $data;
-            } else {
-                $temp_var = ($data & 0x80) === 0x80;
-                if ($temp_var !== $this->lcd->LCDisOn) {
-                    //When the display mode changes...
-                    $this->lcd->LCDisOn = $temp_var;
-                    $this->memory[0xFF41] &= 0xF8;
-                    $this->lcd->STATTracker = $this->lcd->modeSTAT = $this->LCDTicks = $this->lcd->actualScanLine = $this->memory[0xFF44] = 0;
-                    if ($this->lcd->LCDisOn) {
-                        $this->lcd->matchLYC(); //Get the compare of the first scan line.
-                    } else {
-                        $this->displayShowOff();
-                    }
-
-                    $this->memory[0xFF0F] &= 0xFD;
-                }
-
-                $this->gfxWindowY = ($data & 0x40) === 0x40;
-                $this->gfxWindowDisplay = ($data & 0x20) === 0x20;
-                $this->gfxBackgroundX = ($data & 0x10) === 0x10;
-                $this->gfxBackgroundY = ($data & 0x08) === 0x08;
-                $this->gfxSpriteDouble = ($data & 0x04) === 0x04;
-                $this->gfxSpriteShow = ($data & 0x02) === 0x02;
-                if (($data & 0x01) === 0) {
-                    // this emulates the gbc-in-gb-mode, not the original gb-mode
-                    $this->bgEnabled = false;
-                    $this->gfxWindowDisplay = false;
-                } else {
-                    $this->bgEnabled = true;
-                }
-
-                $this->memory[0xFF40] = $data;
-            }
-        } elseif ($address === 0xFF41) {
-            if ($this->cGBC) {
-                $this->lcd->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
-                $this->lcd->mode2TriggerSTAT = (($data & 0x20) === 0x20);
-                $this->lcd->mode1TriggerSTAT = (($data & 0x10) === 0x10);
-                $this->lcd->mode0TriggerSTAT = (($data & 0x08) === 0x08);
-                $this->memory[0xFF41] = ($data & 0xF8);
-            } else {
-                $this->lcd->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
-                $this->lcd->mode2TriggerSTAT = (($data & 0x20) === 0x20);
-                $this->lcd->mode1TriggerSTAT = (($data & 0x10) === 0x10);
-                $this->lcd->mode0TriggerSTAT = (($data & 0x08) === 0x08);
-                $this->memory[0xFF41] = ($data & 0xF8);
-                if ($this->lcd->LCDisOn && $this->lcd->modeSTAT < 2) {
-                    $this->memory[0xFF0F] |= 0x2;
-                }
-            }
-        } elseif ($address === 0xFF45) {
-            $this->memory[0xFF45] = $data;
-            if ($this->lcd->LCDisOn) {
-                $this->lcd->matchLYC(); //Get the compare of the first scan line.
-            }
-        } elseif ($address === 0xFF46) {
-            $this->memory[0xFF46] = $data;
-            //DMG cannot DMA from the ROM banks.
-            if ($this->cGBC || $data > 0x7F) {
-                $data <<= 8;
-                $address = 0xFE00;
-                while ($address < 0xFEA0) {
-                    $this->memory[$address++] = $this->readMemory($data++);
-                }
-            }
-        } elseif ($address === 0xFF47) {
-            $this->decodePalette(0, $data);
-            if ($this->memory[0xFF47] !== $data) {
-                $this->memory[0xFF47] = $data;
-                $this->invalidateAll(0);
-            }
-        } elseif ($address === 0xFF48) {
-            $this->decodePalette(4, $data);
-            if ($this->memory[0xFF48] !== $data) {
-                $this->memory[0xFF48] = $data;
-                $this->invalidateAll(1);
-            }
-        } elseif ($address === 0xFF49) {
-            $this->decodePalette(8, $data);
-            if ($this->memory[0xFF49] !== $data) {
-                $this->memory[0xFF49] = $data;
-                $this->invalidateAll(2);
-            }
-        } elseif ($address === 0xFF4D) {
-            $this->memory[0xFF4D] = $this->cGBC ? ($data & 0x7F) + ($this->memory[0xFF4D] & 0x80) : $data;
-        } elseif ($address === 0xFF4F) {
-            if ($this->cGBC) {
-                $this->currVRAMBank = $data & 0x01;
-                //Only writable by GBC.
-            }
-        } elseif ($address === 0xFF50) {
-            if ($this->inBootstrap) {
-                echo 'Boot ROM reads blocked: Bootstrap process has ended.' . PHP_EOL;
-                $this->inBootstrap = false;
-                $this->disableBootROM(); //Fill in the boot ROM ranges with ROM  bank 0 ROM ranges
-                $this->memory[0xFF50] = $data; //Bits are sustained in memory?
-            }
-        } elseif ($address === 0xFF51) {
-            if ($this->cGBC && !$this->hdmaRunning) {
-                $this->memory[0xFF51] = $data;
-            }
-        } elseif ($address === 0xFF52) {
-            if ($this->cGBC && !$this->hdmaRunning) {
-                $this->memory[0xFF52] = $data & 0xF0;
-            }
-        } elseif ($address === 0xFF53) {
-            if ($this->cGBC && !$this->hdmaRunning) {
-                $this->memory[0xFF53] = $data & 0x1F;
-            }
-        } elseif ($address === 0xFF54) {
-            if ($this->cGBC && !$this->hdmaRunning) {
-                $this->memory[0xFF54] = $data & 0xF0;
-            }
-        } elseif ($address === 0xFF55) {
-            if ($this->cGBC) {
-                if (!$this->hdmaRunning) {
-                    if (($data & 0x80) === 0) {
-                        //DMA
-                        $this->CPUTicks += 1 + ((8 * (($data & 0x7F) + 1)) * $this->multiplier);
-                        $dmaSrc = ($this->memory[0xFF51] << 8) + $this->memory[0xFF52];
-                        $dmaDst = 0x8000 + ($this->memory[0xFF53] << 8) + $this->memory[0xFF54];
-                        $endAmount = ((($data & 0x7F) * 0x10) + 0x10);
-                        for ($loopAmount = 0; $loopAmount < $endAmount; ++$loopAmount) {
-                            $this->writeMemory($dmaDst++, $this->readMemory($dmaSrc++));
-                        }
-
-                        $this->memory[0xFF51] = (($dmaSrc & 0xFF00) >> 8);
-                        $this->memory[0xFF52] = ($dmaSrc & 0x00F0);
-                        $this->memory[0xFF53] = (($dmaDst & 0x1F00) >> 8);
-                        $this->memory[0xFF54] = ($dmaDst & 0x00F0);
-                        $this->memory[0xFF55] = 0xFF;
-                        //Transfer completed.
-                    } elseif ($data > 0x80) {
-                        //H-Blank DMA
-                        $this->hdmaRunning = true;
-                        $this->memory[0xFF55] = $data & 0x7F;
-                    } else {
-                        $this->memory[0xFF55] = 0xFF;
-                    }
-                } elseif (($data & 0x80) === 0) {
-                    //Stop H-Blank DMA
-                    $this->hdmaRunning = false;
-                    $this->memory[0xFF55] |= 0x80;
-                }
-            } else {
-                $this->memory[0xFF55] = $data;
-            }
-        } elseif ($address === 0xFF68) {
-            if ($this->cGBC) {
-                $this->memory[0xFF69] = 0xFF & $this->gbcRawPalette[$data & 0x3F];
-                $this->memory[0xFF68] = $data;
-            } else {
-                $this->memory[0xFF68] = $data;
-            }
-        } elseif ($address === 0xFF69) {
-            if ($this->cGBC) {
-                $this->setGBCPalette($this->memory[0xFF68] & 0x3F, $data);
-                // high bit = autoincrement
-                if (Helpers::usbtsb($this->memory[0xFF68]) < 0) {
-                    $next = ((Helpers::usbtsb($this->memory[0xFF68]) + 1) & 0x3F);
-                    $this->memory[0xFF68] = ($next | 0x80);
-                    $this->memory[0xFF69] = 0xFF & $this->gbcRawPalette[$next];
-                } else {
-                    $this->memory[0xFF69] = $data;
-                }
-            } else {
-                $this->memory[0xFF69] = $data;
-            }
-        } elseif ($address === 0xFF6A) {
-            if ($this->cGBC) {
-                $this->memory[0xFF6B] = 0xFF & $this->gbcRawPalette[($data & 0x3F) | 0x40];
-                $this->memory[0xFF6A] = $data;
-            } else {
-                $this->memory[0xFF6A] = $data;
-            }
-        } elseif ($address === 0xFF6B) {
-            if ($this->cGBC) {
-                $this->setGBCPalette(($this->memory[0xFF6A] & 0x3F) + 0x40, $data);
-                // high bit = autoincrement
-                if (Helpers::usbtsb($this->memory[0xFF6A]) < 0) {
-                    $next = (($this->memory[0xFF6A] + 1) & 0x3F);
-                    $this->memory[0xFF6A] = ($next | 0x80);
-                    $this->memory[0xFF6B] = 0xFF & $this->gbcRawPalette[$next | 0x40];
-                } else {
-                    $this->memory[0xFF6B] = $data;
-                }
-            } else {
-                $this->memory[0xFF6B] = $data;
-            }
-        } elseif ($address === 0xFF6C) {
-            if ($this->inBootstrap) {
-                if ($this->inBootstrap) {
-                    $this->cGBC = ($data === 0x80);
-                    echo 'Booted to GBC Mode: ' . $this->cGBC . PHP_EOL;
-                }
-
-                $this->memory[0xFF6C] = $data;
-            }
-        } elseif ($address === 0xFF70) {
-            if ($this->cGBC) {
-                $addressCheck = ($this->memory[0xFF51] << 8) | $this->memory[0xFF52]; //Cannot change the RAM bank while WRAM is the source of a running HDMA.
-                if (!$this->hdmaRunning || $addressCheck < 0xD000 || $addressCheck >= 0xE000) {
-                    $this->gbcRamBank = max($data & 0x07, 1); //Bank range is from 1-7
-                    $this->gbcRamBankPosition = (($this->gbcRamBank - 1) * 0x1000) - 0xD000;
-                    $this->gbcRamBankPositionECHO = (($this->gbcRamBank - 1) * 0x1000) - 0xF000;
-                }
-
-                $this->memory[0xFF70] = ($data | 0x40); //Bit 6 cannot be written to.
-            } else {
-                $this->memory[0xFF70] = $data;
-            }
-        } else {
-            //Start the I/O initialization by filling in the slots as normal memory:
-            //memoryWriteNormal
-            $this->pokeMemory($address, $data);
-        }
-    }
-
-    /**
-     * Write a value to a specific memory address.
-     *
-     * @param int $address The memory address to write to.
-     * @param null|int $data The value to write.
-     *
-     * @throws \App\Exceptions\Memory\InvalidMemoryAccessException
-     */
-    public function pokeMemory(int $address, ?int $data): void
-    {
-        if (! array_key_exists($address, $this->memory)) {
-            throw new InvalidMemoryAccessException($address, 'write');
-        }
-
-        $this->memory[$address] = $data;
-    }
-
-    /**
-     * Builds an array of a given length.
-     *
-     * @return array<int, mixed>
-     */
-    public function getPreinitializedArray(int $length, mixed $defaultValue): array
-    {
-        return array_fill(0, $length, $defaultValue);
-    }
 }

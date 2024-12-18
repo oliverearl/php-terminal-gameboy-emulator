@@ -71,7 +71,7 @@ class CartridgeLoader
 
             if ($romIndex < 0x8000) {
                 // Copy into memory:
-                $this->core->memory[$romIndex] = $this->rom[$romIndex];
+                $this->core->memory->memory[$romIndex] = $this->rom[$romIndex];
             }
         }
 
@@ -136,125 +136,125 @@ class CartridgeLoader
                 }
                 // no break
             case 0x01:
-                $this->core->cMBC1 = true;
+                $this->core->memory->cMBC1 = true;
                 $mbcType = 'MBC1';
                 break;
             case 0x02:
-                $this->core->cMBC1 = true;
-                $this->core->cSRAM = true;
+                $this->core->memory->cMBC1 = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'MBC1 + SRAM';
                 break;
             case 0x03:
-                $this->core->cMBC1 = true;
-                $this->core->cSRAM = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cMBC1 = true;
+                $this->core->memory->cSRAM = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'MBC1 + SRAM + BATT';
                 break;
             case 0x05:
-                $this->core->cMBC2 = true;
+                $this->core->memory->cMBC2 = true;
                 $mbcType = 'MBC2';
                 break;
             case 0x06:
-                $this->core->cMBC2 = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cMBC2 = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'MBC2 + BATT';
                 break;
             case 0x08:
-                $this->core->cSRAM = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'ROM + SRAM';
                 break;
             case 0x09:
-                $this->core->cSRAM = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cSRAM = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'ROM + SRAM + BATT';
                 break;
             case 0x0B:
-                $this->core->cMMMO1 = true;
+                $this->core->memory->cMMMO1 = true;
                 $mbcType = 'MMMO1';
                 break;
             case 0x0C:
-                $this->core->cMMMO1 = true;
-                $this->core->cSRAM = true;
+                $this->core->memory->cMMMO1 = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'MMMO1 + SRAM';
                 break;
             case 0x0D:
-                $this->core->cMMMO1 = true;
-                $this->core->cSRAM = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cMMMO1 = true;
+                $this->core->memory->cSRAM = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'MMMO1 + SRAM + BATT';
                 break;
             case 0x0F:
-                $this->core->cMBC3 = true;
-                $this->core->cTIMER = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cMBC3 = true;
+                $this->core->memory->cTIMER = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'MBC3 + TIMER + BATT';
                 break;
             case 0x10:
-                $this->core->cMBC3 = true;
-                $this->core->cTIMER = true;
-                $this->core->cBATT = true;
-                $this->core->cSRAM = true;
+                $this->core->memory->cMBC3 = true;
+                $this->core->memory->cTIMER = true;
+                $this->core->memory->cBATT = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'MBC3 + TIMER + BATT + SRAM';
                 break;
             case 0x11:
-                $this->core->cMBC3 = true;
+                $this->core->memory->cMBC3 = true;
                 $mbcType = 'MBC3';
                 break;
             case 0x12:
-                $this->core->cMBC3 = true;
-                $this->core->cSRAM = true;
+                $this->core->memory->cMBC3 = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'MBC3 + SRAM';
                 break;
             case 0x13:
-                $this->core->cMBC3 = true;
-                $this->core->cSRAM = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cMBC3 = true;
+                $this->core->memory->cSRAM = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'MBC3 + SRAM + BATT';
                 break;
             case 0x19:
-                $this->core->cMBC5 = true;
+                $this->core->memory->cMBC5 = true;
                 $mbcType = 'MBC5';
                 break;
             case 0x1A:
-                $this->core->cMBC5 = true;
-                $this->core->cSRAM = true;
+                $this->core->memory->cMBC5 = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'MBC5 + SRAM';
                 break;
             case 0x1B:
-                $this->core->cMBC5 = true;
-                $this->core->cSRAM = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cMBC5 = true;
+                $this->core->memory->cSRAM = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'MBC5 + SRAM + BATT';
                 break;
             case 0x1C:
-                $this->core->cRUMBLE = true;
+                $this->core->memory->cRUMBLE = true;
                 $mbcType = 'RUMBLE';
                 break;
             case 0x1D:
-                $this->core->cRUMBLE = true;
-                $this->core->cSRAM = true;
+                $this->core->memory->cRUMBLE = true;
+                $this->core->memory->cSRAM = true;
                 $mbcType = 'RUMBLE + SRAM';
                 break;
             case 0x1E:
-                $this->core->cRUMBLE = true;
-                $this->core->cSRAM = true;
-                $this->core->cBATT = true;
+                $this->core->memory->cRUMBLE = true;
+                $this->core->memory->cSRAM = true;
+                $this->core->memory->cBATT = true;
                 $mbcType = 'RUMBLE + SRAM + BATT';
                 break;
             case 0x1F:
-                $this->core->cCamera = true;
+                $this->core->memory->cCamera = true;
                 $mbcType = 'Game Boy Camera';
                 break;
             case 0xFD:
-                $this->core->cTAMA5 = true;
+                $this->core->memory->cTAMA5 = true;
                 $mbcType = 'TAMA5';
                 break;
             case 0xFE:
-                $this->core->cHuC3 = true;
+                $this->core->memory->cHuC3 = true;
                 $mbcType = 'HuC3';
                 break;
             case 0xFF:
-                $this->core->cHuC1 = true;
+                $this->core->memory->cHuC1 = true;
                 $mbcType = 'HuC1';
                 break;
             default:
@@ -272,7 +272,7 @@ class CartridgeLoader
         $numberOfRomBanks = self::$romBanks[$this->rom[0x148]];
 
         Debugger::print("$numberOfRomBanks ROM banks.");
-        Debugger::print(match ($this->core->RAMBanks[$this->rom[0x149]]) {
+        Debugger::print(match ($this->core->memory->RAMBanks[$this->rom[0x149]]) {
             0 => 'No RAM banking requested for allocation or MBC is of type 2.',
             2 => '1 RAM bank requested for allocation.',
             3 => '4 RAM banks requested for allocation.',

@@ -34,13 +34,13 @@ class LcdController
     {
         // LY - LYC Compare
         // If LY===LCY
-        if ($this->core->memory[0xFF44] === $this->core->memory[0xFF45]) {
-            $this->core->memory[0xFF41] |= 0x04; // set STAT bit 2: LY-LYC coincidence flag
+        if ($this->core->memory->memory[0xFF44] === $this->core->memory->memory[0xFF45]) {
+            $this->core->memory->memory[0xFF41] |= 0x04; // set STAT bit 2: LY-LYC coincidence flag
             if ($this->LYCMatchTriggerSTAT) {
-                $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
+                $this->core->memory->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
         } else {
-            $this->core->memory[0xFF41] &= 0xFB; // reset STAT bit 2 (LY!==LYC)
+            $this->core->memory->memory[0xFF41] &= 0xFB; // reset STAT bit 2 (LY!==LYC)
         }
     }
 
@@ -51,7 +51,7 @@ class LcdController
         }
 
         // determine the left edge of the window (160 if window is inactive)
-        $windowLeft = ($this->core->gfxWindowDisplay && $this->core->memory[0xFF4A] <= $this->actualScanLine) ? min(160, $this->core->memory[0xFF4B] - 7) : 160;
+        $windowLeft = ($this->core->gfxWindowDisplay && $this->core->memory->memory[0xFF4A] <= $this->actualScanLine) ? min(160, $this->core->memory->memory[0xFF4B] - 7) : 160;
         // step 1: background+window
         $skippedAnything = $this->core->drawBackgroundForLine($this->actualScanLine, $windowLeft, 0);
         // At this point, the high (alpha) byte in the frameBuffer is 0xff for colors 1,2,3 and
@@ -88,7 +88,7 @@ class LcdController
                 } else {
                     //We're on a new scan line:
                     $this->core->LCDTicks -= 114;
-                    $this->actualScanLine = ++$this->core->memory[0xFF44];
+                    $this->actualScanLine = ++$this->core->memory->memory[0xFF44];
                     $this->matchLYC();
                     if ($this->STATTracker !== 2) {
                         if ($this->core->hdmaRunning && !$this->core->halt && $this->LCDisOn) {
@@ -96,7 +96,7 @@ class LcdController
                         }
 
                         if ($this->mode0TriggerSTAT) {
-                            $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
+                            $this->core->memory->memory[0xFF0F] |= 0x2; // set IF bit 1
                         }
                     }
 
@@ -120,10 +120,10 @@ class LcdController
                     //Starting V-Blank:
                     //Just finished the last visible scan line:
                     $this->core->LCDTicks -= 114;
-                    $this->actualScanLine = ++$this->core->memory[0xFF44];
+                    $this->actualScanLine = ++$this->core->memory->memory[0xFF44];
                     $this->matchLYC();
                     if ($this->mode1TriggerSTAT) {
-                        $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
+                        $this->core->memory->memory[0xFF0F] |= 0x2; // set IF bit 1
                     }
 
                     if ($this->STATTracker !== 2) {
@@ -132,13 +132,13 @@ class LcdController
                         }
 
                         if ($this->mode0TriggerSTAT) {
-                            $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
+                            $this->core->memory->memory[0xFF0F] |= 0x2; // set IF bit 1
                         }
                     }
 
                     $this->STATTracker = 0;
                     $this->modeSTAT = 1;
-                    $this->core->memory[0xFF0F] |= 0x1; // set IF flag 0
+                    $this->core->memory->memory[0xFF0F] |= 0x1; // set IF flag 0
                     //LCD off takes at least 2 frames.
                     if ($this->core->drewBlank > 0) {
                         --$this->core->drewBlank;
@@ -154,7 +154,7 @@ class LcdController
                 if ($this->core->LCDTicks >= 114) {
                     //We're on a new scan line:
                     $this->core->LCDTicks -= 114;
-                    $this->actualScanLine = ++$this->core->memory[0xFF44];
+                    $this->actualScanLine = ++$this->core->memory->memory[0xFF44];
                     $this->matchLYC();
                     if ($this->core->LCDTicks >= 114) {
                         //We need to skip 1 or more scan lines:
@@ -163,8 +163,8 @@ class LcdController
                 }
             } else {
                 //VBlank Ending (We're on the last actual scan line)
-                if ($this->core->memory[0xFF44] === 153) {
-                    $this->core->memory[0xFF44] = 0; //LY register resets to 0 early.
+                if ($this->core->memory->memory[0xFF44] === 153) {
+                    $this->core->memory->memory[0xFF44] = 0; //LY register resets to 0 early.
                     $this->matchLYC(); //LY===LYC Test is early here (Fixes specific one-line glitches (example: Kirby2 intro)).
                 }
 
@@ -191,7 +191,7 @@ class LcdController
             }
 
             if ($this->mode0TriggerSTAT || ($this->mode2TriggerSTAT && $this->STATTracker === 0)) {
-                $this->core->memory[0xFF0F] |= 0x2; // if STAT bit 3 -> set IF bit1
+                $this->core->memory->memory[0xFF0F] |= 0x2; // if STAT bit 3 -> set IF bit1
             }
 
             $this->notifyScanline();
@@ -205,7 +205,7 @@ class LcdController
         // OAM in use
         if ($this->modeSTAT !== 2) {
             if ($this->mode2TriggerSTAT) {
-                $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
+                $this->core->memory->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
 
             $this->STATTracker = 1;
@@ -218,7 +218,7 @@ class LcdController
         // OAM in use
         if ($this->modeSTAT !== 3) {
             if ($this->mode2TriggerSTAT && $this->STATTracker === 0) {
-                $this->core->memory[0xFF0F] |= 0x2; // set IF bit 1
+                $this->core->memory->memory[0xFF0F] |= 0x2; // set IF bit 1
             }
 
             $this->STATTracker = 1;
