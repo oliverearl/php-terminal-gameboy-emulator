@@ -123,8 +123,8 @@ trait HandlesOpcodes
      */
     private function opcode1(): void
     {
-        $this->registerC = $this->memoryRead($this->programCounter);
-        $this->registerB = $this->memoryRead(($this->programCounter + 1) & 0xFFFF);
+        $this->registerC = $this->readMemory($this->programCounter);
+        $this->registerB = $this->readMemory(($this->programCounter + 1) & 0xFFFF);
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
     }
 
@@ -183,7 +183,7 @@ trait HandlesOpcodes
      */
     private function opcode6(): void
     {
-        $this->registerB = $this->memoryRead($this->programCounter);
+        $this->registerB = $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -208,7 +208,7 @@ trait HandlesOpcodes
      */
     private function opcode8(): void
     {
-        $temp_var = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+        $temp_var = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
         $this->writeMemory($temp_var, $this->stackPointer & 0xFF);
         $this->writeMemory(($temp_var + 1) & 0xFFFF, $this->stackPointer >> 8);
 
@@ -237,7 +237,7 @@ trait HandlesOpcodes
      */
     private function opcode10(): void
     {
-        $this->registerA = $this->memoryRead(($this->registerB << 8) + $this->registerC);
+        $this->registerA = $this->readMemory(($this->registerB << 8) + $this->registerC);
     }
 
     /**
@@ -285,7 +285,7 @@ trait HandlesOpcodes
      */
     private function opcode14(): void
     {
-        $this->registerC = $this->memoryRead($this->programCounter);
+        $this->registerC = $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -342,8 +342,8 @@ trait HandlesOpcodes
      */
     private function opcode17(): void
     {
-        $this->registerE = $this->memoryRead($this->programCounter);
-        $this->registerD = $this->memoryRead(($this->programCounter + 1) & 0xFFFF);
+        $this->registerE = $this->readMemory($this->programCounter);
+        $this->registerD = $this->readMemory(($this->programCounter + 1) & 0xFFFF);
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
     }
 
@@ -402,7 +402,7 @@ trait HandlesOpcodes
      */
     private function opcode22(): void
     {
-        $this->registerD = $this->memoryRead($this->programCounter);
+        $this->registerD = $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -428,7 +428,7 @@ trait HandlesOpcodes
      */
     private function opcode24(): void
     {
-        $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->memoryRead($this->programCounter)) + 1);
+        $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->readMemory($this->programCounter)) + 1);
     }
 
     /**
@@ -453,7 +453,7 @@ trait HandlesOpcodes
      */
     private function opcode26(): void
     {
-        $this->registerA = $this->memoryRead(($this->registerD << 8) + $this->registerE);
+        $this->registerA = $this->readMemory(($this->registerD << 8) + $this->registerE);
     }
 
     /**
@@ -501,7 +501,7 @@ trait HandlesOpcodes
      */
     private function opcode30(): void
     {
-        $this->registerE = $this->memoryRead($this->programCounter);
+        $this->registerE = $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -528,7 +528,7 @@ trait HandlesOpcodes
     private function opcode32(): void
     {
         if (!$this->FZero) {
-            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->memoryRead($this->programCounter)) + 1);
+            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->readMemory($this->programCounter)) + 1);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
@@ -542,7 +542,7 @@ trait HandlesOpcodes
      */
     private function opcode33(): void
     {
-        $this->registersHL = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+        $this->registersHL = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
     }
 
@@ -602,7 +602,7 @@ trait HandlesOpcodes
      */
     private function opcode38(): void
     {
-        $this->registersHL = ($this->memoryRead($this->programCounter) << 8) + ($this->registersHL & 0xFF);
+        $this->registersHL = ($this->readMemory($this->programCounter) << 8) + ($this->registersHL & 0xFF);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -641,7 +641,7 @@ trait HandlesOpcodes
     private function opcode40(): void
     {
         if ($this->FZero) {
-            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->memoryRead($this->programCounter)) + 1);
+            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->readMemory($this->programCounter)) + 1);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
@@ -669,7 +669,7 @@ trait HandlesOpcodes
      */
     private function opcode42(): void
     {
-        $this->registerA = $this->memoryRead($this->registersHL);
+        $this->registerA = $this->readMemory($this->registersHL);
         $this->registersHL = (($this->registersHL + 1) & 0xFFFF);
     }
 
@@ -718,7 +718,7 @@ trait HandlesOpcodes
      */
     private function opcode46(): void
     {
-        $this->registersHL = ($this->registersHL & 0xFF00) + $this->memoryRead($this->programCounter);
+        $this->registersHL = ($this->registersHL & 0xFF00) + $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -742,7 +742,7 @@ trait HandlesOpcodes
     private function opcode48(): void
     {
         if (!$this->FCarry) {
-            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->memoryRead($this->programCounter)) + 1);
+            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->readMemory($this->programCounter)) + 1);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
@@ -756,7 +756,7 @@ trait HandlesOpcodes
      */
     private function opcode49(): void
     {
-        $this->stackPointer = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+        $this->stackPointer = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
     }
 
@@ -788,7 +788,7 @@ trait HandlesOpcodes
      */
     private function opcode52(): void
     {
-        $temp_var = (($this->memoryRead($this->registersHL) + 1) & 0xFF);
+        $temp_var = (($this->readMemory($this->registersHL) + 1) & 0xFF);
         $this->FZero = ($temp_var === 0);
         $this->FHalfCarry = (($temp_var & 0xF) === 0);
         $this->FSubtract = false;
@@ -802,7 +802,7 @@ trait HandlesOpcodes
      */
     private function opcode53(): void
     {
-        $temp_var = Helpers::unsbtub($this->memoryRead($this->registersHL) - 1);
+        $temp_var = Helpers::unsbtub($this->readMemory($this->registersHL) - 1);
         $this->FZero = ($temp_var === 0);
         $this->FHalfCarry = (($temp_var & 0xF) === 0xF);
         $this->FSubtract = true;
@@ -816,7 +816,7 @@ trait HandlesOpcodes
      */
     private function opcode54(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->programCounter));
+        $this->writeMemory($this->registersHL, $this->readMemory($this->programCounter));
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -840,7 +840,7 @@ trait HandlesOpcodes
     private function opcode56(): void
     {
         if ($this->FCarry) {
-            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->memoryRead($this->programCounter)) + 1);
+            $this->programCounter = Helpers::nswtuw($this->programCounter + Helpers::usbtsb($this->readMemory($this->programCounter)) + 1);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
@@ -868,7 +868,7 @@ trait HandlesOpcodes
      */
     private function opcode58(): void
     {
-        $this->registerA = $this->memoryRead($this->registersHL);
+        $this->registerA = $this->readMemory($this->registersHL);
         $this->registersHL = Helpers::unswtuw($this->registersHL - 1);
     }
 
@@ -915,7 +915,7 @@ trait HandlesOpcodes
      */
     private function opcode62(): void
     {
-        $this->registerA = $this->memoryRead($this->programCounter);
+        $this->registerA = $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -998,7 +998,7 @@ trait HandlesOpcodes
      */
     private function opcode70(): void
     {
-        $this->registerB = $this->memoryRead($this->registersHL);
+        $this->registerB = $this->readMemory($this->registersHL);
     }
 
     /**
@@ -1078,7 +1078,7 @@ trait HandlesOpcodes
      */
     private function opcode78(): void
     {
-        $this->registerC = $this->memoryRead($this->registersHL);
+        $this->registerC = $this->readMemory($this->registersHL);
     }
 
     /**
@@ -1158,7 +1158,7 @@ trait HandlesOpcodes
      */
     private function opcode86(): void
     {
-        $this->registerD = $this->memoryRead($this->registersHL);
+        $this->registerD = $this->readMemory($this->registersHL);
     }
 
     /**
@@ -1238,7 +1238,7 @@ trait HandlesOpcodes
      */
     private function opcode94(): void
     {
-        $this->registerE = $this->memoryRead($this->registersHL);
+        $this->registerE = $this->readMemory($this->registersHL);
     }
 
     /**
@@ -1318,7 +1318,7 @@ trait HandlesOpcodes
      */
     private function opcode102(): void
     {
-        $this->registersHL = ($this->memoryRead($this->registersHL) << 8) + ($this->registersHL & 0xFF);
+        $this->registersHL = ($this->readMemory($this->registersHL) << 8) + ($this->registersHL & 0xFF);
     }
 
     /**
@@ -1398,7 +1398,7 @@ trait HandlesOpcodes
      */
     private function opcode110(): void
     {
-        $this->registersHL = ($this->registersHL & 0xFF00) + $this->memoryRead($this->registersHL);
+        $this->registersHL = ($this->registersHL & 0xFF00) + $this->readMemory($this->registersHL);
     }
 
     /**
@@ -1599,7 +1599,7 @@ trait HandlesOpcodes
      */
     private function opcode126(): void
     {
-        $this->registerA = $this->memoryRead($this->registersHL);
+        $this->registerA = $this->readMemory($this->registersHL);
     }
 
     /**
@@ -1709,7 +1709,7 @@ trait HandlesOpcodes
      */
     private function opcode134(): void
     {
-        $dirtySum = $this->registerA + $this->memoryRead($this->registersHL);
+        $dirtySum = $this->registerA + $this->readMemory($this->registersHL);
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
@@ -1831,7 +1831,7 @@ trait HandlesOpcodes
      */
     private function opcode142(): void
     {
-        $tempValue = $this->memoryRead($this->registersHL);
+        $tempValue = $this->readMemory($this->registersHL);
         $dirtySum = $this->registerA + $tempValue + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = (($this->registerA & 0xF) + ($tempValue & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
@@ -1953,7 +1953,7 @@ trait HandlesOpcodes
      */
     private function opcode150(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $dirtySum = $this->registerA - $temp_var;
         $this->FHalfCarry = ($this->registerA & 0xF) < ($temp_var & 0xF);
         $this->FCarry = ($dirtySum < 0);
@@ -2075,7 +2075,7 @@ trait HandlesOpcodes
      */
     private function opcode158(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $dirtySum = $this->registerA - $temp_var - (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = (($this->registerA & 0xF) - ($temp_var & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
@@ -2198,7 +2198,7 @@ trait HandlesOpcodes
      */
     private function opcode166(): void
     {
-        $this->registerA &= $this->memoryRead($this->registersHL);
+        $this->registerA &= $this->readMemory($this->registersHL);
         $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
         $this->FSubtract = false;
@@ -2310,7 +2310,7 @@ trait HandlesOpcodes
      */
     private function opcode174(): void
     {
-        $this->registerA ^= $this->memoryRead($this->registersHL);
+        $this->registerA ^= $this->readMemory($this->registersHL);
         $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FHalfCarry = false;
@@ -2423,7 +2423,7 @@ trait HandlesOpcodes
      */
     private function opcode182(): void
     {
-        $this->registerA |= $this->memoryRead($this->registersHL);
+        $this->registerA |= $this->readMemory($this->registersHL);
         $this->FZero = ($this->registerA === 0);
         $this->FSubtract = false;
         $this->FCarry = false;
@@ -2535,7 +2535,7 @@ trait HandlesOpcodes
      */
     private function opcode190(): void
     {
-        $dirtySum = $this->registerA - $this->memoryRead($this->registersHL);
+        $dirtySum = $this->registerA - $this->readMemory($this->registersHL);
         $this->FHalfCarry = (Helpers::unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->FZero = ($dirtySum === 0);
@@ -2563,7 +2563,7 @@ trait HandlesOpcodes
     private function opcode192(): void
     {
         if (!$this->FZero) {
-            $this->programCounter = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+            $this->programCounter = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
             $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
             $this->CPUTicks += 3;
         }
@@ -2576,8 +2576,8 @@ trait HandlesOpcodes
      */
     private function opcode193(): void
     {
-        $this->registerC = $this->memoryRead($this->stackPointer);
-        $this->registerB = $this->memoryRead(($this->stackPointer + 1) & 0xFFFF);
+        $this->registerC = $this->readMemory($this->stackPointer);
+        $this->registerB = $this->readMemory(($this->stackPointer + 1) & 0xFFFF);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
     }
 
@@ -2589,7 +2589,7 @@ trait HandlesOpcodes
     private function opcode194(): void
     {
         if (!$this->FZero) {
-            $this->programCounter = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $this->programCounter = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
@@ -2603,7 +2603,7 @@ trait HandlesOpcodes
      */
     private function opcode195(): void
     {
-        $this->programCounter = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+        $this->programCounter = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
     }
 
     /**
@@ -2614,7 +2614,7 @@ trait HandlesOpcodes
     private function opcode196(): void
     {
         if (!$this->FZero) {
-            $temp_pc = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $temp_pc = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
             $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
             $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
@@ -2647,7 +2647,7 @@ trait HandlesOpcodes
      */
     private function opcode198(): void
     {
-        $dirtySum = $this->registerA + $this->memoryRead($this->programCounter);
+        $dirtySum = $this->registerA + $this->readMemory($this->programCounter);
         $this->FHalfCarry = ($dirtySum & 0xF) < ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
         $this->registerA = $dirtySum & 0xFF;
@@ -2678,7 +2678,7 @@ trait HandlesOpcodes
     private function opcode200(): void
     {
         if ($this->FZero) {
-            $this->programCounter = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+            $this->programCounter = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
             $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
             $this->CPUTicks += 3;
         }
@@ -2691,7 +2691,7 @@ trait HandlesOpcodes
      */
     private function opcode201(): void
     {
-        $this->programCounter = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+        $this->programCounter = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
     }
 
@@ -2703,7 +2703,7 @@ trait HandlesOpcodes
     private function opcode202(): void
     {
         if ($this->FZero) {
-            $this->programCounter = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $this->programCounter = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
@@ -2717,7 +2717,7 @@ trait HandlesOpcodes
      */
     private function opcode203(): void
     {
-        $opcode = $this->memoryRead($this->programCounter);
+        $opcode = $this->readMemory($this->programCounter);
         //Increment the program counter to the next instruction:
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         //Get how many CPU cycles the current 0xCBXX op code counts for:
@@ -2734,7 +2734,7 @@ trait HandlesOpcodes
     private function opcode204(): void
     {
         if ($this->FZero) {
-            $temp_pc = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $temp_pc = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
             $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
             $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
@@ -2754,7 +2754,7 @@ trait HandlesOpcodes
      */
     private function opcode205(): void
     {
-        $temp_pc = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+        $temp_pc = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
         $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
         $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
@@ -2770,7 +2770,7 @@ trait HandlesOpcodes
      */
     private function opcode206(): void
     {
-        $tempValue = $this->memoryRead($this->programCounter);
+        $tempValue = $this->readMemory($this->programCounter);
         $dirtySum = $this->registerA + $tempValue + (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = (($this->registerA & 0xF) + ($tempValue & 0xF) + (($this->FCarry) ? 1 : 0) > 0xF);
         $this->FCarry = ($dirtySum > 0xFF);
@@ -2802,7 +2802,7 @@ trait HandlesOpcodes
     private function opcode208(): void
     {
         if (!$this->FCarry) {
-            $this->programCounter = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+            $this->programCounter = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
             $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
             $this->CPUTicks += 3;
         }
@@ -2815,8 +2815,8 @@ trait HandlesOpcodes
      */
     private function opcode209(): void
     {
-        $this->registerE = $this->memoryRead($this->stackPointer);
-        $this->registerD = $this->memoryRead(($this->stackPointer + 1) & 0xFFFF);
+        $this->registerE = $this->readMemory($this->stackPointer);
+        $this->registerD = $this->readMemory(($this->stackPointer + 1) & 0xFFFF);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
     }
 
@@ -2828,7 +2828,7 @@ trait HandlesOpcodes
     private function opcode210(): void
     {
         if (!$this->FCarry) {
-            $this->programCounter = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $this->programCounter = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
@@ -2855,7 +2855,7 @@ trait HandlesOpcodes
     private function opcode212(): void
     {
         if (!$this->FCarry) {
-            $temp_pc = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $temp_pc = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
             $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
             $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
@@ -2888,7 +2888,7 @@ trait HandlesOpcodes
      */
     private function opcode214(): void
     {
-        $temp_var = $this->memoryRead($this->programCounter);
+        $temp_var = $this->readMemory($this->programCounter);
         $dirtySum = $this->registerA - $temp_var;
         $this->FHalfCarry = ($this->registerA & 0xF) < ($temp_var & 0xF);
         $this->FCarry = ($dirtySum < 0);
@@ -2920,7 +2920,7 @@ trait HandlesOpcodes
     private function opcode216(): void
     {
         if ($this->FCarry) {
-            $this->programCounter = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+            $this->programCounter = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
             $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
             $this->CPUTicks += 3;
         }
@@ -2933,7 +2933,7 @@ trait HandlesOpcodes
      */
     private function opcode217(): void
     {
-        $this->programCounter = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+        $this->programCounter = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
         //$this->IME = true;
         $this->untilEnable = 2;
@@ -2947,7 +2947,7 @@ trait HandlesOpcodes
     private function opcode218(): void
     {
         if ($this->FCarry) {
-            $this->programCounter = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $this->programCounter = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             ++$this->CPUTicks;
         } else {
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
@@ -2973,7 +2973,7 @@ trait HandlesOpcodes
     private function opcode220(): void
     {
         if ($this->FCarry) {
-            $temp_pc = ($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter);
+            $temp_pc = ($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter);
             $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
             $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
             $this->writeMemory($this->stackPointer, $this->programCounter >> 8);
@@ -3004,7 +3004,7 @@ trait HandlesOpcodes
      */
     private function opcode222(): void
     {
-        $temp_var = $this->memoryRead($this->programCounter);
+        $temp_var = $this->readMemory($this->programCounter);
         $dirtySum = $this->registerA - $temp_var - (($this->FCarry) ? 1 : 0);
         $this->FHalfCarry = (($this->registerA & 0xF) - ($temp_var & 0xF) - (($this->FCarry) ? 1 : 0) < 0);
         $this->FCarry = ($dirtySum < 0);
@@ -3035,7 +3035,7 @@ trait HandlesOpcodes
      */
     private function opcode224(): void
     {
-        $this->writeMemory(0xFF00 + $this->memoryRead($this->programCounter), $this->registerA);
+        $this->writeMemory(0xFF00 + $this->readMemory($this->programCounter), $this->registerA);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -3046,7 +3046,7 @@ trait HandlesOpcodes
      */
     private function opcode225(): void
     {
-        $this->registersHL = ($this->memoryRead(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->memoryRead($this->stackPointer);
+        $this->registersHL = ($this->readMemory(($this->stackPointer + 1) & 0xFFFF) << 8) + $this->readMemory($this->stackPointer);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
     }
 
@@ -3102,7 +3102,7 @@ trait HandlesOpcodes
      */
     private function opcode230(): void
     {
-        $this->registerA &= $this->memoryRead($this->programCounter);
+        $this->registerA &= $this->readMemory($this->programCounter);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FZero = ($this->registerA === 0);
         $this->FHalfCarry = true;
@@ -3131,7 +3131,7 @@ trait HandlesOpcodes
      */
     private function opcode232(): void
     {
-        $signedByte = Helpers::usbtsb($this->memoryRead($this->programCounter));
+        $signedByte = Helpers::usbtsb($this->readMemory($this->programCounter));
         $temp_value = Helpers::nswtuw($this->stackPointer + $signedByte);
         $this->FCarry = ((($this->stackPointer ^ $signedByte ^ $temp_value) & 0x100) === 0x100);
         $this->FHalfCarry = ((($this->stackPointer ^ $signedByte ^ $temp_value) & 0x10) === 0x10);
@@ -3158,7 +3158,7 @@ trait HandlesOpcodes
      */
     private function opcode234(): void
     {
-        $this->writeMemory(($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter), $this->registerA);
+        $this->writeMemory(($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter), $this->registerA);
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
     }
 
@@ -3202,7 +3202,7 @@ trait HandlesOpcodes
      */
     private function opcode238(): void
     {
-        $this->registerA ^= $this->memoryRead($this->programCounter);
+        $this->registerA ^= $this->readMemory($this->programCounter);
         $this->FZero = ($this->registerA === 0);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FSubtract = false;
@@ -3231,7 +3231,7 @@ trait HandlesOpcodes
      */
     private function opcode240(): void
     {
-        $this->registerA = $this->memoryRead(0xFF00 + $this->memoryRead($this->programCounter));
+        $this->registerA = $this->readMemory(0xFF00 + $this->readMemory($this->programCounter));
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
     }
 
@@ -3242,12 +3242,12 @@ trait HandlesOpcodes
      */
     private function opcode241(): void
     {
-        $temp_var = $this->memoryRead($this->stackPointer);
+        $temp_var = $this->readMemory($this->stackPointer);
         $this->FZero = (($temp_var & 0x80) === 0x80);
         $this->FSubtract = (($temp_var & 0x40) === 0x40);
         $this->FHalfCarry = (($temp_var & 0x20) === 0x20);
         $this->FCarry = (($temp_var & 0x10) === 0x10);
-        $this->registerA = $this->memoryRead(($this->stackPointer + 1) & 0xFFFF);
+        $this->registerA = $this->readMemory(($this->stackPointer + 1) & 0xFFFF);
         $this->stackPointer = ($this->stackPointer + 2) & 0xFFFF;
     }
 
@@ -3258,7 +3258,7 @@ trait HandlesOpcodes
      */
     private function opcode242(): void
     {
-        $this->registerA = $this->memoryRead(0xFF00 + $this->registerC);
+        $this->registerA = $this->readMemory(0xFF00 + $this->registerC);
     }
 
     /**
@@ -3304,7 +3304,7 @@ trait HandlesOpcodes
      */
     private function opcode246(): void
     {
-        $this->registerA |= $this->memoryRead($this->programCounter);
+        $this->registerA |= $this->readMemory($this->programCounter);
         $this->FZero = ($this->registerA === 0);
         $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
         $this->FSubtract = false;
@@ -3333,7 +3333,7 @@ trait HandlesOpcodes
      */
     private function opcode248(): void
     {
-        $signedByte = Helpers::usbtsb($this->memoryRead($this->programCounter));
+        $signedByte = Helpers::usbtsb($this->readMemory($this->programCounter));
         $this->registersHL = Helpers::nswtuw($this->stackPointer + $signedByte);
         $this->FCarry = ((($this->stackPointer ^ $signedByte ^ $this->registersHL) & 0x100) === 0x100);
         $this->FHalfCarry = ((($this->stackPointer ^ $signedByte ^ $this->registersHL) & 0x10) === 0x10);
@@ -3359,7 +3359,7 @@ trait HandlesOpcodes
      */
     private function opcode250(): void
     {
-        $this->registerA = $this->memoryRead(($this->memoryRead(($this->programCounter + 1) & 0xFFFF) << 8) + $this->memoryRead($this->programCounter));
+        $this->registerA = $this->readMemory(($this->readMemory(($this->programCounter + 1) & 0xFFFF) << 8) + $this->readMemory($this->programCounter));
         $this->programCounter = ($this->programCounter + 2) & 0xFFFF;
     }
 
@@ -3402,7 +3402,7 @@ trait HandlesOpcodes
      */
     private function opcode254(): void
     {
-        $dirtySum = $this->registerA - $this->memoryRead($this->programCounter);
+        $dirtySum = $this->registerA - $this->readMemory($this->programCounter);
         $this->FHalfCarry = (Helpers::unsbtub($dirtySum) & 0xF) > ($this->registerA & 0xF);
         $this->FCarry = ($dirtySum < 0);
         $this->FZero = ($dirtySum === 0);

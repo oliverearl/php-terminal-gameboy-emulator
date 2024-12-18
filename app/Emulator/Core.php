@@ -859,7 +859,7 @@ class Core
 
         while ($this->stopEmulator === 0) {
             //Fetch the current opcode.
-            $op = $this->memoryRead($this->programCounter);
+            $op = $this->readMemory($this->programCounter);
             if (!$this->skipPCIncrement) {
                 //Increment the program counter to the next instruction:
                 $this->programCounter = ($this->programCounter + 1) & 0xFFFF;
@@ -1007,7 +1007,7 @@ class Core
                     }
                 }
 
-                $this->VRAM[$dmaDstRelative++] = $this->memoryRead($dmaSrc++);
+                $this->VRAM[$dmaDstRelative++] = $this->readMemory($dmaSrc++);
             }
         } else {
             while ($dmaDstRelative < $dmaDstFinal) {
@@ -1026,7 +1026,7 @@ class Core
                     }
                 }
 
-                $this->memory[0x8000 + $dmaDstRelative++] = $this->memoryRead($dmaSrc++);
+                $this->memory[0x8000 + $dmaDstRelative++] = $this->readMemory($dmaSrc++);
             }
         }
 
@@ -1418,10 +1418,10 @@ class Core
     }
 
     //Memory Reading:
-    public function memoryRead(int $address): ?int
+    public function readMemory(int $address): ?int
     {
         if ($address < 0x4000) {
-            return $this->memory[$address];
+            return $this->peekMemory($address);
         } elseif ($address < 0x8000) {
             return $this->cartridge->getRom()[$this->currentROMBank + $address];
         } elseif ($address >= 0x8000 && $address < 0xA000) {
@@ -1568,6 +1568,24 @@ class Core
         }
     }
 
+    /**
+     * Read a value from a specific memory address.
+     *
+     * @param int $address The memory address to read from.
+     *
+     * @throws \App\Exceptions\Memory\InvalidMemoryAccessException
+     *
+     * @return null|int The value stored at the memory address.
+     */
+    public function peekMemory(int $address): ?int
+    {
+        if (! array_key_exists($address, $this->memory)) {
+            throw new InvalidMemoryAccessException($address, 'read');
+        }
+
+        return $this->memory[$address];
+    }
+
     public function VRAMReadGFX($address, $gbcBank)
     {
         //Graphics Side Reading The VRAM
@@ -1616,6 +1634,45 @@ class Core
     }
 
     //Memory Writing:
+
+    /**
+     * Handles memory writes in the emulator, implementing bank-switching logic,
+     * special address-specific behaviours, and memory protection mechanisms.
+     *
+     * This method differs from directly writing to memory by incorporating
+     * memory banking logic, hardware behaviour emulation, and access control.
+     * It interprets the provided address and data to perform actions specific
+     * to the memory region and any active memory banking controller (MBC).
+     *
+     * Depending on the address range, this method:
+     * - Enables or disables RAM banks.
+     * - Switches ROM or RAM banks for various MBC types (MBC1, MBC2, MBC3, MBC5, etc.).
+     * - Handles real-time clock (RTC) updates for MBC3.
+     * - Updates special-purpose memory areas such as VRAM, OAM, and I/O registers.
+     * - Emulates restricted memory access during specific modes (e.g., VRAM access during LCD mode 3).
+     * - Handles hardware-specific quirks, like boot ROM handling and GBC palette operations.
+     *
+     * The method relies on various emulator properties to track the current
+     * state of memory controllers, display modes, and hardware features.
+     *
+     * @param int      $address The memory address to write to.
+     *                          Addresses are mapped to specific memory regions, including:
+     *                          - ROM banks (0x0000-0x7FFF)
+     *                          - VRAM (0x8000-0x9FFF)
+     *                          - External RAM (0xA000-0xBFFF)
+     *                          - Working RAM (0xC000-0xDFFF)
+     *                          - Echo RAM (0xE000-0xFDFF)
+     *                          - OAM (0xFE00-0xFE9F)
+     *                          - I/O registers (0xFF00-0xFF7F)
+     *                          - High RAM (0xFF80-0xFFFE)
+     *                          - Interrupt Enable register (0xFFFF)
+     *
+     * @param int|null $data    The value to write to the given address.
+     *
+     * @note This method is central to the emulator's operation, managing interactions between
+     *       the CPU, memory, and hardware components. Future refactoring could benefit from
+     *       modularising memory region-specific behaviours into dedicated classes or methods.
+     */
     public function writeMemory(int $address, ?int $data): void
     {
         if ($address < 0x8000) {
@@ -1949,7 +2006,7 @@ class Core
                 $data <<= 8;
                 $address = 0xFE00;
                 while ($address < 0xFEA0) {
-                    $this->memory[$address++] = $this->memoryRead($data++);
+                    $this->memory[$address++] = $this->readMemory($data++);
                 }
             }
         } elseif ($address === 0xFF47) {
@@ -2010,7 +2067,7 @@ class Core
                         $dmaDst = 0x8000 + ($this->memory[0xFF53] << 8) + $this->memory[0xFF54];
                         $endAmount = ((($data & 0x7F) * 0x10) + 0x10);
                         for ($loopAmount = 0; $loopAmount < $endAmount; ++$loopAmount) {
-                            $this->writeMemory($dmaDst++, $this->memoryRead($dmaSrc++));
+                            $this->writeMemory($dmaDst++, $this->readMemory($dmaSrc++));
                         }
 
                         $this->memory[0xFF51] = (($dmaSrc & 0xFF00) >> 8);
@@ -2101,8 +2158,25 @@ class Core
         } else {
             //Start the I/O initialization by filling in the slots as normal memory:
             //memoryWriteNormal
-            $this->memory[$address] = $data;
+            $this->pokeMemory($address, $data);
         }
+    }
+
+    /**
+     * Write a value to a specific memory address.
+     *
+     * @param int $address The memory address to write to.
+     * @param null|int $data The value to write.
+     *
+     * @throws \App\Exceptions\Memory\InvalidMemoryAccessException
+     */
+    public function pokeMemory(int $address, ?int $data): void
+    {
+        if (! array_key_exists($address, $this->memory)) {
+            throw new InvalidMemoryAccessException($address, 'write');
+        }
+
+        $this->memory[$address] = $data;
     }
 
     /**

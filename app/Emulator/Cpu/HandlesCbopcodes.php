@@ -177,7 +177,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode6(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $this->FCarry = (($temp_var & 0x80) === 0x80);
         $temp_var = (($temp_var << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->writeMemory($this->registersHL, $temp_var);
@@ -275,7 +275,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode14(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $this->FCarry = (($temp_var & 0x01) === 0x01);
         $temp_var = (($this->FCarry) ? 0x80 : 0) + ($temp_var >> 1);
         $this->writeMemory($this->registersHL, $temp_var);
@@ -379,7 +379,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode22(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $newFCarry = (($temp_var & 0x80) === 0x80);
         $temp_var = (($temp_var << 1) & 0xFF) + (($this->FCarry) ? 1 : 0);
         $this->FCarry = $newFCarry;
@@ -485,7 +485,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode30(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $newFCarry = (($temp_var & 0x01) === 0x01);
         $temp_var = (($this->FCarry) ? 0x80 : 0) + ($temp_var >> 1);
         $this->FCarry = $newFCarry;
@@ -585,7 +585,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode38(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $this->FCarry = (($temp_var & 0x80) === 0x80);
         $temp_var = ($temp_var << 1) & 0xFF;
         $this->writeMemory($this->registersHL, $temp_var);
@@ -684,7 +684,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode46(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $this->FCarry = (($temp_var & 0x01) === 0x01);
         $temp_var = ($temp_var & 0x80) + ($temp_var >> 1);
         $this->writeMemory($this->registersHL, $temp_var);
@@ -782,7 +782,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode54(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $temp_var = (($temp_var & 0xF) << 4) + ($temp_var >> 4);
 
         $this->writeMemory($this->registersHL, $temp_var);
@@ -881,7 +881,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode62(): void
     {
-        $temp_var = $this->memoryRead($this->registersHL);
+        $temp_var = $this->readMemory($this->registersHL);
         $this->FCarry = (($temp_var & 0x01) === 0x01);
         $this->writeMemory($this->registersHL, $temp_var >>= 1);
         $this->FHalfCarry = false;
@@ -968,7 +968,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x01) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x01) === 0);
     }
 
     /**
@@ -1048,7 +1048,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x02) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x02) === 0);
     }
 
     /**
@@ -1128,7 +1128,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x04) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x04) === 0);
     }
 
     /**
@@ -1208,7 +1208,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x08) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x08) === 0);
     }
 
     /**
@@ -1288,7 +1288,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x10) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x10) === 0);
     }
 
     /**
@@ -1368,7 +1368,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x20) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x20) === 0);
     }
 
     /**
@@ -1448,7 +1448,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x40) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x40) === 0);
     }
 
     /**
@@ -1528,7 +1528,7 @@ trait HandlesCbopcodes
     {
         $this->FHalfCarry = true;
         $this->FSubtract = false;
-        $this->FZero = (($this->memoryRead($this->registersHL) & 0x80) === 0);
+        $this->FZero = (($this->readMemory($this->registersHL) & 0x80) === 0);
     }
 
     /**
@@ -1594,7 +1594,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode134(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xFE);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xFE);
     }
 
     /**
@@ -1658,7 +1658,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode142(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xFD);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xFD);
     }
 
     /**
@@ -1722,7 +1722,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode150(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xFB);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xFB);
     }
 
     /**
@@ -1786,7 +1786,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode158(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xF7);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xF7);
     }
 
     /**
@@ -1850,7 +1850,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode166(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xEF);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xEF);
     }
 
     /**
@@ -1914,7 +1914,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode174(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xDF);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xDF);
     }
 
     /**
@@ -1978,7 +1978,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode182(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0xBF);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0xBF);
     }
 
     /**
@@ -2042,7 +2042,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode190(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) & 0x7F);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) & 0x7F);
     }
 
     /**
@@ -2106,7 +2106,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode198(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x01);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x01);
     }
 
     /**
@@ -2170,7 +2170,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode206(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x02);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x02);
     }
 
     /**
@@ -2234,7 +2234,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode214(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x04);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x04);
     }
 
     /**
@@ -2298,7 +2298,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode222(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x08);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x08);
     }
 
     /**
@@ -2362,7 +2362,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode230(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x10);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x10);
     }
 
     /**
@@ -2426,7 +2426,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode238(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x20);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x20);
     }
 
     /**
@@ -2490,7 +2490,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode246(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x40);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x40);
     }
 
     /**
@@ -2554,7 +2554,7 @@ trait HandlesCbopcodes
      */
     private function cbopcode254(): void
     {
-        $this->writeMemory($this->registersHL, $this->memoryRead($this->registersHL) | 0x80);
+        $this->writeMemory($this->registersHL, $this->readMemory($this->registersHL) | 0x80);
     }
 
     /**
