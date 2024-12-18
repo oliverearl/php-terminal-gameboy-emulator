@@ -17,7 +17,6 @@ use Exception;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
 use App\Exceptions\Core\CoreNotInitializedException;
-use SplFixedArray;
 
 class Core
 {
@@ -27,9 +26,6 @@ class Core
     use ProvidesTickTables;
 
     public bool $cBATT;
-
-    //The full ROM file dumped to an array.
-    public SplFixedArray $ROM;
 
     //Whether we're in the GBC boot ROM.
     public bool $inBootstrap = true;
@@ -379,11 +375,11 @@ class Core
     public function initMemory(): void
     {
         //Initialize the RAM:
-        $this->memory = $this->getPreinitializedArray(0x10000, 0);
-        $this->frameBuffer = $this->getPreinitializedArray(23040, 0x00FFFFFF);
-        $this->gbPalette = $this->getPreinitializedArray(12, 0); //32-bit signed
-        $this->gbColorizedPalette = $this->getPreinitializedArray(12, 0); //32-bit signed
-        $this->gbcRawPalette = $this->getPreinitializedArray(0x80, -1000); //32-bit signed
+        $this->memory = Helpers::getPreinitializedArray(0x10000, 0);
+        $this->frameBuffer = Helpers::getPreinitializedArray(23040, 0x00FFFFFF);
+        $this->gbPalette = Helpers::getPreinitializedArray(12, 0); //32-bit signed
+        $this->gbColorizedPalette = Helpers::getPreinitializedArray(12, 0); //32-bit signed
+        $this->gbcRawPalette = Helpers::getPreinitializedArray(0x80, -1000); //32-bit signed
         $this->gbcPalette = [0x40]; //32-bit signed
         //Initialize the GBC Palette:
         $address = 0x3F;

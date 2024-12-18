@@ -7,6 +7,19 @@ namespace App\Emulator;
 abstract class Helpers
 {
     /**
+     * Builds an array of a given length.
+     *
+     * @param int $length
+     * @param mixed $defaultValue
+     *
+     * @return array<int, mixed>
+     */
+    public static function getPreinitializedArray(int $length, mixed $defaultValue): array
+    {
+        return array_fill(0, $length, $defaultValue);
+    }
+
+    /**
      * Ensures a signed 16-bit word is treated as an unsigned 16-bit word.
      *
      * This method converts a signed 16-bit integer (e.g., -1) into its unsigned
