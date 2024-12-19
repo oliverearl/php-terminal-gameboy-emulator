@@ -427,7 +427,8 @@ trait HighLevelAccess
 
             //I/O Registers (GB + GBC):
         } elseif ($address === 0xFF00) {
-            $this->memory[0xFF00] = ($data & 0x30) | (((($data & 0x20) === 0) ? ($this->core->JoyPad >> 4) : 0xF) & ((($data & 0x10) === 0) ? ($this->core->JoyPad & 0xF) : 0xF));
+            $inputState = $this->core->input->getInputState();
+            $this->memory[0xFF00] = ($data & 0x30) | (((($data & 0x20) === 0) ? ($inputState >> 4) : 0xF) & ((($data & 0x10) === 0) ? ($inputState & 0xF) : 0xF));
         } elseif ($address === 0xFF02) {
             if ((($data & 0x1) === 0x1)) {
                 //Internal clock:

@@ -11,6 +11,11 @@ return [
      */
     'enable_gb_colorize' => env('ENABLE_GB_COLORIZE', false),
 
+    /**
+     * The input device to use for controlling the emulator. At the moment, only keyboard is supported.
+     */
+    'input_device' => 'keyboard',
+
     /*
      * Keyboard control mappings.
      */

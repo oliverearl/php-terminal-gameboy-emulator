@@ -8,7 +8,6 @@ use App\Emulator\Canvas\DrawContextInterface;
 use App\Emulator\Canvas\LaravelCanvas;
 use App\Emulator\Canvas\LegacyCanvas;
 use App\Emulator\Core;
-use App\Emulator\Input\Keyboard;
 use Illuminate\Support\Facades\Config;
 use LaravelZero\Framework\Commands\Command;
 
@@ -42,13 +41,10 @@ class RunEmulator extends Command
             'drawContext' => $this->loadCanvas(),
         ]);
 
-        $keyboard = new Keyboard($core);
-
         $core->start();
 
         while (true) {
             $core->run();
-            $keyboard->check();
         }
     }
 

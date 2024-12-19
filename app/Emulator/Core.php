@@ -11,6 +11,7 @@ use App\Emulator\Cpu\HandlesOpcodes;
 use App\Emulator\Cpu\ProvidesDataTables;
 use App\Emulator\Cpu\ProvidesTickTables;
 use App\Emulator\Debugger\Debugger;
+use App\Emulator\Input\Input;
 use App\Emulator\Memory\Memory;
 use App\Exceptions\Cpu\HaltOverrunException;
 use Exception;
@@ -101,9 +102,6 @@ class Core
     public bool $gfxBackgroundX = false;
 
     public bool $TIMAEnabled = false;
-
-    //Joypad State (two four-bit states actually)
-    public int $JoyPad = 0xFF;
 
     //
     //RTC:
@@ -228,6 +226,7 @@ class Core
     public readonly Cartridge $cartridge;
     public readonly LcdController $lcd;
     public readonly Memory $memory;
+    public readonly Input $input;
 
     public function __construct(string $romPath, private readonly ?DrawContextInterface $drawContext)
     {
@@ -239,6 +238,7 @@ class Core
 
         $this->config = resolve(ConfigBladder::class);
         $this->memory = resolve(Memory::class, ['core' => $this]);
+        $this->input = resolve(Input::class, ['core' => $this]);
         $this->cartridge = resolve(Cartridge::class, ['core' => $this, 'romPath' => $romPath]);
         $this->lcd = resolve(LcdController::class, ['core' => $this]);
 
@@ -429,17 +429,6 @@ class Core
         $this->drawContext->draw($this->canvasBuffer);
     }
 
-    public function joyPadEvent($key, $down): void
-    {
-        if ($down) {
-            $this->JoyPad &= 0xFF ^ (1 << $key);
-        } else {
-            $this->JoyPad |= (1 << $key);
-        }
-
-        $this->memory->memory[0xFF00] = ($this->memory->memory[0xFF00] & 0x30) + (((($this->memory->memory[0xFF00] & 0x20) === 0) ? ($this->JoyPad >> 4) : 0xF) & ((($this->memory->memory[0xFF00] & 0x10) === 0) ? ($this->JoyPad & 0xF) : 0xF));
-    }
-
     public function run(): void
     {
         //The preprocessing before the actual iteration loop:
@@ -475,6 +464,8 @@ class Core
             Debugger::print($exception->getMessage());
             // pause
         }
+
+        $this->input->check();
     }
 
     public function executeIteration(): void

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Emulator\Cartridge\CartridgeLoader;
+use App\Emulator\Cartridge\Cartridge;
 use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Core;
+use App\Emulator\Input\Input;
 use App\Emulator\LcdController;
 use LaravelZero\Framework\Application;
 use Override;
@@ -39,8 +40,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(
-            CartridgeLoader::class,
-            static fn(Application $app, array $params): CartridgeLoader => new CartridgeLoader(...$params),
+            Cartridge::class,
+            static fn(Application $app, array $params): Cartridge => new Cartridge(...$params),
+        );
+
+        $this->app->singleton(
+            Input::class,
+            static fn(Application $app, array $params): Input => new Input(...$params),
         );
 
         $this->app->singleton(

@@ -12,6 +12,11 @@ use function Laravel\Prompts\warning;
 class Keyboard implements InputInterface
 {
     /**
+     * The input device type.
+     */
+    public const string INPUT_DEVICE = 'keyboard';
+
+    /**
      * Default controls to fall back on in case there's a problem with the configuration.
      *
      * @var array<string, \App\Emulator\Input\JoypadInput>
@@ -70,7 +75,7 @@ class Keyboard implements InputInterface
     /**
      * Constructor.
      */
-    public function __construct(private readonly Core $core)
+    public function __construct(private readonly Input $input)
     {
         $this->setControlMappings();
         $this->checkAndEnableInput();
@@ -132,7 +137,7 @@ class Keyboard implements InputInterface
     {
         $keyCode = $keyCode instanceof JoypadInput ? $keyCode->value : $keyCode;
 
-        $this->core->joyPadEvent($keyCode, $down);
+        $this->input->handleEvent($keyCode, $down);
     }
 
     /**
