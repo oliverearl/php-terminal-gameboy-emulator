@@ -516,7 +516,6 @@ class Core
             if (($testbit & $interrupts) === $testbit) {
                 $this->IME = false; //Reset the interrupt enabling.
                 //Reset the interrupt request.
-//                $this->memory->memory[0xFF0F] -= $testbit;
                 $this->memory->pokeMemory(0xFF0F, $this->memory->peekMemory(0xFF0F) & ~$testbit);
                 //Set the stack pointer to the current program counter value:
                 $this->stackPointer = Helpers::unswtuw($this->stackPointer - 1);
