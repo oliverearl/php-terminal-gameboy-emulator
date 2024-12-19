@@ -10,7 +10,7 @@ use App\Exceptions\Cartridge\BadCartridgeTypeException;
 use App\Exceptions\Cartridge\RomMissingOrBadException;
 use SplFixedArray;
 
-class CartridgeLoader
+class Cartridge
 {
     /**
      * ROM banks. 1 Bank = 16 KBytes = 256 Kbits.

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Emulator;
 
-use App\Emulator\Cartridge\CartridgeLoader;
+use App\Emulator\Cartridge\Cartridge;
 use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Cpu\HandlesCbopcodes;
 use App\Emulator\Cpu\HandlesOpcodes;
@@ -225,7 +225,7 @@ class Core
     public ?bool $cTIMER = null;
 
     public readonly ConfigBladder $config;
-    public readonly CartridgeLoader $cartridge;
+    public readonly Cartridge $cartridge;
     public readonly LcdController $lcd;
     public readonly Memory $memory;
 
@@ -239,7 +239,7 @@ class Core
 
         $this->config = resolve(ConfigBladder::class);
         $this->memory = resolve(Memory::class, ['core' => $this]);
-        $this->cartridge = resolve(CartridgeLoader::class, ['core' => $this, 'romPath' => $romPath]);
+        $this->cartridge = resolve(Cartridge::class, ['core' => $this, 'romPath' => $romPath]);
         $this->lcd = resolve(LcdController::class, ['core' => $this]);
 
         $this->config->set('advanced.performance.frame_skip_amount', 0);
