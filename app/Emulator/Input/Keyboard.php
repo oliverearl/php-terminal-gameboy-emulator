@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Emulator\Input;
 
-use App\Emulator\Core;
 use Illuminate\Support\Facades\Config;
 
 use function Laravel\Prompts\warning;
@@ -15,6 +14,11 @@ class Keyboard implements InputInterface
      * The input device type.
      */
     public const string INPUT_DEVICE = 'keyboard';
+
+    /**
+     * The number of frames to wait before concluding a key has been released when no new input is received.
+     */
+    private const int HOLD_TIME = 5;
 
     /**
      * Default controls to fall back on in case there's a problem with the configuration.
@@ -43,11 +47,6 @@ class Keyboard implements InputInterface
      * The currently pressed key, or null if no key is currently pressed.
      */
     private ?string $keyPressing = null;
-
-    /**
-     * The number of frames to wait before concluding a key has been released when no new input is received.
-     */
-    private int $holdTime = 5;
 
     /**
      * A counter tracking how many frames have passed since last input was read for the currently pressed key.
@@ -111,7 +110,7 @@ class Keyboard implements InputInterface
             if ($this->keyPressing !== null) {
                 // Increment the hold counter and possibly release the key if enough time has passed.
                 $this->holdCounter++;
-                if ($this->holdCounter > $this->holdTime) {
+                if ($this->holdCounter > self::HOLD_TIME) {
                     $this->keyUp($this->keyPressing);
                     $this->keyPressing = null;
                     $this->holdCounter = 0;
@@ -157,7 +156,7 @@ class Keyboard implements InputInterface
     /**
      * Handles a key-up event by notifying the emulator core.
      *
-     * @param string $key The key pressed.
+         * @param string $key The key pressed.
      */
     private function keyUp(string $key): void
     {
