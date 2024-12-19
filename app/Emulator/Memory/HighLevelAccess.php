@@ -337,7 +337,7 @@ trait HighLevelAccess
                 }
             }
         } elseif ($address < 0xC000) {
-            if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->core->numRAMBanks >= 1) {
+            if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
                 $overrideMbc = $this->core->config->getBoolean('advanced.performance.emulation.override_mbc');
 
                 if (!$this->cMBC3) {

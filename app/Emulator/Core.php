@@ -161,41 +161,6 @@ class Core
     public int $lastIteration = 0;
 
     //
-    //ROM Cartridge Components:
-    //
-
-    //Does the cartridge use MBC1?
-    public bool $cMBC1 = false;
-
-    //Does the cartridge use MBC2?
-    public bool $cMBC2 = false;
-
-    //Does the cartridge use MBC3?
-    public bool $cMBC3 = false;
-
-    //Does the cartridge use MBC5?
-    public bool $cMBC5 = false;
-
-    //Does the cartridge use save RAM?
-    public bool $cSRAM = false;
-
-    public bool $cMMMO1 = false;
-
-    //Does the cartridge use the RUMBLE addressing (modified MBC5)?
-    public bool $cRUMBLE = false;
-
-    public bool $cCamera = false;
-
-    public bool $cTAMA5 = false;
-
-    public bool $cHuC3 = false;
-
-    public bool $cHuC1 = false;
-
-    //How many RAM banks were actually allocated?
-    public int $numRAMBanks = 0;
-
-    //
     //Graphics Variables
     //
 
