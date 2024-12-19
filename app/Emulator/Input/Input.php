@@ -24,7 +24,7 @@ class Input
     private int $inputState = 0xFF;
 
     /**
-     * Joypad constructor.
+     * Input constructor.
      */
     public function __construct(private readonly Core $core)
     {
@@ -50,12 +50,15 @@ class Input
     public function handleEvent(int $key, bool $down): void
     {
         if ($down) {
-            $this->inputState &= 0xFF ^ (1 << $key);
+            // Clear the corresponding bit. (active low)
+            $this->inputState &= ~(1 << $key);
         } else {
+            // Set the corresponding bit.
             $this->inputState |= (1 << $key);
         }
 
-        $this->core->memory->memory[0xFF00] = ($this->core->memory->memory[0xFF00] & 0x30) + (((($this->core->memory->memory[0xFF00] & 0x20) === 0) ? ($this->inputState >> 4) : 0xF) & ((($this->core->memory->memory[0xFF00] & 0x10) === 0) ? ($this->inputState & 0xF) : 0xF));
+        // Delegate the register update to memory
+        $this->core->memory->updateJoypadRegister($this->inputState);
     }
 
     /**

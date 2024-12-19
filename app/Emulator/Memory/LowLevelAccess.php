@@ -10,6 +10,22 @@ use App\Exceptions\Memory\InvalidMemoryAccessException;
 trait LowLevelAccess
 {
     /**
+     * Update the joypad register with the current input state.
+     *
+     * @param int $inputState The current input state.
+     */
+    public function updateJoypadRegister(int $inputState): void
+    {
+        $joypadRegister = $this->peekMemory(0xFF00);
+
+        $topNibble = $joypadRegister & 0x30;
+        $directionKeys = (($joypadRegister & 0x20) === 0) ? ($inputState >> 4) : 0x0F;
+        $buttonKeys    = (($joypadRegister & 0x10) === 0) ? ($inputState & 0x0F) : 0x0F;
+
+        $this->pokeMemory(0xFF00, $topNibble | ($directionKeys & $buttonKeys));
+    }
+
+    /**
      * Read a value from a specific memory address.
      *
      * @param int $address The memory address to read from.
