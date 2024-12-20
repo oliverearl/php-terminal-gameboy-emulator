@@ -17,7 +17,13 @@ beforeEach(function () {
     expect(file_exists($this->filepath))->toBeFalse();
 });
 
-it('creates a valid CSV file for an empty memory array', function () {
+afterEach(function (): void {
+    if (file_exists($this->filepath)) {
+        unlink($this->filepath);
+    }
+});
+
+it('creates a valid CSV file for an empty memory array', function (): void {
     $this->dumper->export([], $this->filename);
 
     expect(file_exists($this->filepath))->toBeTrue();
