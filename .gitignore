@@ -32,3 +32,6 @@ roms/
 
 # platform
 .DS_Store
+
+# testing
+coverage-report/
