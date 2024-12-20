@@ -34,6 +34,7 @@ class Input
         $inputDevice = Str::lower(Config::string('emulator.input_device'));
 
         $this->input = match ($inputDevice) {
+            NullDevice::INPUT_DEVICE => resolve(NullDevice::class),
             Keyboard::INPUT_DEVICE => resolve(Keyboard::class, ['input' => $this, 'isPrimaryInput' => true]),
             default => new InvalidInputDeviceException($inputDevice),
         };
