@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(
             Core::class,
-            static fn (Application $app, array $params): Core => new Core(...$params),
+            static fn(Application $app, array $params): Core => new Core(...$params),
         );
 
         $this->app->singleton(
