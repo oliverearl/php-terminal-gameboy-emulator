@@ -20,7 +20,7 @@ class MemoryExporter
      *
      * @throws \RuntimeException
      */
-    function export(array $memory, ?string $filename = null): void
+    public function export(array $memory, ?string $filename = null): void
     {
         $filename ??= sprintf('memory-dump-%s.csv', Carbon::now()->format('d-m-Y-H-i-s'));
         $fp = fopen(getcwd() . DIRECTORY_SEPARATOR . $filename, 'w');
@@ -39,7 +39,7 @@ class MemoryExporter
 
         // The header: StartAddr + 16 columns for hex dump.
         $header = array_merge(['StartAddr'], array_map(fn(int $i): string => sprintf('+%X', $i), range(0, 15)));
-        fputcsv($fp, $header);
+        fputcsv($fp, $header, escape: '');
 
         $memorySize = count($memory);
 
@@ -53,7 +53,7 @@ class MemoryExporter
                 $rowValues[] = $hexVal;
             }
 
-            fputcsv($fp, $rowValues);
+            fputcsv($fp, $rowValues, escape: '');
         }
 
         fclose($fp);

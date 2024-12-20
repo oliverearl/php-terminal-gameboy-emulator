@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Exports\MemoryExporter;
 use Illuminate\Support\Str;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->dumper = new MemoryExporter();
     $this->filename = 'test-memory-dump.csv';
     $this->filepath = getcwd() . DIRECTORY_SEPARATOR . $this->filename;
@@ -37,7 +37,7 @@ it('creates a valid CSV file for an empty memory array', function (): void {
     expect($lines)->toHaveCount(1);
 });
 
-it('creates a valid CSV file for a small memory array (less than 16 bytes)', function () {
+it('creates a valid CSV file for a small memory array (less than 16 bytes)', function (): void {
     // Example memory: 3 bytes: [0x01, 0xFF, 0x10]
     $this->dumper->export([0x01, 0xFF, 0x10], $this->filename);
 
@@ -50,7 +50,7 @@ it('creates a valid CSV file for a small memory array (less than 16 bytes)', fun
         ->and(head($lines))->toContain('StartAddr,+0,+1,+2,+3');
 
     // Check data line.
-    $dataColumns = str_getcsv($lines[1]);
+    $dataColumns = str_getcsv($lines[1], escape: '');
     expect($dataColumns[0])
         ->toBe('0x0000') // Address
         ->and($dataColumns[1])->toBe('01')
@@ -63,7 +63,7 @@ it('creates a valid CSV file for a small memory array (less than 16 bytes)', fun
     }
 });
 
-it('creates a valid CSV file for exactly 16 bytes', function () {
+it('creates a valid CSV file for exactly 16 bytes', function (): void {
     // 16 bytes: 0x00 to 0x0F.
     $memory = range(0x00, 0x0F);
     $this->dumper->export($memory, $this->filename);
@@ -74,7 +74,7 @@ it('creates a valid CSV file for exactly 16 bytes', function () {
     // 1 line header + 1 line data.
     expect($lines)->toHaveCount(2);
 
-    $dataColumns = str_getcsv($lines[1]);
+    $dataColumns = str_getcsv($lines[1], escape: '');
     expect($dataColumns[0])->toBe('0x0000');
 
     // Check all 16 bytes in hex:
@@ -84,7 +84,7 @@ it('creates a valid CSV file for exactly 16 bytes', function () {
     }
 });
 
-it('handles arrays larger than 16 bytes, producing multiple rows', function () {
+it('handles arrays larger than 16 bytes, producing multiple rows', function (): void {
     // 20 bytes: 0x10 to 0x23: (just an example)
     $memory = range(0x10, 0x23);
     $this->dumper->export($memory, $this->filename);
@@ -96,7 +96,7 @@ it('handles arrays larger than 16 bytes, producing multiple rows', function () {
     expect(count($lines))->toBe(3);
 
     // First data line should start at 0x0000.
-    $firstData = str_getcsv($lines[1]);
+    $firstData = str_getcsv($lines[1], escape: '');
     expect($firstData[0])->toBe('0x0000');
 
     // Should have 16 bytes from 0x10 to 0x1F.
@@ -106,7 +106,7 @@ it('handles arrays larger than 16 bytes, producing multiple rows', function () {
     }
 
     // Second data line starts at 0x0010. (decimal 16)
-    $secondData = str_getcsv($lines[2]);
+    $secondData = str_getcsv($lines[2], escape: '');
     expect($secondData[0])->toBe('0x0010');
 
     // Should contain 4 remaining bytes: 0x20,0x21,0x22,0x23
