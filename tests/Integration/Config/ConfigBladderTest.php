@@ -66,7 +66,7 @@ describe('ConfigBladder', function (): void {
 
         Config::set('emulator.test_key', 'new_value');
 
-        // Ensure resync occurred
+        // Ensure resync occurred.
         $result = $configBladder->get('test_key');
         expect($result)->toBe('new_value');
     });
