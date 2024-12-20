@@ -208,7 +208,7 @@ trait HighLevelAccess
                     // MBC1WriteROMBank
                     //MBC1 ROM bank switching:
                     $this->ROMBank1offs = ($this->ROMBank1offs & 0x60) | ($data & 0x1F);
-                    $this->core->setCurrentMBC1ROMBank();
+                    $this->setCurrentMBC1ROMBank();
                 } elseif ($address < 0x6000) {
                     //MBC1WriteRAMBank
                     //MBC1 RAM bank switching
@@ -219,7 +219,7 @@ trait HighLevelAccess
                     } else {
                         //16/8 Mode
                         $this->ROMBank1offs = (($data & 0x03) << 5) | ($this->ROMBank1offs & 0x1F);
-                        $this->core->setCurrentMBC1ROMBank();
+                        $this->setCurrentMBC1ROMBank();
                     }
                 } else {
                     //MBC1WriteType
@@ -234,7 +234,7 @@ trait HighLevelAccess
                     //MBC2WriteROMBank
                     //MBC2 ROM bank switching:
                     $this->ROMBank1offs = $data & 0x0F;
-                    $this->core->setCurrentMBC2AND3ROMBank();
+                    $this->setCurrentMBC2AND3ROMBank();
                 } else {
                     //We might have encountered illegal RAM writing or such, so just do nothing...
                 }
@@ -245,7 +245,7 @@ trait HighLevelAccess
                 } elseif ($address < 0x4000) {
                     //MBC3 ROM bank switching:
                     $this->ROMBank1offs = $data & 0x7F;
-                    $this->core->setCurrentMBC2AND3ROMBank();
+                    $this->setCurrentMBC2AND3ROMBank();
                 } elseif ($address < 0x6000) {
                     //MBC3WriteRAMBank
                     $this->currMBCRAMBank = $data;
@@ -273,12 +273,12 @@ trait HighLevelAccess
                     //MBC5WriteROMBankLow
                     //MBC5 ROM bank switching:
                     $this->ROMBank1offs = ($this->ROMBank1offs & 0x100) | $data;
-                    $this->core->setCurrentMBC5ROMBank();
+                    $this->setCurrentMBC5ROMBank();
                 } elseif ($address < 0x4000) {
                     //MBC5WriteROMBankHigh
                     //MBC5 ROM bank switching (by least significant bit):
                     $this->ROMBank1offs = (($data & 0x01) << 8) | ($this->ROMBank1offs & 0xFF);
-                    $this->core->setCurrentMBC5ROMBank();
+                    $this->setCurrentMBC5ROMBank();
                 } elseif ($address < 0x6000) {
                     if ($this->cRUMBLE) {
                         //MBC5 RAM bank switching
@@ -300,7 +300,7 @@ trait HighLevelAccess
                 } elseif ($address < 0x4000) {
                     //MBC3 ROM bank switching:
                     $this->ROMBank1offs = $data & 0x7F;
-                    $this->core->setCurrentMBC2AND3ROMBank();
+                    $this->setCurrentMBC2AND3ROMBank();
                 } elseif ($address < 0x6000) {
                     //HuC3WriteRAMBank
                     //HuC3 RAM bank switching
@@ -645,7 +645,7 @@ trait HighLevelAccess
                 $this->memory[0xFF6A] = $data;
             }
         } elseif ($address === 0xFF6B) {
-            if ($this->cGBC) {
+            if ($this->core->cGBC) {
                 $this->core->setGBCPalette(($this->memory[0xFF6A] & 0x3F) + 0x40, $data);
                 // high bit = autoincrement
                 if (Helpers::usbtsb($this->memory[0xFF6A]) < 0) {

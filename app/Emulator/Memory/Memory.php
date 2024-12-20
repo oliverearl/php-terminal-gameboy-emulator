@@ -105,6 +105,47 @@ class Memory
         return ($gbcBank) ? $this->VRAM[$address] : $this->memory[0x8000 + $address];
     }
 
+    public function setCurrentMBC1ROMBank(): void
+    {
+        $romSize = $this->cartridge->getRom()->count();
+
+        // Read the cartridge ROM data from RAM memory:
+        $this->memory->currentROMBank = match ($this->memory->ROMBank1offs) {
+            //Bank calls for 0x00, 0x20, 0x40, and 0x60 are really for 0x01, 0x21, 0x41, and 0x61.
+            0x00, 0x20, 0x40, 0x60 => $this->memory->ROMBank1offs * 0x4000,
+            default => ($this->memory->ROMBank1offs - 1) * 0x4000,
+        };
+
+        while ($this->memory->currentROMBank + 0x4000 >= $romSize) {
+            $this->memory->currentROMBank -= $romSize;
+        }
+    }
+
+    public function setCurrentMBC2AND3ROMBank(): void
+    {
+        $romSize = $this->core->cartridge->getRom()->count();
+
+        // Read the cartridge ROM data from RAM memory:
+        // Only map bank 0 to bank 1 here (MBC2 is like MBC1, but can only do 16 banks, so only the bank 0 quirk appears for MBC2):
+        $this->currentROMBank = max($this->ROMBank1offs - 1, 0) * 0x4000;
+
+        while ($this->currentROMBank + 0x4000 >= $romSize) {
+            $this->currentROMBank -= $romSize;
+        }
+    }
+
+    public function setCurrentMBC5ROMBank(): void
+    {
+        $romSize = $this->core->cartridge->getRom()->count();
+
+        // Read the cartridge ROM data from RAM memory:
+        $this->currentROMBank = ($this->ROMBank1offs - 1) * 0x4000;
+
+        while ($this->currentROMBank + 0x4000 >= $romSize) {
+            $this->currentROMBank -= $romSize;
+        }
+    }
+
     /**
      * Dumps memory to CSV.
      */
