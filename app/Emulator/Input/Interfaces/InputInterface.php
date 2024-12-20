@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Emulator\Input;
+namespace App\Emulator\Input\Interfaces;
 
 interface InputInterface
 {

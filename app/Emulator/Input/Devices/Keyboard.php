@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Emulator\Input;
+namespace App\Emulator\Input\Devices;
 
 use App\Emulator\Input\Enums\JoypadInput;
 use App\Emulator\Input\Enums\MagicKeypress;
+use App\Emulator\Input\Input;
+use App\Emulator\Input\Interfaces\InputInterface;
 use Illuminate\Support\Facades\Config;
 use function Laravel\Prompts\warning;
 

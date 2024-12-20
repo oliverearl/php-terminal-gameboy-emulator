@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Emulator\Input;
+namespace App\Emulator\Input\Devices;
 
 use App\Emulator\Debugger\Debugger;
+use App\Emulator\Input\Interfaces\InputInterface;
 
 class NullDevice implements InputInterface
 {
