@@ -16,9 +16,6 @@
         </testsuite>
     </testsuites>
     <coverage>
-        <include>
-            <directory suffix=".php">./app</directory>
-        </include>
         <report>
             <html outputDirectory="./coverage-report" />
             <clover outputFile="./coverage.xml" />
