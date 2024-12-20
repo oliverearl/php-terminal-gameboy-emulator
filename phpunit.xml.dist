@@ -8,10 +8,22 @@
         <testsuite name="Feature">
             <directory>./tests/Feature</directory>
         </testsuite>
+        <testsuite name="Integration">
+            <directory>./tests/Integration</directory>
+        </testsuite>
         <testsuite name="Unit">
             <directory>./tests/Unit</directory>
         </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+        <report>
+            <html outputDirectory="./coverage-report" />
+            <clover outputFile="./coverage.xml" />
+        </report>
+    </coverage>
     <source>
         <include>
             <directory>./app</directory>
