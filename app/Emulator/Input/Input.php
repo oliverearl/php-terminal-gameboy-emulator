@@ -13,10 +13,13 @@ class Input
 {
     /**
      * Chosen input device.
-     *
-     * @var \App\Emulator\Input\InputInterface
      */
     private readonly InputInterface $input;
+
+    /**
+     * Keyboard to still listen for magic inputs if not primary input device.
+     */
+    private readonly ?Keyboard $eventListener;
 
     /**
      * The current input state. Two four-bit states.
@@ -31,9 +34,15 @@ class Input
         $inputDevice = Str::lower(Config::string('emulator.input_device'));
 
         $this->input = match ($inputDevice) {
-            Keyboard::INPUT_DEVICE => resolve(Keyboard::class, ['input' => $this]),
+            Keyboard::INPUT_DEVICE => resolve(Keyboard::class, ['input' => $this, 'isPrimaryInput' => true]),
             default => new InvalidInputDeviceException($inputDevice),
         };
+
+        if ($inputDevice === Keyboard::INPUT_DEVICE) {
+            $this->eventListener = null;
+        } else {
+            $this->eventListener = resolve(Keyboard::class, ['input' => $this, 'isPrimaryInput' => false]);
+        }
     }
 
     /**
@@ -42,6 +51,10 @@ class Input
     public function check(): void
     {
         $this->input->check();
+
+        if ($this->eventListener) {
+            $this->eventListener->check();
+        }
     }
 
     /**
@@ -59,6 +72,17 @@ class Input
 
         // Delegate the register update to memory
         $this->core->memory->updateJoypadRegister($this->inputState);
+    }
+
+    /**
+     * Handles special input events.
+     */
+    public function handleSpecialEvent(MagicKeypress $event): void
+    {
+        match ($event) {
+            MagicKeypress::TOGGLE_MENU => $this->core->toggleMenu(),
+            MagicKeypress::DUMP_STATE => $this->core->dumpState(),
+        };
     }
 
     /**

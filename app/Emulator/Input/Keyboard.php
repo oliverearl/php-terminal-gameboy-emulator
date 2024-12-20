@@ -69,19 +69,22 @@ class Keyboard implements InputInterface
      *
      * @var array<string, int>
      */
-    private readonly array $keyMap;
+    private array $keyMap = self::DEFAULT_MAP;
 
     /**
      * Constructor.
      */
-    public function __construct(private readonly Input $input)
+    public function __construct(private readonly Input $input, public readonly bool $isPrimaryInput)
     {
-        $this->setControlMappings();
-        $this->checkAndEnableInput();
+        if ($this->isPrimaryInput) {
+            $this->setControlMappings();
 
-        if ($this->usingDefaultControls) {
-            warning('The controls have not been correctly configured. Using defaults.');
+            if ($this->usingDefaultControls) {
+                warning('The controls have not been correctly configured. Using defaults.');
+            }
         }
+
+        $this->checkAndEnableInput();
 
         if (! $this->canUseEnhancedInput) {
             warning('PHP has been restricted and cannot modify the shell. Input might feel laggy.');
@@ -103,38 +106,58 @@ class Keyboard implements InputInterface
      */
     public function check(): void
     {
-        $key = fread($this->file, 1);
+        $key = fread($this->file, 5);
+        $event = $this->checkForMagicInput($key);
 
-        // If no new character was read:
-        if ($key === '' || $key === false) {
-            if ($this->keyPressing !== null) {
-                // Increment the hold counter and possibly release the key if enough time has passed.
-                $this->holdCounter++;
-                if ($this->holdCounter > self::HOLD_TIME) {
-                    $this->keyUp($this->keyPressing);
-                    $this->keyPressing = null;
-                    $this->holdCounter = 0;
+        if ($event !== null) {
+            $this->input->handleSpecialEvent($event);
+        } elseif ($this->isPrimaryInput) {
+            // If no new character was read:
+            if ($key === '' || $key === false) {
+                if ($this->keyPressing !== null) {
+                    // Increment the hold counter and possibly release the key if enough time has passed.
+                    $this->holdCounter++;
+                    if ($this->holdCounter > self::HOLD_TIME) {
+                        $this->keyUp($this->keyPressing);
+                        $this->keyPressing = null;
+                        $this->holdCounter = 0;
+                    }
                 }
+
+                return;
             }
 
-            return;
+            // Reset hold counter since we got a character.
+            $this->holdCounter = 0;
+
+            // If a different key was previously pressed, release it first.
+            if ($this->keyPressing !== null && $this->keyPressing !== $key) {
+                $this->keyUp($this->keyPressing);
+            }
+
+            $this->keyDown($key);
+            $this->keyPressing = $key;
         }
-
-        // Reset hold counter since we got a character.
-        $this->holdCounter = 0;
-
-        // If a different key was previously pressed, release it first.
-        if ($this->keyPressing !== null && $this->keyPressing !== $key) {
-            $this->keyUp($this->keyPressing);
-        }
-
-        $this->keyDown($key);
-        $this->keyPressing = $key;
     }
 
+
+    /**
+     * Checks if the input is a special event. These are handled even if the primary
+     * input is not the keyboard.
+     */
+    private function checkForMagicInput(string $key): ?MagicKeypress
+    {
+        return MagicKeypress::tryFrom($key) ?? null;
+    }
+
+    /**
+     * Fires an input event to the emulator core.
+     */
     public function fireInput(int|JoypadInput $keyCode, bool $down): void
     {
-        $keyCode = $keyCode instanceof JoypadInput ? $keyCode->value : $keyCode;
+        $keyCode = $keyCode instanceof JoypadInput
+            ? $keyCode->value
+            : $keyCode;
 
         $this->input->handleEvent($keyCode, $down);
     }
@@ -188,7 +211,6 @@ class Keyboard implements InputInterface
         // There must be exactly as many controls as in DEFAULT_MAP
         if (count($controls) !== count(self::DEFAULT_MAP)) {
             $this->usingDefaultControls = true;
-            $this->keyMap = self::DEFAULT_MAP;
 
             return;
         }
@@ -213,7 +235,7 @@ class Keyboard implements InputInterface
     {
         $disabledFunctions = explode(',', (string) ini_get('disable_functions'));
 
-        if (in_array('exec', $disabledFunctions, true)) {
+        if (in_array('exec', $disabledFunctions, strict: true)) {
             $this->canUseEnhancedInput = false;
         }
 

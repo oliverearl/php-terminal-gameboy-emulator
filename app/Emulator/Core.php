@@ -585,6 +585,25 @@ class Core
         }
     }
 
+    /**
+     * Shows the emulator menu.
+     */
+    public function toggleMenu(): void
+    {
+        Debugger::print('Toggles emulator menu. Not yet implemented.');
+    }
+
+    /*
+     * Dumps the current state of the emulator.
+     */
+    public function dumpState(): void
+    {
+        Debugger::print(sprintf('Dumping state to files in %s!', getcwd()));
+
+        // TODO: Dump other areas of state.
+        $this->memory->dump();
+    }
+
     public function displayShowOff(): void
     {
         if ($this->drewBlank === 0) {

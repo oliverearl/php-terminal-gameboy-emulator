@@ -6,6 +6,7 @@ namespace App\Emulator\Memory;
 
 use App\Emulator\Core;
 use App\Emulator\Helpers;
+use App\Exports\MemoryExporter;
 
 class Memory
 {
@@ -102,5 +103,14 @@ class Memory
     {
         //Graphics Side Reading The VRAM
         return ($gbcBank) ? $this->VRAM[$address] : $this->memory[0x8000 + $address];
+    }
+
+    /**
+     * Dumps memory to CSV.
+     */
+    public function dump(?string $filename = null): void
+    {
+        $exporter = resolve(MemoryExporter::class);
+        $exporter->export($this->memory, $filename);
     }
 }
