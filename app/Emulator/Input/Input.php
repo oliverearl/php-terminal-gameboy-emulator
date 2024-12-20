@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Emulator\Input;
 
 use App\Emulator\Core;
+use App\Emulator\Input\Enums\MagicKeypress;
 use App\Exceptions\Input\InvalidInputDeviceException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;

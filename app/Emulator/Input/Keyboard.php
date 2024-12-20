@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Emulator\Input;
 
+use App\Emulator\Input\Enums\JoypadInput;
+use App\Emulator\Input\Enums\MagicKeypress;
 use Illuminate\Support\Facades\Config;
-
 use function Laravel\Prompts\warning;
 
 class Keyboard implements InputInterface
@@ -23,7 +24,7 @@ class Keyboard implements InputInterface
     /**
      * Default controls to fall back on in case there's a problem with the configuration.
      *
-     * @var array<string, \App\Emulator\Input\JoypadInput>
+     * @var array<string, \App\Emulator\Input\Enums\JoypadInput>
      */
     private const array DEFAULT_MAP = [
         'd' => JoypadInput::DPAD_RIGHT,
