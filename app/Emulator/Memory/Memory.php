@@ -69,18 +69,18 @@ class Memory
     public function init(): void
     {
         //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
-        if ($this->core->usesMBC2()) {
+        if ($this->core->usesMbc2()) {
             $this->numRAMBanks = 1 / 16;
-        } elseif ($this->core->usesMBC1() || $this->core->usesRumble() || $this->core->usesMBC3() || $this->core->usesHuC3()) {
+        } elseif ($this->core->usesMbc1() || $this->core->usesRumble() || $this->core->usesMbc3() || $this->core->usesHuc3()) {
             $this->numRAMBanks = 4;
-        } elseif ($this->core->usesMBC5()) {
+        } elseif ($this->core->usesMbc5()) {
             $this->numRAMBanks = 16;
-        } elseif ($this->core->usesSRAM()) {
+        } elseif ($this->core->usesSram()) {
             $this->numRAMBanks = 1;
         }
 
         if ($this->numRAMBanks > 0) {
-            if (!$this->core->MBCRAMUtilized()) {
+            if (!$this->core->isMbcRamUtilized()) {
                 //For ROM and unknown MBC cartridges using the external RAM:
                 $this->MBCRAMBanksEnabled = true;
             }

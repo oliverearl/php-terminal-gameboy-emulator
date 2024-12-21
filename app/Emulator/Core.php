@@ -265,16 +265,16 @@ class Core
     {
         $data = $this->cartridge->load();
 
-        $this->setMBC1($data['mbc1']);
-        $this->setMBC2($data['mbc2']);
-        $this->setMBC3($data['mbc3']);
-        $this->setMBC5($data['mbc5']);
+        $this->setMbc1($data['mbc1']);
+        $this->setMbc2($data['mbc2']);
+        $this->setMbc3($data['mbc3']);
+        $this->setMbc5($data['mbc5']);
         $this->setRumble($data['rumble']);
-        $this->setSRAM($data['sram']);
-        $this->setBATT($data['batt']);
-        $this->setMMMO1($data['mmmo1']);
-        $this->setHuC3($data['huc3']);
-        $this->setHuC1($data['huc1']);
+        $this->setSram($data['sram']);
+        $this->setBattery($data['batt']);
+        $this->setMmmo1($data['mmmo1']);
+        $this->setHuc3($data['huc3']);
+        $this->setHuc1($data['huc1']);
 
         $this->cTIMER = $data['timer'];
         $this->cGBC = $data['mode'];

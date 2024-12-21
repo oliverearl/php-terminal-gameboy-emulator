@@ -27,7 +27,7 @@ trait HighLevelAccess
             if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
                 $overrideMbc = $this->core->config->getBoolean('advanced.performance.emulation.override_mbc');
 
-                if (!$this->core->usesMBC3()) {
+                if (!$this->core->usesMbc3()) {
                     //memoryReadMBC
                     //Switchable RAM
                     if ($this->MBCRAMBanksEnabled || $overrideMbc) {
@@ -200,7 +200,7 @@ trait HighLevelAccess
     public function writeMemory(int $address, ?int $data): void
     {
         if ($address < 0x8000) {
-            if ($this->core->usesMBC1()) {
+            if ($this->core->usesMbc1()) {
                 if ($address < 0x2000) {
                     //MBC RAM Bank Enable/Disable:
                     $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
@@ -226,7 +226,7 @@ trait HighLevelAccess
                     //MBC1 mode setting:
                     $this->MBC1Mode = (($data & 0x1) === 0x1);
                 }
-            } elseif ($this->core->usesMBC2()) {
+            } elseif ($this->core->usesMbc2()) {
                 if ($address < 0x1000) {
                     //MBC RAM Bank Enable/Disable:
                     $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
@@ -238,7 +238,7 @@ trait HighLevelAccess
                 } else {
                     //We might have encountered illegal RAM writing or such, so just do nothing...
                 }
-            } elseif ($this->core->usesMBC3()) {
+            } elseif ($this->core->usesMbc3()) {
                 if ($address < 0x2000) {
                     //MBC RAM Bank Enable/Disable:
                     $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
@@ -265,7 +265,7 @@ trait HighLevelAccess
                     $this->core->latchedLDays = ($this->core->RTCDays & 0xFF);
                     $this->core->latchedHDays = $this->core->RTCDays >> 8;
                 }
-            } elseif ($this->core->usesMBC5() || $this->core->usesRumble()) {
+            } elseif ($this->core->usesMbc5() || $this->core->usesRumble()) {
                 if ($address < 0x2000) {
                     //MBC RAM Bank Enable/Disable:
                     $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
@@ -340,7 +340,7 @@ trait HighLevelAccess
             if (($this->numRAMBanks === 1 / 16 && $address < 0xA200) || $this->numRAMBanks >= 1) {
                 $overrideMbc = $this->core->config->getBoolean('advanced.performance.emulation.override_mbc');
 
-                if (!$this->core->usesMBC3()) {
+                if (!$this->core->usesMbc3()) {
                     //memoryWriteMBCRAM
                     if ($this->MBCRAMBanksEnabled || $overrideMbc) {
                         $this->MBCRam[$address + $this->currMBCRAMBankPosition] = $data;

@@ -11,183 +11,183 @@ trait HandlesFlags
      * Indicates if the cartridge uses an MBC1 controller.
      * MBC1 supports switching between multiple ROM and RAM banks.
      */
-    private bool $cMBC1 = false;
+    private bool $mbc1 = false;
 
     /**
      * Indicates if the cartridge uses an MBC2 controller.
      * MBC2 includes its own internal RAM and supports fewer banks than MBC1.
      */
-    private bool $cMBC2 = false;
+    private bool $mbc2 = false;
 
     /**
      * Indicates if the cartridge uses an MBC3 controller.
      * MBC3 supports ROM and RAM banking as well as a built-in RTC (Real-Time Clock).
      */
-    private bool $cMBC3 = false;
+    private bool $mbc3 = false;
 
     /**
      * Indicates if the cartridge uses an MBC5 controller.
      * MBC5 supports larger ROM sizes and more RAM banks than MBC1/MBC3.
      */
-    private bool $cMBC5 = false;
+    private bool $mbc5 = false;
 
     /**
      * Indicates if the cartridge requires battery-backed RAM.
      * This allows saving game progress after the system is turned off.
      */
-    private bool $cBATT;
+    private bool $battery;
 
     /**
      * Indicates if the cartridge uses battery-backed SRAM (cSRAM).
      * cSRAM is external RAM that retains data when the system is off, thanks to a battery.
      */
-    private bool $cSRAM = false;
+    private bool $sram = false;
 
     /**
      * Indicates if the cartridge uses the MMM01 memory controller.
      * MMM01 is a less common MBC type supporting multi-cart and some unique banking.
      */
-    private bool $cMMMO1 = false;
+    private bool $mmmo1 = false;
 
     /**
      * Indicates if the cartridge uses a rumble feature.
      * MBC5 can be modified to include rumble support, activated by certain RAM writes.
      */
-    private bool $cRUMBLE = false;
+    private bool $rumble = false;
 
     /**
      * Indicates if the cartridge is a Game Boy Camera cartridge.
      * The Game Boy Camera includes unique hardware and memory layout.
      */
-    private bool $cCamera = false;
+    private bool $camera = false;
 
     /**
      * Indicates if the cartridge uses TAMA5 memory controller (rare, includes RTC).
      */
-    private bool $cTAMA5 = false;
+    private bool $tama5 = false;
 
     /**
      * Indicates if the cartridge uses the HuC3 memory controller.
      * HuC3 is found in certain Hudson Soft games with unique features.
      */
-    private bool $cHuC3 = false;
+    private bool $huc3 = false;
 
     /**
      * Indicates if the cartridge uses the HuC1 memory controller.
      * HuC1 is another Hudson Soft MBC variant.
      */
-    public bool $cHuC1 = false;
+    public bool $huc1 = false;
 
     /**
      * Return whether the MBC1 controller is being used.
      */
-    public function usesMBC1(): bool
+    public function usesMbc1(): bool
     {
-        return $this->cMBC1;
+        return $this->mbc1;
     }
 
     /**
      * Toggle the MBC1 controller.
      */
-    public function setMBC1(bool $mbc1): void
+    public function setMbc1(bool $mbc1): void
     {
-        $this->cMBC1 = $mbc1;
+        $this->mbc1 = $mbc1;
     }
 
     /**
      * Return whether the MBC2 controller is being used.
      */
-    public function usesMBC2(): bool
+    public function usesMbc2(): bool
     {
-        return $this->cMBC2;
+        return $this->mbc2;
     }
 
     /**
      * Toggle the MBC2 controller.
      */
-    public function setMBC2(bool $mbc2): void
+    public function setMbc2(bool $mbc2): void
     {
-        $this->cMBC2 = $mbc2;
+        $this->mbc2 = $mbc2;
     }
 
     /**
      * Return whether the MBC3 controller is being used.
      */
-    public function usesMBC3(): bool
+    public function usesMbc3(): bool
     {
-        return $this->cMBC3;
+        return $this->mbc3;
     }
 
     /**
      * Toggle the MBC3 controller.
      */
-    public function setMBC3(bool $mbc3): void
+    public function setMbc3(bool $mbc3): void
     {
-        $this->cMBC3 = $mbc3;
+        $this->mbc3 = $mbc3;
     }
 
     /**
      * Return whether the MBC5 controller is being used.
      */
-    public function usesMBC5(): bool
+    public function usesMbc5(): bool
     {
-        return $this->cMBC5;
+        return $this->mbc5;
     }
 
     /**
      * Toggle the MBC5 controller.
      */
-    public function setMBC5(bool $mbc5): void
+    public function setMbc5(bool $mbc5): void
     {
-        $this->cMBC5 = $mbc5;
+        $this->mbc5 = $mbc5;
     }
 
     /**
      * Return whether battery-backed RAM is being used.
      */
-    public function usesBATT(): bool
+    public function usesBattery(): bool
     {
-        return $this->cBATT;
+        return $this->battery;
     }
 
     /**
      * Toggle whether battery-backed RAM is being used.
      */
-    public function setBATT(bool $batt): void
+    public function setBattery(bool $battery): void
     {
-        $this->cBATT = $batt;
+        $this->battery = $battery;
     }
 
     /**
      * Return whether battery-backed SRAM is being used.
      */
-    public function usesSRAM(): bool
+    public function usesSram(): bool
     {
-        return $this->cSRAM;
+        return $this->sram;
     }
 
     /**
      * Toggle whether battery-backed SRAM is being used.
      */
-    public function setSRAM(bool $sram): void
+    public function setSram(bool $sram): void
     {
-        $this->cSRAM = $sram;
+        $this->sram = $sram;
     }
 
     /**
      * Return whether the MMMO1 memory controller is being used.
      */
-    public function usesMMMO1(): bool
+    public function usesMmmo1(): bool
     {
-        return $this->cMMMO1;
+        return $this->mmmo1;
     }
 
     /**
      * Toggle whether the MMMO1 memory controller is being used.
      */
-    public function setMMMO1(bool $mmmo1): void
+    public function setMmmo1(bool $mmmo1): void
     {
-        $this->cMMMO1 = $mmmo1;
+        $this->mmmo1 = $mmmo1;
     }
 
     /**
@@ -195,7 +195,7 @@ trait HandlesFlags
      */
     public function usesRumble(): bool
     {
-        return $this->cRUMBLE;
+        return $this->rumble;
     }
 
     /**
@@ -203,7 +203,7 @@ trait HandlesFlags
      */
     public function setRumble(bool $rumble): void
     {
-        $this->cRUMBLE = $rumble;
+        $this->rumble = $rumble;
     }
 
     /**
@@ -211,7 +211,7 @@ trait HandlesFlags
      */
     public function usesCamera(): bool
     {
-        return $this->cCamera;
+        return $this->camera;
     }
 
     /**
@@ -219,60 +219,60 @@ trait HandlesFlags
      */
     public function setCamera(bool $camera): void
     {
-        $this->cCamera = $camera;
+        $this->camera = $camera;
     }
 
     /**
      * Return whether the rare TAMA5 memory controller is in use.
      */
-    public function usesTAMA5(): bool
+    public function usesTama5(): bool
     {
-        return $this->cTAMA5;
+        return $this->tama5;
     }
 
     /**
      * Toggle whether the rare TAMA5 memory controller is in use.
      */
-    public function setTAMA5(bool $tama5): void
+    public function setTama5(bool $tama5): void
     {
-        $this->cTAMA5 = $tama5;
+        $this->tama5 = $tama5;
     }
 
     /**
      * Return whether the HuC3 memory controller is in use.
      */
-    public function usesHuC3(): bool
+    public function usesHuc3(): bool
     {
-        return $this->cHuC3;
+        return $this->huc3;
     }
 
     /**
      * Toggle whether the HuC3 memory controller is in use.
      */
-    public function setHuC3(bool $huc3): void
+    public function setHuc3(bool $huc3): void
     {
-        $this->cHuC3 = $huc3;
+        $this->huc3 = $huc3;
     }
 
     /**
      * Return whether the HuC1 memory controller is in use.
      */
-    public function usesHuC1(): bool
+    public function usesHuc1(): bool
     {
-        return $this->cHuC1;
+        return $this->huc1;
     }
 
     /**
      * Toggle whether the HuC1 memory controller is in use.
      */
-    public function setHuC1(bool $huc1): void
+    public function setHuc1(bool $huc1): void
     {
-        $this->cHuC1 = $huc1;
+        $this->huc1 = $huc1;
     }
 
     // TODO: Add docblock.
-    public function MBCRAMUtilized(): bool
+    public function isMbcRamUtilized(): bool
     {
-        return $this->usesMBC1() || $this->usesMBC2() || $this->usesMBC3() || $this->usesMBC5() || $this->usesRumble();
+        return $this->usesMbc1() || $this->usesMbc2() || $this->usesMbc3() || $this->usesMbc5() || $this->usesRumble();
     }
 }
