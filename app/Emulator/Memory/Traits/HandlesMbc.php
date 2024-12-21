@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Emulator\Memory;
+namespace App\Emulator\Memory\Traits;
 
 /** @mixin \App\Emulator\Memory\Memory */
 trait HandlesMbc

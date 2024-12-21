@@ -6,6 +6,9 @@ namespace App\Emulator\Memory;
 
 use App\Emulator\Core;
 use App\Emulator\Helpers;
+use App\Emulator\Memory\Traits\HandlesMbc;
+use App\Emulator\Memory\Traits\HighLevelAccess;
+use App\Emulator\Memory\Traits\LowLevelAccess;
 use App\Exports\MemoryExporter;
 
 class Memory
