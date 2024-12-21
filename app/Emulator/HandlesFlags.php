@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Emulator\Memory;
+namespace App\Emulator;
 
-/** @mixin \App\Emulator\Memory\Memory */
+/** @mixin \App\Emulator\Core */
 trait HandlesFlags
 {
     /**
@@ -77,10 +77,4 @@ trait HandlesFlags
      * HuC1 is another Hudson Soft MBC variant.
      */
     public bool $cHuC1 = false;
-
-    /**
-     * Number of RAM banks the cartridge supports.
-     * Determined by the cartridge header and used to allocate $MBCRam arrays.
-     */
-    public int $numRAMBanks = 0;
 }

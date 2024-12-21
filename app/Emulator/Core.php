@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Emulator;
 
+use App\Emulator\Canvas\DrawContextInterface;
 use App\Emulator\Cartridge\Cartridge;
 use App\Emulator\Config\ConfigBladder;
 use App\Emulator\Cpu\HandlesCbopcodes;
@@ -13,15 +14,15 @@ use App\Emulator\Cpu\ProvidesTickTables;
 use App\Emulator\Debugger\Debugger;
 use App\Emulator\Input\Input;
 use App\Emulator\Memory\Memory;
-use App\Exceptions\Cpu\HaltOverrunException;
-use Exception;
-use App\Emulator\Canvas\DrawContextInterface;
 use App\Exceptions\Core\AlreadyRunningException;
 use App\Exceptions\Core\CoreNotInitializedException;
+use App\Exceptions\Cpu\HaltOverrunException;
+use Exception;
 
 class Core
 {
     use HandlesCbopcodes;
+    use HandlesFlags;
     use HandlesOpcodes;
     use ProvidesDataTables;
     use ProvidesTickTables;
@@ -257,9 +258,24 @@ class Core
         $this->finalizeBootstrap();
     }
 
+    /**
+     * Loads cartridge into memory and sets flags.
+     */
     private function initCartridge(): void
     {
-        $this->cartridge->load();
+        $data = $this->cartridge->load();
+        $this->cMBC1 = $data['mbc1'];
+        $this->cMBC2 = $data['mbc2'];
+        $this->cMBC3 = $data['mbc3'];
+        $this->cMBC5 = $data['mbc5'];
+        $this->cRUMBLE = $data['rumble'];
+        $this->cTIMER = $data['timer'];
+        $this->cSRAM = $data['sram'];
+        $this->cBATT = $data['batt'];
+        $this->cMMMO1 = $data['mmmo1'];
+        $this->cHuC3 = $data['huc3'];
+        $this->cHuC1 = $data['huc1'];
+        $this->cGBC = $data['mode'];
     }
 
     /**
@@ -386,7 +402,7 @@ class Core
 
     public function MBCRAMUtilized(): bool
     {
-        return $this->memory->cMBC1 || $this->memory->cMBC2 || $this->memory->cMBC3 || $this->memory->cMBC5 || $this->memory->cRUMBLE;
+        return $this->cMBC1 || $this->cMBC2 || $this->cMBC3 || $this->cMBC5 || $this->cRUMBLE;
     }
 
     public function initLcd(): void

@@ -62,8 +62,10 @@ class Cartridge
 
     /**
      * Loads game data from a ROM image into the emulator.
+     *
+     * @return array<string, bool|array<string, bool|string>>
      */
-    public function load(): void
+    public function load(): array
     {
         // Load the first two ROM banks (0x0000 - 0x7FFF) into regular Game Boy memory:
         for ($romIndex = 0; $romIndex < $this->rawLength; ++$romIndex) {
@@ -76,12 +78,15 @@ class Cartridge
         }
 
         $this->parseGameMetadata();
-        $this->processCartridgeType();
         $this->processRomBanks();
-        $this->setGameBoyMode();
         $this->readLicenseCode();
 
         unset($this->raw, $this->rawLength);
+
+        return array_merge(
+            $this->processCartridgeType(),
+            ['mode' => $this->detectGameBoyMode()],
+        );
     }
 
     /**
@@ -121,147 +126,170 @@ class Cartridge
      * TODO: This modifies a lot of core state. Can we do this a different way?
      *
      * @throws \App\Exceptions\Cartridge\BadCartridgeTypeException
+     *
+     * @return array<string, bool>
      */
-    private function processCartridgeType(): void
+    private function processCartridgeType(): array
     {
         $cartridgeType = $this->rom[0x147];
         Debugger::print("Cartridge type #{$cartridgeType}");
+
+        // TODO: Refactor to object.
+        $data = [
+            'type' => $cartridgeType,
+            'mbc_type' => null,
+            'mbc1' => false,
+            'mbc2' => false,
+            'mbc3' => false,
+            'mbc5' => false,
+            'mmmo1' => false,
+            'rumble' => false,
+            'camera' => false,
+            'tama5' => false,
+            'huc3' => false,
+            'huc1' => false,
+            'sram' => false,
+            'batt' => false,
+            'timer' => false,
+        ];
 
         switch ($cartridgeType) {
             case 0x00:
                 // ROM without bank switching.
                 if (! $this->core->config->getBoolean('emulation.override_mbc_1')) {
-                    $mbcType = 'ROM';
+                    $data['mbc_type'] = 'ROM';
                     break;
                 }
                 // no break
             case 0x01:
-                $this->core->memory->cMBC1 = true;
-                $mbcType = 'MBC1';
+                $data['mbc1'] = true;
+                $data['mbc_type'] = 'MBC1';
                 break;
             case 0x02:
-                $this->core->memory->cMBC1 = true;
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'MBC1 + SRAM';
+                $data['mbc1'] = true;
+                $data['sram'] = true;
+                $data['mbc_type'] = 'MBC1 + SRAM';
                 break;
             case 0x03:
-                $this->core->memory->cMBC1 = true;
-                $this->core->memory->cSRAM = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'MBC1 + SRAM + BATT';
+                $data['mbc1'] = true;
+                $data['sram'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'MBC1 + SRAM + BATT';
                 break;
             case 0x05:
-                $this->core->memory->cMBC2 = true;
-                $mbcType = 'MBC2';
+                $data['mbc2'] = true;
+                $data['mbc_type'] = 'MBC2';
                 break;
             case 0x06:
-                $this->core->memory->cMBC2 = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'MBC2 + BATT';
+                $data['mbc2'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'MBC2 + BATT';
                 break;
             case 0x08:
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'ROM + SRAM';
+                $data['sram'] = true;
+                $data['mbc_type'] = 'ROM + SRAM';
                 break;
             case 0x09:
-                $this->core->memory->cSRAM = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'ROM + SRAM + BATT';
+                $data['sram'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'ROM + SRAM + BATT';
                 break;
             case 0x0B:
-                $this->core->memory->cMMMO1 = true;
-                $mbcType = 'MMMO1';
+                $data['mmmo1'] = true;
+                $data['mbc_type'] = 'MMMO1';
                 break;
             case 0x0C:
-                $this->core->memory->cMMMO1 = true;
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'MMMO1 + SRAM';
+                $data['mmmo1'] = true;
+                $data['sram'] = true;
+                $data['mbc_type'] = 'MMMO1 + SRAM';
                 break;
             case 0x0D:
-                $this->core->memory->cMMMO1 = true;
-                $this->core->memory->cSRAM = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'MMMO1 + SRAM + BATT';
+                $data['mmmo1'] = true;
+                $data['sram'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'MMMO1 + SRAM + BATT';
                 break;
             case 0x0F:
-                $this->core->memory->cMBC3 = true;
-                $this->core->memory->cTIMER = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'MBC3 + TIMER + BATT';
+                $data['mbc3'] = true;
+                $data['timer'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'MBC3 + TIMER + BATT';
                 break;
             case 0x10:
-                $this->core->memory->cMBC3 = true;
-                $this->core->memory->cTIMER = true;
-                $this->core->memory->cBATT = true;
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'MBC3 + TIMER + BATT + SRAM';
+                $data['mbc3'] = true;
+                $data['type'] = true;
+                $data['batt'] = true;
+                $data['sram'] = true;
+                $data['mbc_type'] = 'MBC3 + TIMER + BATT + SRAM';
                 break;
             case 0x11:
-                $this->core->memory->cMBC3 = true;
-                $mbcType = 'MBC3';
+                $data['mbc3'] = true;
+                $data['mbc_type'] = 'MBC3';
                 break;
             case 0x12:
-                $this->core->memory->cMBC3 = true;
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'MBC3 + SRAM';
+                $data['mbc3'] = true;
+                $data['sram'] = true;
+                $data['mbc_type'] = 'MBC3 + SRAM';
                 break;
             case 0x13:
-                $this->core->memory->cMBC3 = true;
-                $this->core->memory->cSRAM = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'MBC3 + SRAM + BATT';
+                $data['mbc3'] = true;
+                $data['sram'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'MBC3 + SRAM + BATT';
                 break;
             case 0x19:
-                $this->core->memory->cMBC5 = true;
-                $mbcType = 'MBC5';
+                $data['mbc5'] = true;
+                $data['mbc_type'] = 'MBC5';
                 break;
             case 0x1A:
-                $this->core->memory->cMBC5 = true;
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'MBC5 + SRAM';
+                $data['mbc5'] = true;
+                $data['sram'] = true;
+                $data['mbc_type'] = 'MBC5 + SRAM';
                 break;
             case 0x1B:
-                $this->core->memory->cMBC5 = true;
-                $this->core->memory->cSRAM = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'MBC5 + SRAM + BATT';
+                $data['mbc5'] = true;
+                $data['sram'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'MBC5 + SRAM + BATT';
                 break;
             case 0x1C:
-                $this->core->memory->cRUMBLE = true;
-                $mbcType = 'RUMBLE';
+                $data['rumble'] = true;
+                $data['mbc_type'] = 'RUMBLE';
                 break;
             case 0x1D:
-                $this->core->memory->cRUMBLE = true;
-                $this->core->memory->cSRAM = true;
-                $mbcType = 'RUMBLE + SRAM';
+                $data['rumble'] = true;
+                $data['sram'] = true;
+                $data['mbc_type'] = 'RUMBLE + SRAM';
                 break;
             case 0x1E:
-                $this->core->memory->cRUMBLE = true;
-                $this->core->memory->cSRAM = true;
-                $this->core->memory->cBATT = true;
-                $mbcType = 'RUMBLE + SRAM + BATT';
+                $data['rumble'] = true;
+                $data['sram'] = true;
+                $data['batt'] = true;
+                $data['mbc_type'] = 'RUMBLE + SRAM + BATT';
                 break;
             case 0x1F:
-                $this->core->memory->cCamera = true;
-                $mbcType = 'Game Boy Camera';
+                $data['camera'] = true;
+                $data['mbc_type'] = 'Game Boy Camera';
                 break;
             case 0xFD:
-                $this->core->memory->cTAMA5 = true;
-                $mbcType = 'TAMA5';
+                $data['tama5'] = true;
+                $data['mbc_type'] = 'TAMA5';
                 break;
             case 0xFE:
-                $this->core->memory->cHuC3 = true;
-                $mbcType = 'HuC3';
+                $data['huc3'] = true;
+                $data['mbc_type'] = 'HuC3';
                 break;
             case 0xFF:
-                $this->core->memory->cHuC1 = true;
-                $mbcType = 'HuC1';
+                $data['huc1'] = true;
+                $data['mbc_type'] = 'HuC1';
                 break;
             default:
                 throw new BadCartridgeTypeException();
         }
 
-        Debugger::print("Cartridge Type: {$mbcType}");
+        Debugger::print("Cartridge Type: {$data['mbc_type']}");
+
+        return $data;
     }
 
     /**
@@ -271,7 +299,7 @@ class Cartridge
     {
         $numberOfRomBanks = self::$romBanks[$this->rom[0x148]];
 
-        Debugger::print("$numberOfRomBanks ROM banks.");
+        Debugger::print("{$numberOfRomBanks} ROM banks.");
         Debugger::print(match ($this->core->memory->RAMBanks[$this->rom[0x149]]) {
             0 => 'No RAM banking requested for allocation or MBC is of type 2.',
             2 => '1 RAM bank requested for allocation.',
@@ -282,30 +310,32 @@ class Cartridge
     }
 
     /**
-     * Sets the emulator's Game Boy mode based on the cartridge type.
+     * Determines the emulator's Game Boy mode based on the cartridge type.
      */
-    private function setGameBoyMode(): void
+    private function detectGameBoyMode(): bool
     {
+        $isGameBoyColor = false;
+
         switch ($this->rom[0x143]) {
             case 0x00:
-                $this->core->cGBC = false;
                 $prompt = 'Only GB mode detected.';
                 break;
             case 0x80:
-                $this->core->cGBC = ! $this->core->config->getBoolean('emulation.prioritize_gb_mode');
+                $isGameBoyColor = ! $this->core->config->getBoolean('emulation.prioritize_gb_mode');
                 $prompt = 'GB and GBC mode detected.';
                 break;
             case 0xC0:
-                $this->core->cGBC = true;
+                $isGameBoyColor = true;
                 $prompt = 'Only GBC mode detected.';
                 break;
             default:
-                $this->core->cGBC = false;
                 $prompt = "Unknown Game Boy game type code #{$this->rom[0x143]}, defaulting to GB mode (Old games don't have a type code).";
                 break;
         }
 
         Debugger::print($prompt);
+
+        return $isGameBoyColor;
     }
 
     /**

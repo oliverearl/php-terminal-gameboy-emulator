@@ -10,7 +10,6 @@ use App\Exports\MemoryExporter;
 
 class Memory
 {
-    use HandlesFlags;
     use HandlesMbc;
     use HighLevelAccess;
     use LowLevelAccess;
@@ -55,6 +54,12 @@ class Memory
      */
     public array $RAMBanks = [0, 1, 2, 4, 16];
 
+    /**
+     * Number of RAM banks the cartridge supports.
+     * Determined by the cartridge header and used to allocate $MBCRam arrays.
+     */
+    public int $numRAMBanks = 0;
+
     public function __construct(public readonly Core $core)
     {
         // TODO: We can make this an SplFixedArray once we remove direct access shenanigans.
@@ -64,13 +69,13 @@ class Memory
     public function init(): void
     {
         //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
-        if ($this->cMBC2) {
+        if ($this->core->cMBC2) {
             $this->numRAMBanks = 1 / 16;
-        } elseif ($this->cMBC1 || $this->cRUMBLE || $this->cMBC3 || $this->cHuC3) {
+        } elseif ($this->core->cMBC1 || $this->core->cRUMBLE || $this->core->cMBC3 || $this->core->cHuC3) {
             $this->numRAMBanks = 4;
-        } elseif ($this->cMBC5) {
+        } elseif ($this->core->cMBC5) {
             $this->numRAMBanks = 16;
-        } elseif ($this->cSRAM) {
+        } elseif ($this->core->cSRAM) {
             $this->numRAMBanks = 1;
         }
 
@@ -107,7 +112,7 @@ class Memory
 
     public function setCurrentMBC1ROMBank(): void
     {
-        $romSize = $this->cartridge->getRom()->count();
+        $romSize = $this->core->cartridge->getRom()->count();
 
         // Read the cartridge ROM data from RAM memory:
         $this->memory->currentROMBank = match ($this->memory->ROMBank1offs) {
