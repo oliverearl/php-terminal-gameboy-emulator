@@ -77,4 +77,196 @@ trait HandlesFlags
      * HuC1 is another Hudson Soft MBC variant.
      */
     public bool $cHuC1 = false;
+
+    /**
+     * Return whether the MBC1 controller is being used.
+     */
+    public function usesMBC1(): bool
+    {
+        return $this->cMBC1;
+    }
+
+    /**
+     * Toggle the MBC1 controller.
+     */
+    public function setMBC1(bool $mbc1): void
+    {
+        $this->cMBC1 = $mbc1;
+    }
+
+    /**
+     * Return whether the MBC2 controller is being used.
+     */
+    public function usesMBC2(): bool
+    {
+        return $this->cMBC2;
+    }
+
+    /**
+     * Toggle the MBC2 controller.
+     */
+    public function setMBC2(bool $mbc2): void
+    {
+        $this->cMBC2 = $mbc2;
+    }
+
+    /**
+     * Return whether the MBC3 controller is being used.
+     */
+    public function usesMBC3(): bool
+    {
+        return $this->cMBC3;
+    }
+
+    /**
+     * Toggle the MBC3 controller.
+     */
+    public function setMBC3(bool $mbc3): void
+    {
+        $this->cMBC3 = $mbc3;
+    }
+
+    /**
+     * Return whether the MBC5 controller is being used.
+     */
+    public function usesMBC5(): bool
+    {
+        return $this->cMBC5;
+    }
+
+    /**
+     * Toggle the MBC5 controller.
+     */
+    public function setMBC5(bool $mbc5): void
+    {
+        $this->cMBC5 = $mbc5;
+    }
+
+    /**
+     * Return whether battery-backed RAM is being used.
+     */
+    public function usesBATT(): bool
+    {
+        return $this->cBATT;
+    }
+
+    /**
+     * Toggle whether battery-backed RAM is being used.
+     */
+    public function setBATT(bool $batt): void
+    {
+        $this->cBATT = $batt;
+    }
+
+    /**
+     * Return whether battery-backed SRAM is being used.
+     */
+    public function usesSRAM(): bool
+    {
+        return $this->cSRAM;
+    }
+
+    /**
+     * Toggle whether battery-backed SRAM is being used.
+     */
+    public function setSRAM(bool $sram): void
+    {
+        $this->cSRAM = $sram;
+    }
+
+    /**
+     * Return whether the MMMO1 memory controller is being used.
+     */
+    public function usesMMMO1(): bool
+    {
+        return $this->cMMMO1;
+    }
+
+    /**
+     * Toggle whether the MMMO1 memory controller is being used.
+     */
+    public function setMMMO1(bool $mmmo1): void
+    {
+        $this->cMMMO1 = $mmmo1;
+    }
+
+    /**
+     * Return whether rumble functionality is being used.
+     */
+    public function usesRumble(): bool
+    {
+        return $this->cRUMBLE;
+    }
+
+    /**
+     * Toggle whether rumble functionality is being used.
+     */
+    public function setRumble(bool $rumble): void
+    {
+        $this->cRUMBLE = $rumble;
+    }
+
+    /**
+     * Return whether the Game Boy Camera is currently in use.
+     */
+    public function usesCamera(): bool
+    {
+        return $this->cCamera;
+    }
+
+    /**
+     * Toggle whether the Game Boy Camera is currently in use.
+     */
+    public function setCamera(bool $camera): void
+    {
+        $this->cCamera = $camera;
+    }
+
+    /**
+     * Return whether the rare TAMA5 memory controller is in use.
+     */
+    public function usesTAMA5(): bool
+    {
+        return $this->cTAMA5;
+    }
+
+    /**
+     * Toggle whether the rare TAMA5 memory controller is in use.
+     */
+    public function setTAMA5(bool $tama5): void
+    {
+        $this->cTAMA5 = $tama5;
+    }
+
+    /**
+     * Return whether the HuC3 memory controller is in use.
+     */
+    public function usesHuC3(): bool
+    {
+        return $this->cHuC3;
+    }
+
+    /**
+     * Toggle whether the HuC3 memory controller is in use.
+     */
+    public function setHuC3(bool $huc3): void
+    {
+        $this->cHuC3 = $huc3;
+    }
+
+    /**
+     * Return whether the HuC1 memory controller is in use.
+     */
+    public function usesHuC1(): bool
+    {
+        return $this->cHuC1;
+    }
+
+    /**
+     * Toggle whether the HuC1 memory controller is in use.
+     */
+    public function setHuC1(bool $huc1): void
+    {
+        $this->cHuC1 = $huc1;
+    }
 }
