@@ -9,6 +9,7 @@ use App\Emulator\Input\Enums\MagicKeypress;
 use App\Emulator\Input\Input;
 use App\Emulator\Input\Interfaces\InputInterface;
 use Illuminate\Support\Facades\Config;
+
 use function Laravel\Prompts\warning;
 
 class Keyboard implements InputInterface
