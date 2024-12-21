@@ -470,14 +470,14 @@ class Core
 
                     //We can only get here if there was an internal error, but the loop was restarted.
                 } else {
-                    Debugger::print('Iterator restarted a faulted core.');
+                    Debugger::warning('Iterator restarted a faulted core.');
                     // pause here
                 }
             }
         } catch (HaltOverrunException) {
             // Intentionally do nothing
         } catch (Exception $exception) {
-            Debugger::print($exception->getMessage());
+            Debugger::warning($exception->getMessage());
             // pause
         }
 
