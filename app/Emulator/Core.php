@@ -264,17 +264,19 @@ class Core
     private function initCartridge(): void
     {
         $data = $this->cartridge->load();
-        $this->cMBC1 = $data['mbc1'];
-        $this->cMBC2 = $data['mbc2'];
-        $this->cMBC3 = $data['mbc3'];
-        $this->cMBC5 = $data['mbc5'];
-        $this->cRUMBLE = $data['rumble'];
+
+        $this->setMBC1($data['mbc1']);
+        $this->setMBC2($data['mbc2']);
+        $this->setMBC3($data['mbc3']);
+        $this->setMBC5($data['mbc5']);
+        $this->setRumble($data['rumble']);
+        $this->setSRAM($data['sram']);
+        $this->setBATT($data['batt']);
+        $this->setMMMO1($data['mmmo1']);
+        $this->setHuC3($data['huc3']);
+        $this->setHuC1($data['huc1']);
+
         $this->cTIMER = $data['timer'];
-        $this->cSRAM = $data['sram'];
-        $this->cBATT = $data['batt'];
-        $this->cMMMO1 = $data['mmmo1'];
-        $this->cHuC3 = $data['huc3'];
-        $this->cHuC1 = $data['huc1'];
         $this->cGBC = $data['mode'];
     }
 
@@ -398,11 +400,6 @@ class Core
     public function initRam(): void
     {
         $this->memory->init();
-    }
-
-    public function MBCRAMUtilized(): bool
-    {
-        return $this->cMBC1 || $this->cMBC2 || $this->cMBC3 || $this->cMBC5 || $this->cRUMBLE;
     }
 
     public function initLcd(): void

@@ -69,13 +69,13 @@ class Memory
     public function init(): void
     {
         //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
-        if ($this->core->cMBC2) {
+        if ($this->core->usesMBC2()) {
             $this->numRAMBanks = 1 / 16;
-        } elseif ($this->core->cMBC1 || $this->core->cRUMBLE || $this->core->cMBC3 || $this->core->cHuC3) {
+        } elseif ($this->core->usesMBC1() || $this->core->usesRumble() || $this->core->usesMBC3() || $this->core->usesHuC3()) {
             $this->numRAMBanks = 4;
-        } elseif ($this->core->cMBC5) {
+        } elseif ($this->core->usesMBC5()) {
             $this->numRAMBanks = 16;
-        } elseif ($this->core->cSRAM) {
+        } elseif ($this->core->usesSRAM()) {
             $this->numRAMBanks = 1;
         }
 
