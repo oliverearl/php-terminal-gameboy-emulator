@@ -88,7 +88,7 @@ class Core
     public int $multiplier = 1;
 
     //GameBoy Color detection.
-    public bool $cGBC = false;
+    private bool $cGBC = false;
 
     public bool $gfxWindowY = false;
 
@@ -277,7 +277,17 @@ class Core
         $this->setHuc1($data['huc1']);
 
         $this->cTIMER = $data['timer'];
-        $this->cGBC = $data['mode'];
+        $this->setGameBoyColor($data['mode']);
+    }
+
+    public function isGameBoyColor(): bool
+    {
+        return $this->cGBC;
+    }
+
+    public function setGameBoyColor(bool $isGbc): void
+    {
+        $this->cGBC = $isGbc;
     }
 
     /**
@@ -326,7 +336,7 @@ class Core
         $this->IME = true;
         $this->LCDTicks = 15;
         $this->DIVTicks = 14;
-        $this->registerA = ($this->cGBC) ? 0x11 : 0x1;
+        $this->registerA = ($this->isGameBoyColor()) ? 0x11 : 0x1;
         $this->registerB = 0;
         $this->registerC = 0x13;
         $this->registerD = 0;
@@ -377,7 +387,7 @@ class Core
 
         $this->checkPaletteType();
 
-        if (!$this->cGBC) {
+        if (!$this->isGameBoyColor()) {
             //Clean up the post-boot (GB mode only) state:
             echo 'Stepping down from GBC mode.' . PHP_EOL;
             $this->tileCount /= 2;
@@ -438,7 +448,7 @@ class Core
 
     public function initLcd(): void
     {
-        $this->transparentCutoff = ($this->config->getBoolean('enable_gb_colorize') || $this->cGBC) ? 32 : 4;
+        $this->transparentCutoff = ($this->config->getBoolean('enable_gb_colorize') || $this->isGameBoyColor()) ? 32 : 4;
         if (count($this->weaveLookup) === 0) {
             //Setup the image decoding lookup table:
             $this->weaveLookup = Helpers::getPreinitializedArray(256, 0);
@@ -852,7 +862,7 @@ class Core
 
     public function decodePalette($startIndex, $data): void
     {
-        if (!$this->cGBC) {
+        if (!$this->isGameBoyColor()) {
             $this->gbPalette[$startIndex] = $this->colors[$data & 0x03] & 0x00FFFFFF; // color 0: transparent
             $this->gbPalette[$startIndex + 1] = $this->colors[($data >> 2) & 0x03];
             $this->gbPalette[$startIndex + 2] = $this->colors[($data >> 4) & 0x03];
@@ -879,7 +889,7 @@ class Core
             $tileXCoord = ($tileX & 0x1F);
             $baseaddr = $this->memory->memory[0x8000 + $memStart + $tileXCoord];
             $tileNum = ($this->gfxBackgroundX) ? $baseaddr : (($baseaddr > 0x7F) ? (($baseaddr & 0x7F) + 0x80) : ($baseaddr + 0x100));
-            if ($this->cGBC) {
+            if ($this->isGameBoyColor()) {
                 $mapAttrib = $this->memory->VRAM[$memStart + $tileXCoord];
                 if (($mapAttrib & 0x80) !== $priority) {
                     $skippedTile = true;
@@ -902,7 +912,7 @@ class Core
             for ($screenX = $windowLeft; $screenX < 160; $tileAddress++, $screenX += 8) {
                 $baseaddr = $this->memory->memory[0x8000 + $tileAddress];
                 $tileNum = ($this->gfxBackgroundX) ? $baseaddr : (($baseaddr > 0x7F) ? (($baseaddr & 0x7F) + 0x80) : ($baseaddr + 0x100));
-                if ($this->cGBC) {
+                if ($this->isGameBoyColor()) {
                     $mapAttrib = $this->memory->VRAM[$tileAddress];
                     if (($mapAttrib & 0x80) !== $priority) {
                         $skippedTile = true;
@@ -940,7 +950,7 @@ class Core
     public function checkPaletteType(): void
     {
         //Reference the correct palette ahead of time...
-        $this->palette = ($this->cGBC) ? $this->gbcPalette : (($this->config->getBoolean('enable_gb_colorize')) ? $this->gbColorizedPalette : $this->gbPalette);
+        $this->palette = ($this->isGameBoyColor()) ? $this->gbcPalette : (($this->config->getBoolean('enable_gb_colorize')) ? $this->gbColorizedPalette : $this->gbPalette);
     }
 
     public function updateImage($tileIndex, $attribs)
@@ -1015,7 +1025,7 @@ class Core
                     }
 
                     $spriteAttrib = ($attributes >> 5) & 0x03; // flipx: from bit 0x20 to 0x01, flipy: from bit 0x40 to 0x02
-                    if ($this->cGBC) {
+                    if ($this->isGameBoyColor()) {
                         $spriteAttrib += 0x20 + (($attributes & 0x07) << 2); // palette
                         $tileNum += (384 >> 3) * ($attributes & 0x08); // tile vram bank
                     } else {

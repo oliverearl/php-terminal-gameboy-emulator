@@ -317,7 +317,7 @@ trait HandlesOpcodes
           Also, bits 4 and 5 of 0xFF00 should read as set (1), while the switch is in process.
            */
         // Speed change requested.
-        if ($this->cGBC && ($this->memory->memory[0xFF4D] & 0x01) === 0x01) {
+        if ($this->isGameBoyColor() && ($this->memory->memory[0xFF4D] & 0x01) === 0x01) {
             //Go back to single speed mode.
             if (($this->memory->memory[0xFF4D] & 0x80) === 0x80) {
                 // cout("Going into single clock speed mode.", 0);
@@ -1491,7 +1491,7 @@ trait HandlesOpcodes
             EI in this case actually is immediate, so we adjust (Hacky?).*/
             $this->programCounter = Helpers::nswtuw($this->programCounter - 1);
         } else {
-            if (!$this->halt && !$this->IME && !$this->cGBC && ($this->memory->memory[0xFF0F] & $this->memory->memory[0xFFFF] & 0x1F) > 0) {
+            if (!$this->halt && !$this->IME && !$this->isGameBoyColor() && ($this->memory->memory[0xFF0F] & $this->memory->memory[0xFFFF] & 0x1F) > 0) {
                 $this->skipPCIncrement = true;
             }
 

@@ -16,7 +16,7 @@ trait HighLevelAccess
         } elseif ($address < 0x8000) {
             return $this->core->cartridge->getRom()[$this->currentROMBank + $address];
         } elseif ($address >= 0x8000 && $address < 0xA000) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 //CPU Side Reading The VRAM (Optimized for GameBoy Color)
                 return ($this->core->lcd->modeSTAT > 2) ? 0xFF : (($this->currVRAMBank === 0) ? $this->memory[$address] : $this->VRAM[$address - 0x8000]);
             }
@@ -67,14 +67,14 @@ trait HighLevelAccess
                 return 0xFF;
             }
         } elseif ($address >= 0xC000 && $address < 0xE000) {
-            if (!$this->core->cGBC || $address < 0xD000) {
+            if (!$this->core->isGameBoyColor() || $address < 0xD000) {
                 return $this->memory[$address];
             } else {
                 //memoryReadGBCMemory
                 return $this->GBCMemory[$address + $this->gbcRamBankPosition];
             }
         } elseif ($address >= 0xE000 && $address < 0xFE00) {
-            if (!$this->core->cGBC || $address < 0xF000) {
+            if (!$this->core->isGameBoyColor() || $address < 0xF000) {
                 //memoryReadECHONormal
                 return $this->memory[$address - 0x2000];
             } else {
@@ -84,7 +84,7 @@ trait HighLevelAccess
         } elseif ($address < 0xFEA0) {
             //memoryReadOAM
             return ($this->core->lcd->modeSTAT > 1) ? 0xFF : $this->memory[$address];
-        } elseif ($this->core->cGBC && $address >= 0xFEA0 && $address < 0xFF00) {
+        } elseif ($this->core->isGameBoyColor() && $address >= 0xFEA0 && $address < 0xFF00) {
             //memoryReadNormal
             return $this->memory[$address];
         } elseif ($address >= 0xFF00) {
@@ -94,7 +94,7 @@ trait HighLevelAccess
                 case 0xFF01:
                     return (($this->memory[0xFF02] & 0x1) === 0x1) ? 0xFF : $this->memory[0xFF01];
                 case 0xFF02:
-                    if ($this->core->cGBC) {
+                    if ($this->core->isGameBoyColor()) {
                         return 0x7C | $this->memory[0xFF02];
                     }
 
@@ -395,7 +395,7 @@ trait HighLevelAccess
                 //We might have encountered illegal RAM writing or such, so just do nothing...
             }
         } elseif ($address < 0xE000) {
-            if ($this->core->cGBC && $address >= 0xD000) {
+            if ($this->core->isGameBoyColor() && $address >= 0xD000) {
                 //memoryWriteGBCRAM
                 $this->GBCMemory[$address + $this->gbcRamBankPosition] = $data;
             } else {
@@ -403,7 +403,7 @@ trait HighLevelAccess
                 $this->memory[$address] = $data;
             }
         } elseif ($address < 0xFE00) {
-            if ($this->core->cGBC && $address >= 0xF000) {
+            if ($this->core->isGameBoyColor() && $address >= 0xF000) {
                 //memoryWriteECHOGBCRAM
                 $this->GBCMemory[$address + $this->gbcRamBankPositionECHO] = $data;
             } else {
@@ -418,7 +418,7 @@ trait HighLevelAccess
             }
         } elseif ($address < 0xFF00) {
             //Only GBC has access to this RAM.
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 //memoryWriteNormal
                 $this->memory[$address] = $data;
             } else {
@@ -446,7 +446,7 @@ trait HighLevelAccess
             $this->core->TIMAEnabled = ($data & 0x04) === 0x04;
             $this->core->TACClocker = 4 ** (($data & 0x3) !== 0) ? ($data & 0x3) : 4; //TODO: Find a way to not make a conditional in here...
         } elseif ($address === 0xFF40) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $temp_var = ($data & 0x80) === 0x80;
                 if ($temp_var !== $this->core->lcd->LCDisOn) {
                     //When the display mode changes...
@@ -503,7 +503,7 @@ trait HighLevelAccess
                 $this->memory[0xFF40] = $data;
             }
         } elseif ($address === 0xFF41) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $this->core->lcd->LYCMatchTriggerSTAT = (($data & 0x40) === 0x40);
                 $this->core->lcd->mode2TriggerSTAT = (($data & 0x20) === 0x20);
                 $this->core->lcd->mode1TriggerSTAT = (($data & 0x10) === 0x10);
@@ -527,7 +527,7 @@ trait HighLevelAccess
         } elseif ($address === 0xFF46) {
             $this->memory[0xFF46] = $data;
             //DMG cannot DMA from the ROM banks.
-            if ($this->core->cGBC || $data > 0x7F) {
+            if ($this->core->isGameBoyColor() || $data > 0x7F) {
                 $data <<= 8;
                 $address = 0xFE00;
                 while ($address < 0xFEA0) {
@@ -553,9 +553,9 @@ trait HighLevelAccess
                 $this->core->invalidateAll(2);
             }
         } elseif ($address === 0xFF4D) {
-            $this->memory[0xFF4D] = $this->core->cGBC ? ($data & 0x7F) + ($this->memory[0xFF4D] & 0x80) : $data;
+            $this->memory[0xFF4D] = $this->core->isGameBoyColor() ? ($data & 0x7F) + ($this->memory[0xFF4D] & 0x80) : $data;
         } elseif ($address === 0xFF4F) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $this->currVRAMBank = $data & 0x01;
                 //Only writable by GBC.
             }
@@ -567,23 +567,23 @@ trait HighLevelAccess
                 $this->memory[0xFF50] = $data; //Bits are sustained in memory?
             }
         } elseif ($address === 0xFF51) {
-            if ($this->core->cGBC && !$this->core->hdmaRunning) {
+            if ($this->core->isGameBoyColor() && !$this->core->hdmaRunning) {
                 $this->memory[0xFF51] = $data;
             }
         } elseif ($address === 0xFF52) {
-            if ($this->core->cGBC && !$this->core->hdmaRunning) {
+            if ($this->core->isGameBoyColor() && !$this->core->hdmaRunning) {
                 $this->memory[0xFF52] = $data & 0xF0;
             }
         } elseif ($address === 0xFF53) {
-            if ($this->core->cGBC && !$this->core->hdmaRunning) {
+            if ($this->core->isGameBoyColor() && !$this->core->hdmaRunning) {
                 $this->memory[0xFF53] = $data & 0x1F;
             }
         } elseif ($address === 0xFF54) {
-            if ($this->core->cGBC && !$this->core->hdmaRunning) {
+            if ($this->core->isGameBoyColor() && !$this->core->hdmaRunning) {
                 $this->memory[0xFF54] = $data & 0xF0;
             }
         } elseif ($address === 0xFF55) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 if (!$this->core->hdmaRunning) {
                     if (($data & 0x80) === 0) {
                         //DMA
@@ -617,14 +617,14 @@ trait HighLevelAccess
                 $this->memory[0xFF55] = $data;
             }
         } elseif ($address === 0xFF68) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $this->memory[0xFF69] = 0xFF & $this->core->gbcRawPalette[$data & 0x3F];
                 $this->memory[0xFF68] = $data;
             } else {
                 $this->memory[0xFF68] = $data;
             }
         } elseif ($address === 0xFF69) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $this->core->setGBCPalette($this->memory[0xFF68] & 0x3F, $data);
                 // high bit = autoincrement
                 if (Helpers::usbtsb($this->memory[0xFF68]) < 0) {
@@ -638,14 +638,14 @@ trait HighLevelAccess
                 $this->memory[0xFF69] = $data;
             }
         } elseif ($address === 0xFF6A) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $this->memory[0xFF6B] = 0xFF & $this->core->gbcRawPalette[($data & 0x3F) | 0x40];
                 $this->memory[0xFF6A] = $data;
             } else {
                 $this->memory[0xFF6A] = $data;
             }
         } elseif ($address === 0xFF6B) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $this->core->setGBCPalette(($this->memory[0xFF6A] & 0x3F) + 0x40, $data);
                 // high bit = autoincrement
                 if (Helpers::usbtsb($this->memory[0xFF6A]) < 0) {
@@ -661,14 +661,14 @@ trait HighLevelAccess
         } elseif ($address === 0xFF6C) {
             if ($this->core->inBootstrap) {
                 if ($this->core->inBootstrap) {
-                    $this->core->cGBC = ($data === 0x80);
-                    echo 'Booted to GBC Mode: ' . $this->core->cGBC . PHP_EOL;
+                    $this->core->setGameBoyColor($data === 0x80);
+                    echo 'Booted to GBC Mode: ' . $this->core->isGameBoyColor() . PHP_EOL;
                 }
 
                 $this->memory[0xFF6C] = $data;
             }
         } elseif ($address === 0xFF70) {
-            if ($this->core->cGBC) {
+            if ($this->core->isGameBoyColor()) {
                 $addressCheck = ($this->memory[0xFF51] << 8) | $this->memory[0xFF52]; //Cannot change the RAM bank while WRAM is the source of a running HDMA.
                 if (!$this->core->hdmaRunning || $addressCheck < 0xD000 || $addressCheck >= 0xE000) {
                     $this->gbcRamBank = max($data & 0x07, 1); //Bank range is from 1-7
