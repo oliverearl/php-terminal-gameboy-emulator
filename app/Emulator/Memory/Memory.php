@@ -69,44 +69,6 @@ class Memory
         $this->memory = Helpers::getPreinitializedArray(0x10000, 0);
     }
 
-    public function init(): void
-    {
-        //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
-        if ($this->core->usesMbc2()) {
-            $this->numRAMBanks = 1 / 16;
-        } elseif ($this->core->usesMbc1() || $this->core->usesRumble() || $this->core->usesMbc3() || $this->core->usesHuc3()) {
-            $this->numRAMBanks = 4;
-        } elseif ($this->core->usesMbc5()) {
-            $this->numRAMBanks = 16;
-        } elseif ($this->core->usesSram()) {
-            $this->numRAMBanks = 1;
-        }
-
-        if ($this->numRAMBanks > 0) {
-            if (!$this->core->isMbcRamUtilized()) {
-                //For ROM and unknown MBC cartridges using the external RAM:
-                $this->MBCRAMBanksEnabled = true;
-            }
-
-            //Switched RAM Used
-            $this->MBCRam = Helpers::getPreinitializedArray($this->numRAMBanks * 0x2000, 0);
-        }
-
-        echo 'Actual bytes of MBC RAM allocated: ' . ($this->numRAMBanks * 0x2000) . PHP_EOL;
-        //Setup the RAM for GBC mode.
-        if ($this->core->cGBC) {
-            $this->VRAM = Helpers::getPreinitializedArray(0x2000, 0);
-            $this->GBCMemory = Helpers::getPreinitializedArray(0x7000, 0);
-            $this->core->tileCount *= 2;
-            $this->core->tileCountInvalidator = $this->core->tileCount * 4;
-            $this->core->colorCount = 64;
-            $this->core->transparentCutoff = 32;
-        }
-
-        $this->core->tileData = Helpers::getPreinitializedArray($this->core->tileCount * $this->core->colorCount, null);
-        $this->core->tileReadState = Helpers::getPreinitializedArray($this->core->tileCount, 0);
-    }
-
     public function VRAMReadGFX(int $address, bool $gbcBank): int
     {
         //Graphics Side Reading The VRAM

@@ -238,9 +238,9 @@ class Core
         $this->rgbCount = $this->pixelCount * 4;
 
         $this->config = resolve(ConfigBladder::class);
-        $this->memory = resolve(Memory::class, ['core' => $this]);
         $this->input = resolve(Input::class, ['core' => $this]);
         $this->cartridge = resolve(Cartridge::class, ['core' => $this, 'romPath' => $romPath]);
+        $this->memory = resolve(Memory::class, ['core' => $this]);
         $this->lcd = resolve(LcdController::class, ['core' => $this]);
 
         $this->config->set('advanced.performance.frame_skip_amount', 0);
@@ -250,7 +250,7 @@ class Core
     {
         $this->initPalettes();
         $this->initCartridge();
-        $this->initRam();
+        $this->init();
         $this->initSkipBootstrap();
         $this->checkPaletteType();
         $this->initLcd();
@@ -397,9 +397,43 @@ class Core
         }
     }
 
-    public function initRam(): void
+    public function init(): void
     {
-        $this->memory->init();
+        //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
+        if ($this->usesMbc2()) {
+            $this->memory->numRAMBanks = 1 / 16;
+        } elseif ($this->usesMbc1() || $this->usesRumble() || $this->usesMbc3() || $this->usesHuc3()) {
+            $this->memory->numRAMBanks = 4;
+        } elseif ($this->usesMbc5()) {
+            $this->memory->numRAMBanks = 16;
+        } elseif ($this->usesSram()) {
+            $this->memory->numRAMBanks = 1;
+        }
+
+        if ($this->memory->numRAMBanks > 0) {
+            if (!$this->isMbcRamUtilized()) {
+                //For ROM and unknown MBC cartridges using the external RAM:
+                $this->memory->MBCRAMBanksEnabled = true;
+            }
+
+            //Switched RAM Used
+            $this->memory->MBCRam = Helpers::getPreinitializedArray($this->memory->numRAMBanks * 0x2000, 0);
+        }
+
+        echo 'Actual bytes of MBC RAM allocated: ' . ($this->memory->numRAMBanks * 0x2000) . PHP_EOL;
+
+        //Setup the RAM for GBC mode.
+        if ($this->isGameBoyColor()) {
+            $this->memory->VRAM = Helpers::getPreinitializedArray(0x2000, 0);
+            $this->memory->GBCMemory = Helpers::getPreinitializedArray(0x7000, 0);
+            $this->tileCount *= 2;
+            $this->tileCountInvalidator = $this->tileCount * 4;
+            $this->colorCount = 64;
+            $this->transparentCutoff = 32;
+        }
+
+        $this->tileData = Helpers::getPreinitializedArray($this->tileCount * $this->colorCount, null);
+        $this->tileReadState = Helpers::getPreinitializedArray($this->tileCount, 0);
     }
 
     public function initLcd(): void
