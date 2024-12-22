@@ -16,7 +16,7 @@ class MemoryExporter
      * address (in hex), followed by the 16 bytes (also in hex). If the memory size
      * is not a multiple of 16, the final row will have fewer columns filled.
      *
-     * @param array<int, int> $memory An array of bytes (0-255) indexed by their address.
+     * @param array<int, int>|array<int, array<int, int>> $memory An array of bytes (0-255) indexed by their address.
      *
      * @throws \RuntimeException
      */
