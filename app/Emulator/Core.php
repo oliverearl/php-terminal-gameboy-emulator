@@ -229,17 +229,14 @@ class Core
     public readonly Memory $memory;
     public readonly Input $input;
 
-    public function __construct(string $romPath, private readonly ?DrawContextInterface $drawContext)
-    {
-        $this->init($romPath);
-    }
+    public function __construct(private readonly string $romPath, private readonly ?DrawContextInterface $drawContext) {}
 
     /**
      * Initializes the core. Allows core components to be excluded for testing.
      *
      * @param array<int, string> $excluding
      */
-    public function init(?string $romPath = null, array $excluding = []): void
+    public function init(array $excluding = []): void
     {
         // Some properties require initialization.
         // TODO: Figure out a better place for this.
@@ -248,24 +245,24 @@ class Core
         $this->pixelCount = $this->width * $this->height;
         $this->rgbCount = $this->pixelCount * 4;
 
-        if (! array_key_exists('config', $excluding)) {
+        if (! in_array('config', $excluding, strict: true)) {
             $this->config = $this->getConfig();
             $this->config->set('advanced.performance.frame_skip_amount', 0);
         }
 
-        if (! array_key_exists('input', $excluding)) {
+        if (! in_array('input', $excluding, strict: true)) {
             $this->input = $this->getInput();
         }
 
-        if (! array_key_exists('cartridge', $excluding)) {
-            $this->cartridge = $this->getCartridge($romPath);
+        if (! in_array('cartridge', $excluding, strict: true)) {
+            $this->cartridge = $this->getCartridge($this->romPath);
         }
 
-        if (! array_key_exists('memory', $excluding)) {
+        if (! in_array('memory', $excluding, strict: true)) {
             $this->memory = $this->getMemory();
         }
 
-        if (! array_key_exists('lcd', $excluding)) {
+        if (! in_array('lcd', $excluding, strict: true)) {
             $this->lcd = $this->getLcd();
         }
     }
@@ -312,6 +309,7 @@ class Core
 
     public function start(): void
     {
+        $this->init();
         $this->initPalettes();
         $this->initCartridge();
         $this->performStartupConfiguration();
