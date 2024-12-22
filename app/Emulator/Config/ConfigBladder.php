@@ -54,11 +54,17 @@ class ConfigBladder
 
     /**
      * ConfigBladder constructor.
-     *
-     * Initializes the flattened config cache and calculates resync intervals
-     * based on Laravel's config values.
      */
     public function __construct()
+    {
+        $this->init();
+    }
+
+    /**
+     * Initializes the flattened config cache and calculates resync intervals
+     * based on Laravel's config values.
+     * */
+    public function init(): void
     {
         $this->nestedStorage = Config::array('emulator', []);
         $this->storage = $this->flatten($this->nestedStorage);

@@ -37,14 +37,22 @@ class Cartridge
     private readonly SplFixedArray $rom;
 
     /**
-     * CartridgeLoader constructor.
+     * Cartridge constructor.
      *
      * @param null|string $romPath File path to the ROM file.
+     */
+    public function __construct(private readonly Core $core, ?string $romPath)
+    {
+        $this->init($romPath);
+    }
+
+    /**
+     * Initializes the cartridge.
      *
      * @throws \App\Exceptions\Cartridge\BadCartridgeTypeException
      * @throws \App\Exceptions\Cartridge\RomMissingOrBadException
      */
-    public function __construct(private readonly Core $core, ?string $romPath)
+    public function init(?string $romPath): void
     {
         if (empty($romPath) || ! file_exists($romPath)) {
             throw new RomMissingOrBadException();

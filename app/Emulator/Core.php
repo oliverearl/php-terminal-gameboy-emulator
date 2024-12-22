@@ -231,26 +231,90 @@ class Core
 
     public function __construct(string $romPath, private readonly ?DrawContextInterface $drawContext)
     {
+        $this->init($romPath);
+    }
+
+    /**
+     * Initializes the core. Allows core components to be excluded for testing.
+     *
+     * @param array<int, string> $excluding
+     */
+    public function init(?string $romPath = null, array $excluding = []): void
+    {
         // Some properties require initialization.
+        // TODO: Figure out a better place for this.
         $this->tileCountInvalidator = $this->tileCount * 4;
         $this->frameCount = 10;
         $this->pixelCount = $this->width * $this->height;
         $this->rgbCount = $this->pixelCount * 4;
 
-        $this->config = resolve(ConfigBladder::class);
-        $this->input = resolve(Input::class, ['core' => $this]);
-        $this->cartridge = resolve(Cartridge::class, ['core' => $this, 'romPath' => $romPath]);
-        $this->memory = resolve(Memory::class, ['core' => $this]);
-        $this->lcd = resolve(LcdController::class, ['core' => $this]);
+        if (! array_key_exists('config', $excluding)) {
+            $this->config = $this->getConfig();
+            $this->config->set('advanced.performance.frame_skip_amount', 0);
+        }
 
-        $this->config->set('advanced.performance.frame_skip_amount', 0);
+        if (! array_key_exists('input', $excluding)) {
+            $this->input = $this->getInput();
+        }
+
+        if (! array_key_exists('cartridge', $excluding)) {
+            $this->cartridge = $this->getCartridge($romPath);
+        }
+
+        if (! array_key_exists('memory', $excluding)) {
+            $this->memory = $this->getMemory();
+        }
+
+        if (! array_key_exists('lcd', $excluding)) {
+            $this->lcd = $this->getLcd();
+        }
+    }
+
+    /**
+     * Returns the configuration bladder.
+     */
+    public function getConfig(): ConfigBladder
+    {
+        return resolve(ConfigBladder::class);
+    }
+
+    /**
+     * Returns the input handler.
+     */
+    public function getInput(): Input
+    {
+        return resolve(Input::class, ['core' => $this]);
+    }
+
+    /**
+     * Returns cartridge handler.
+     */
+    public function getCartridge(?string $romPath = null): Cartridge
+    {
+        return resolve(Cartridge::class, ['core' => $this, 'romPath' => $romPath]);
+    }
+
+    /**
+     * Returns the memory handler.
+     */
+    public function getMemory(): Memory
+    {
+        return resolve(Memory::class, ['core' => $this]);
+    }
+
+    /**
+     * Returns the LCD controller.
+     */
+    public function getLcd(): LcdController
+    {
+        return resolve(LcdController::class, ['core' => $this]);
     }
 
     public function start(): void
     {
         $this->initPalettes();
         $this->initCartridge();
-        $this->init();
+        $this->performStartupConfiguration();
         $this->initSkipBootstrap();
         $this->checkPaletteType();
         $this->initLcd();
@@ -407,7 +471,7 @@ class Core
         }
     }
 
-    public function init(): void
+    public function performStartupConfiguration(): void
     {
         //Setup the auxilliary/switchable RAM to their maximum possible size (Bad headers can lie).
         if ($this->usesMbc2()) {

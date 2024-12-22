@@ -63,7 +63,18 @@ class Memory
      */
     public int $numRAMBanks = 0;
 
+    /**
+     * Memory constructor.
+     */
     public function __construct(public readonly Core $core)
+    {
+        $this->init();
+    }
+
+    /**
+     * Initialize the memory.
+     */
+    public function init(): void
     {
         // TODO: We can make this an SplFixedArray once we remove direct access shenanigans.
         $this->memory = Helpers::getPreinitializedArray(0x10000, 0);

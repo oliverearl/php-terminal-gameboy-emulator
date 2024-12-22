@@ -35,6 +35,16 @@ class Input
      */
     public function __construct(private readonly Core $core)
     {
+        $this->init();
+    }
+
+    /**
+     * Performs initialization tasks.
+     *
+     * @throws \App\Exceptions\Input\InvalidInputDeviceException
+     */
+    public function init(): void
+    {
         $inputDevice = Str::lower(Config::string('emulator.input_device'));
 
         $this->input = match ($inputDevice) {
@@ -55,7 +65,6 @@ class Input
      */
     public function check(): void
     {
-
         $this->input->check();
 
         if ($this->eventListener) {
