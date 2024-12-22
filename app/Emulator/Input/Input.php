@@ -40,7 +40,7 @@ class Input
         $this->input = match ($inputDevice) {
             NullDevice::INPUT_DEVICE => resolve(NullDevice::class),
             Keyboard::INPUT_DEVICE => resolve(Keyboard::class, ['input' => $this, 'isPrimaryInput' => true]),
-            default => new InvalidInputDeviceException($inputDevice),
+            default => throw new InvalidInputDeviceException($inputDevice),
         };
 
         if ($inputDevice === Keyboard::INPUT_DEVICE) {
@@ -55,6 +55,7 @@ class Input
      */
     public function check(): void
     {
+
         $this->input->check();
 
         if ($this->eventListener) {
@@ -96,5 +97,21 @@ class Input
     public function getInputState(): int
     {
         return $this->inputState;
+    }
+
+    /**
+     * Returns the current input device.
+     */
+    public function getInput(): InputInterface
+    {
+        return $this->input;
+    }
+
+    /**
+     * Returns the current event listener, if any.
+     */
+    public function getEventListener(): ?Keyboard
+    {
+        return $this->eventListener;
     }
 }
