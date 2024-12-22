@@ -13,6 +13,8 @@ use LaravelZero\Framework\Application;
 use Override;
 use Illuminate\Support\ServiceProvider;
 
+use function Laravel\Prompts\confirm;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -20,7 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (
+            extension_loaded('xdebug') &&
+            !app()->runningUnitTests() &&
+            !confirm('Xdebug is enabled. This can seriously hurt performance. Are you sure you want to continue?')
+        ) {
+            exit;
+        }
     }
 
     /**
