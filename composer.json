@@ -28,6 +28,7 @@
         "laravel/pint": "^1.18.1",
         "mockery/mockery": "^1.6.12",
         "pestphp/pest": "^3.5.1",
+        "php-mock/php-mock-phpunit": "^2.10",
         "rector/rector": "^2.0"
     },
     "autoload": {
