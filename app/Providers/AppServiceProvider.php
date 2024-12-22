@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if (
             extension_loaded('xdebug') &&
-            !app()->runningUnitTests() &&
+            (defined('ARTISAN_BINARY') && ARTISAN_BINARY !== 'pest') &&
             !confirm('Xdebug is enabled. This can seriously hurt performance. Are you sure you want to continue?')
         ) {
             exit;
