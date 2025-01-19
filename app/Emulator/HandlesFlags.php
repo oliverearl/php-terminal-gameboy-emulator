@@ -270,7 +270,9 @@ trait HandlesFlags
         $this->huc1 = $huc1;
     }
 
-    // TODO: Add docblock.
+    /**
+     * Return whether any MBC or rumble functionality is being used.
+     */
     public function isMbcRamUtilized(): bool
     {
         return $this->usesMbc1() || $this->usesMbc2() || $this->usesMbc3() || $this->usesMbc5() || $this->usesRumble();
