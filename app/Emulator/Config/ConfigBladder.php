@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Emulator\Config;
 
 use Illuminate\Support\Facades\Config;
@@ -48,11 +50,6 @@ class ConfigBladder
     private readonly int $resyncThresholdFrames;
 
     /**
-     * Frames per second of the emulator, used to calculate resync intervals.
-     */
-    private readonly int $framesPerSecond;
-
-    /**
      * ConfigBladder constructor.
      */
     public function __construct()
@@ -70,17 +67,17 @@ class ConfigBladder
         $this->storage = $this->flatten($this->nestedStorage);
 
         // TODO: Implement a means to retrieve these values from elsewhere in the program.
-        $this->framesPerSecond = 60;
+        $framesPerSecond = 60;
         $resyncIntervalSeconds = 30;
 
-        $this->resyncThresholdFrames = $resyncIntervalSeconds * $this->framesPerSecond;
+        $this->resyncThresholdFrames = $resyncIntervalSeconds * $framesPerSecond;
     }
 
     /**
      * Retrieve a flattened config value by key.
      *
-     * @param string $key     The dot-notation key to retrieve.
-     * @param mixed  $default The default value if the key does not exist.
+     * @param string $key The dot-notation key to retrieve.
+     * @param mixed $default The default value if the key does not exist.
      *
      * @return mixed The retrieved config value.
      */
@@ -100,8 +97,8 @@ class ConfigBladder
     /**
      * Retrieve a config value as a Boolean.
      *
-     * @param string $key     The dot-notation key to retrieve.
-     * @param bool   $default The default value if the key does not exist.
+     * @param string $key The dot-notation key to retrieve.
+     * @param bool $default The default value if the key does not exist.
      *
      * @return bool The retrieved Boolean value.
      */
@@ -113,8 +110,8 @@ class ConfigBladder
     /**
      * Retrieve a config value as an integer.
      *
-     * @param string $key     The dot-notation key to retrieve.
-     * @param int    $default The default value if the key does not exist.
+     * @param string $key The dot-notation key to retrieve.
+     * @param int $default The default value if the key does not exist.
      *
      * @return int The retrieved integer value.
      */
@@ -126,7 +123,7 @@ class ConfigBladder
     /**
      * Retrieve a config value as a string.
      *
-     * @param string $key     The dot-notation key to retrieve.
+     * @param string $key The dot-notation key to retrieve.
      * @param string $default The default value if the key does not exist.
      *
      * @return string The retrieved string value.
@@ -139,8 +136,8 @@ class ConfigBladder
     /**
      * Set a value in flattened, nested storage and mark it for deferred update.
      *
-     * @param string $key   The dot-notation key to set.
-     * @param mixed  $value The value to set.
+     * @param string $key The dot-notation key to set.
+     * @param mixed $value The value to set.
      */
     public function set(string $key, mixed $value): void
     {
@@ -187,7 +184,7 @@ class ConfigBladder
      * Flatten a nested array using dot notation.
      *
      * @param array<string, mixed> $array  The nested array to flatten.
-     * @param string               $prefix The key prefix used during recursion.
+     * @param string $prefix The key prefix used during recursion.
      *
      * @return array<string, mixed> The flattened array.
      */
@@ -212,8 +209,8 @@ class ConfigBladder
      * Set a value in a nested array structure using dot notation.
      *
      * @param array<string, mixed> $array The array to update.
-     * @param array<int, string>   $keys  The exploded dot-notation keys.
-     * @param mixed                $value The value to set.
+     * @param array<int, string> $keys  The exploded dot-notation keys.
+     * @param mixed $value The value to set.
      */
     private function setNestedValue(array &$array, array $keys, mixed $value): void
     {
