@@ -69,7 +69,7 @@ class LaravelCanvas implements DrawContextInterface
     /**
      * The timestamp of the current second used to calculate FPS.
      */
-    protected int $currentSecond = 0;
+    private int $currentSecond = 0;
 
     /**
      * The number of frames rendered in the current second.
