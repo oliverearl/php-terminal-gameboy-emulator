@@ -13,7 +13,6 @@ interface DrawContextInterface
      * Draw image on canvas.
      *
      * @param array<int, int|bool> $canvasBuffer If colored, each pixel => 4 items on array (RGBA).
-     * TODO: These arrays are woefully unoptimal. Refactor.
      */
     public function draw(array $canvasBuffer): void;
 
