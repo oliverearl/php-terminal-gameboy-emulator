@@ -10,7 +10,7 @@ trait HandlesCbOpcodes
     /**
      * Run the given CB Opcode.
      */
-    public function runCbopcode(int $address): void
+    public function runCbOpcode(int $address): void
     {
         match ($address) {
             1 => $this->cbOpcode1(), 2 => $this->cbOpcode2(), 3 => $this->cbOpcode3(),

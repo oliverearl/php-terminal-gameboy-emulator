@@ -2723,7 +2723,7 @@ trait HandlesOpcodes
         //Get how many CPU cycles the current 0xCBXX op code counts for:
         $this->CPUTicks = self::SECONDARY_TABLE[$opcode];
         //Execute secondary OP codes for the 0xCB OP code call.
-        $this->runCbopcode($opcode);
+        $this->runCbOpcode($opcode);
     }
 
     /**

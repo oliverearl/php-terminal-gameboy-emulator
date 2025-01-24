@@ -7,7 +7,7 @@ namespace App\Emulator;
 use App\Emulator\Canvas\DrawContextInterface;
 use App\Emulator\Cartridge\Cartridge;
 use App\Emulator\Config\ConfigBladder;
-use App\Emulator\Cpu\HandlesCbopcodes;
+use App\Emulator\Cpu\HandlesCbOpcodes;
 use App\Emulator\Cpu\HandlesOpcodes;
 use App\Emulator\Cpu\ProvidesDataTables;
 use App\Emulator\Cpu\ProvidesTickTables;
@@ -21,7 +21,7 @@ use Exception;
 
 class Core
 {
-    use HandlesCbopcodes;
+    use HandlesCbOpcodes;
     use HandlesFlags;
     use HandlesOpcodes;
     use ProvidesDataTables;
