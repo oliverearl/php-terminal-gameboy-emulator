@@ -104,7 +104,7 @@ class LcdController
                     $this->scanLineMode2(); // mode2: 80 cycles
                     if ($this->core->LCDTicks >= 114) {
                         //We need to skip 1 or more scan lines:
-                        $this->core->notifyScanline();
+                        $this->notifyScanline();
                         $this->scanLine($this->actualScanLine); //Scan Line and STAT Mode Control
                     }
                 }
