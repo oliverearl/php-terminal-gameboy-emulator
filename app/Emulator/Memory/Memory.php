@@ -91,14 +91,14 @@ class Memory
         $romSize = $this->core->cartridge->getRom()->count();
 
         // Read the cartridge ROM data from RAM memory:
-        $this->memory->currentROMBank = match ($this->memory->ROMBank1offs) {
+        $this->currentROMBank = match ($this->ROMBank1offs) {
             //Bank calls for 0x00, 0x20, 0x40, and 0x60 are really for 0x01, 0x21, 0x41, and 0x61.
-            0x00, 0x20, 0x40, 0x60 => $this->memory->ROMBank1offs * 0x4000,
-            default => ($this->memory->ROMBank1offs - 1) * 0x4000,
+            0x00, 0x20, 0x40, 0x60 => $this->ROMBank1offs * 0x4000,
+            default => ($this->ROMBank1offs - 1) * 0x4000,
         };
 
-        while ($this->memory->currentROMBank + 0x4000 >= $romSize) {
-            $this->memory->currentROMBank -= $romSize;
+        while ($this->currentROMBank + 0x4000 >= $romSize) {
+            $this->currentROMBank -= $romSize;
         }
     }
 
