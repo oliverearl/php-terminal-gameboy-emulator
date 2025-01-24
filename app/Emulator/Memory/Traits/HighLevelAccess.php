@@ -293,7 +293,7 @@ trait HighLevelAccess
                 } else {
                     //We might have encountered illegal RAM writing or such, so just do nothing...
                 }
-            } elseif ($this->core->cHuC3) {
+            } elseif ($this->core->huc3) {
                 if ($address < 0x2000) {
                     //MBC RAM Bank Enable/Disable:
                     $this->MBCRAMBanksEnabled = (($data & 0x0F) === 0x0A); //If lower nibble is 0x0A, then enable, otherwise disable.
